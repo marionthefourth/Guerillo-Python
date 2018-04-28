@@ -137,7 +137,7 @@ bin/py/
 py/
 # Shared
 pyvenv.cfg
-
+.idea/
 
 ### Windows ###
 # Windows thumbnail cache files
