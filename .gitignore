@@ -126,13 +126,15 @@ __pycache__
 Guerillo-Python.iml
 workspace.xml
 pip-selfcheck.json
-
-
+bin\
+lib\
+bin\py\
 # Window
 Include/
 Lib/
 Scripts/
-
+bin/py/
+py/
 # Shared
 pyvenv.cfg
 
