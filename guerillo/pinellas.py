@@ -122,7 +122,7 @@ def create_bookpage_list(deeds_list,mortgages_list): #only necessary for qualify
                     list.append([entry[0], item[5], entry[2], entry[8],item[8]])#name from m.entry, bookpage from d.item
     return list
 
-def writeCsvFile(file_name, list_of_lists, *args, **kwargs):
+def write_csv_file(file_name, list_of_lists, *args, **kwargs):
     mycsv = csv.writer(open(file_name, 'w', newline=''), *args, **kwargs)
     for row in list_of_lists:
         mycsv.writerow(row)
@@ -189,7 +189,7 @@ now = datetime.now()
 report_suffix = now.strftime("%Y-%m-%d %H-%M.csv")
 report_file_name = reports_path+report_suffix
 
-writeCsvFile(report_file_name,new_bookpage_list)
+write_csv_file(report_file_name, new_bookpage_list)
 
 driver.close()
 """ 
