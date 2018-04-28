@@ -2,13 +2,13 @@ from .config import General
 
 
 class Type:
-    TEST_MENU = "test_menu"
     FILES = "files"
+    TEST_MENU = "test_menu"
     DELETE_IDS = "delete_ids"
-    START_SCUTI = "start_guerillo"
+    START_GUERILLO = "start_guerillo"
     DELETE_TERMS = "delete_terms"
     START_SEARCH = "start_search"
-    RESTART_SCUTI = "restart_guerillo"
+    RESTART_GUERILLO = "restart_guerillo"
     RESTART_SEARCH = "restart_search"
     MANIPULATE_IDS = "manipulate_ids"
     SELECT_SEARCH_TERMS = "select_search_terms"
