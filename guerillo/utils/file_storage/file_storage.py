@@ -82,6 +82,31 @@ class FileStorage:
             FileExtensions.TXT: FileHeaders.LINKS_RESULT
         }.get(file_extension, FileHeaders.MCAT if secondary_extension is FileExtensions.MP3 else FileHeaders.LCAT)
 
+    @staticmethod
+    def get_csv_file_header(file_extension):
+        return {
+            FileExtensions.TXT: (
+                Storage.UID,
+                Storage.INDEX,
+                Storage.TERMS,
+                Storage.NUM_RESULTS,
+                Storage.DATE,
+                Storage.TIME
+            ),
+        }.get(file_extension, ())
+
+    @staticmethod
+    def get_csv_file_row(file_extension, values):
+        return {
+            FileExtensions.TXT: (
+                values[Storage.UID],
+                values[Storage.INDEX],
+                values[Storage.TERMS],
+                values[Storage.NUM_RESULTS],
+                values[Storage.DATE],
+                values[Storage.TIME]
+            ),
+        }.get(file_extension, ())
 
     @staticmethod
     def direct_to_folder(file_path, folder):
