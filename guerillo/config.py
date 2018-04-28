@@ -98,8 +98,6 @@ class Classes:
     STRING = "String"
     MULTIPLE = "Multiple"
     COUNTING_NUMBERS = "Counting_Numbers"
-    USER = "User"
-    FIPS = "FIPS"
 
 
 class General:
@@ -125,5 +123,6 @@ class HTML:
     WWW = "www"
     Q = "&q="
     HREF = "href"
+    HTML_BUTTON_ID = "id_button_1324123_friend"
     A = "a"
     DIV = "div"
