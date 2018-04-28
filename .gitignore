@@ -163,3 +163,6 @@ $RECYCLE.BIN/
 
 
 # End of https://www.gitignore.io/api/venv,macos,linux,dropbox,windows,jetbrains
+lib/python3.6/site-packages/pip-9.0.1-py3.6.egg/pip/_vendor/pkg_resources/__init__.py
+lib/python3.6/site-packages/pip-9.0.1-py3.6.egg/pip/_vendor/pkg_resources/__init__.py
+lib/python3.6/site-packages/pip-9.0.1-py3.6.egg/pip/_vendor/pkg_resources/__init__.py
