@@ -6,8 +6,7 @@
 .dropbox
 .dropbox.attr
 .dropbox.cache
-__pycache__
-.idea/
+
 
 ### JetBrains ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and Webstorm
@@ -121,6 +120,13 @@ Temporary Items
 bin/
 lib/
 include/
+__pycache__
+\.idea\
+\venv\
+Guerillo-Python.iml
+workspace.xml
+pip-selfcheck.json
+
 
 # Window
 Include/
