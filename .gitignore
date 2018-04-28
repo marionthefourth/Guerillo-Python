@@ -138,7 +138,8 @@ py/
 # Shared
 pyvenv.cfg
 .idea/
-
+.idea\
+.idea/workspace.xml
 ### Windows ###
 # Windows thumbnail cache files
 Thumbs.db
