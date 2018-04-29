@@ -10,11 +10,15 @@ class AuxiliaryType(Enum):
 
 class AuxiliaryObject(BackendObject):
 
-    def __init__(self, uid=None, connected_uid_list=None, container_uid=None, aux_type=None):
+    def __init__(self, uid=None, connected_uid_list=None, container_uid=None, aux_type=None, obj=None):
         super().__init__(uid)
         self.aux_type = aux_type
         self.container_uid = container_uid
-        self.connected_uid_list = connected_uid_list
+
+        if obj is None:
+            self.connected_uid_list = connected_uid_list
+        else:
+            self.from_dictionary(obj=obj)
 
     def connected_uid_list_to_dictionary(self):
         connected_uid_dict = None
@@ -27,6 +31,13 @@ class AuxiliaryObject(BackendObject):
             return "user"
         else:
             return "county"
+
+    def from_dictionary(self, obj=None):
+        super().from_dictionary(obj=obj)
+        self.connected_uid_list = list()
+        for key in obj:
+            if self.aux_type+"_uid_" in key:
+                self.connected_uid_list.append(obj[key])
 
     def to_dictionary(self):
         if self.connected_uid_list is not None:
