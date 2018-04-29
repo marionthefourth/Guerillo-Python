@@ -1,4 +1,4 @@
-from guerillo.backend.firebase_backend import FirebaseModule
+from guerillo.backend.backend import Backend
 
 
 class BackendObject:
@@ -10,7 +10,7 @@ class BackendObject:
             self.generate_uid()
 
     def generate_uid(self):
-        self.uid = FirebaseModule.get().database().generate_key()
+        self.uid = Backend.get().database().generate_key()
 
     def to_dictionary(self):
         return {
