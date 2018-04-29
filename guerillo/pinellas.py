@@ -94,43 +94,48 @@ def scrape_location_addresses_with_bookpage(bookpage_list):
             # wait for load, then get the link (hardcoded because always one result)
             wait_for_id("linkBar")
             aTags = driver.find_element_by_id("ITB").find_elements_by_tag_name("a")
-            driver.get(aTags[1].get_attribute("href"))
-            while True:
-                try:
-                    driver.switch_to.default_content()
-                    # wait for load, then switch to the frame with the data
-                    wait_for_name("bodyFrame")
-                    driver.switch_to.frame(driver.find_element_by_name("bodyFrame"))
-                    # relaible way to get address is to go to tax estimator link from here
-                    a_tags = []
-                    a_tags = driver.find_elements_by_tag_name("a")
-                    for tag in a_tags:
-                        if tag.text == "Tax Estimator":
-                            driver.get(tag.get_attribute("href"))
-                            break
-                    break
-                except UnexpectedAlertPresentException:
-                    alert = driver.switch_to.alert
-                    alert.accept()
-            #here we handle if we ended up at the tax assessor
-            button_tags = driver.find_elements_by_tag_name("button")
-            for button in button_tags:
-                if button.text == "I agree":
-                    button.send_keys(Keys.SPACE)
-            wait_for_id("addr_ns")
-            site_address = driver.find_element_by_id("addr_ns").get_attribute("value")
-            bookpage[1] = site_address
-            bookpage[5] = "Very High"
+            if len(aTags)==0:
+                bookpage[1]="No Book/Page"
+            else:
+                driver.get(aTags[1].get_attribute("href"))
+                while True:
+                    try:
+                        driver.switch_to.default_content()
+                        # wait for load, then switch to the frame with the data
+                        wait_for_name("bodyFrame")
+                        driver.switch_to.frame(driver.find_element_by_name("bodyFrame"))
+                        # relaible way to get address is to go to tax estimator link from here
+                        a_tags = []
+                        a_tags = driver.find_elements_by_tag_name("a")
+                        for tag in a_tags:
+                            if tag.text == "Tax Estimator":
+                                driver.get(tag.get_attribute("href"))
+                                break
+                        break
+                    except UnexpectedAlertPresentException:
+                        alert = driver.switch_to.alert
+                        alert.accept()
+                #here we handle if we ended up at the tax assessor
+                button_tags = driver.find_elements_by_tag_name("button")
+                for button in button_tags:
+                    if button.text == "I agree":
+                        button.send_keys(Keys.SPACE)
+                wait_for_id("addr_ns")
+                site_address = driver.find_element_by_id("addr_ns").get_attribute("value")
+                bookpage[1] = site_address
+                if bookpage[0]!="" and bookpage[1] !="":
+                    bookpage[5] = "Very High"
 
 def create_bookpage_list(deeds_list,mortgages_list):
     #remember that we're checking the mortgages (because we want those leads; deeds alone might not be the right kind)
     #but we need to pull the DEED bookpage number
     list = [["Name","Address","Date/Time","Amount of Mortgage","Property Sale Price","Confidence"]]
     for entry in mortgages_list:
-        for item in deeds_list:
-            if entry[0] == item[1]:#checks the mortgage entry name to find the right deed item
-                list.append([entry[0], item[5], entry[2], entry[8],item[8],""])
-                # name from M, bookpage from D, date/time from M, mortgage amount from M, saleprice from D
+        if entry[0]!="":
+            for item in deeds_list:
+                if entry[0] == item[1]:#checks the mortgage entry name to find the right deed item
+                    list.append([entry[0], item[5], entry[2], entry[8],item[8],""])
+                    # name from M, bookpage from D, date/time from M, mortgage amount from M, saleprice from D
     return list
 
 def write_csv_file(file_name, list_of_lists, *args, **kwargs):
@@ -140,10 +145,10 @@ def write_csv_file(file_name, list_of_lists, *args, **kwargs):
 
 """--Functions"""
 
-startDate = "03/18/2018"
-endDate = "03/19/2018"
-lower_bound = "9999999999"
-upper_bound = "99999999999"
+startDate = "04/16/2018"
+endDate = "04/26/2018"
+lower_bound = "200000"
+upper_bound = "600000"
 
 # store target URL as variable - this will be dynamic from user input (hills or pinellas)
 tURL = 'https://officialrecords.mypinellasclerk.org/search/SearchTypeConsideration'
@@ -161,7 +166,7 @@ for row in clear_and_send_list:
 # time to search
 driver.find_element_by_id("btnSearch").click()
 # for it to load fully
-wait_for_class("t-grid-content",timeout=8,exit_message="No results found. Try a different query.")
+wait_for_class("t-grid-content",timeout=20,exit_message="No results found. Try a different query.")
 
 while True:
     try:
@@ -192,12 +197,15 @@ m_list = d_and_m[1]
 
 new_bookpage_list = create_bookpage_list(d_list,m_list)
 scrape_location_addresses_with_bookpage(new_bookpage_list)
+secondary_searchable_list = new_bookpage_list
 print(new_bookpage_list)
 now = datetime.now()
+
+#TODO: secondary search function run here on secondary_searchable_list
+
 report_suffix = now.strftime("%Y-%m-%d %H-%M.csv")
 report_file_name = reports_path+report_suffix
-
-write_csv_file(report_file_name, new_bookpage_list)
+write_csv_file(report_file_name, new_bookpage_list) #TODO: change the file to secondary_searchable_list
 
 driver.close()
 os.startfile(report_file_name)
@@ -211,12 +219,7 @@ os.startfile(report_file_name)
 [5] = Book/Page
 [6] = Legal desc
 [7] = instrument #
-[8] = considerationg (with cents formated .0000)
+[8] = consideration (with cents formatted .0000)
 
 """
 
-
-#TODO: Entirely reconfigure the logic for 'old enough'. Look through entire list of original data
-#and grab book page. Do the bookpage search on all items older than a week
-#any of the ones that don't return a result on the bookpage search are noted/logged
-#those noted/logged then are searched for the convoluted way
