@@ -24,15 +24,23 @@ chrome_options.add_experimental_option('prefs', prefs)
 from bs4 import BeautifulSoup as soup
 from selenium.webdriver.common.keys import Keys
 from datetime import date, time, datetime, timedelta
+import time
 
 """Functions--"""
 
-def wait_for_class(class_name):  # TODO: need to add timeout functionality
+def wait_for_class(class_name,timeout=None,exit_message=""):
+    if timeout is not None:
+        start_time = time.time()
     while True:
         try:
             driver.find_element_by_class_name(class_name)
             break
         except NoSuchElementException:
+            if timeout is not None:
+                if (time.time()-start_time)>=timeout:
+                    print(exit_message)
+                    driver.quit()
+                    quit()
             pass
 
 def wait_for_id(id):  # TODO: need to add timeout functionality
@@ -50,6 +58,10 @@ def wait_for_name(name):  # TODO: need to add timeout functionality
             break
         except NoSuchElementException:
             pass
+
+def clear_and_send(ele_id,text_to_send):
+    driver.find_element_by_id(ele_id).clear()
+    driver.find_element_by_id(ele_id).send_keys(text_to_send)
 
 def csv_to_deeds_and_mortgages(file_name):
     # open file and turn the lines into a list of strings
@@ -108,18 +120,17 @@ def scrape_location_addresses_with_bookpage(bookpage_list):
             wait_for_id("addr_ns")
             site_address = driver.find_element_by_id("addr_ns").get_attribute("value")
             bookpage[1] = site_address
+            bookpage[5] = "Very High"
 
-def create_bookpage_list(deeds_list,mortgages_list): #only necessary for qualifying entries, i.e., old enough (~30 days)
+def create_bookpage_list(deeds_list,mortgages_list):
     #remember that we're checking the mortgages (because we want those leads; deeds alone might not be the right kind)
     #but we need to pull the DEED bookpage number
-    cutoff_date = date.today() - timedelta(days=30)
-    list = [["Name","Address","Date/Time","Amount of Mortgage","Property Sale Price"]]
+    list = [["Name","Address","Date/Time","Amount of Mortgage","Property Sale Price","Confidence"]]
     for entry in mortgages_list:
-        date_sold = datetime.strptime(entry[2].split(" ")[0], "%m/%d/%Y").date()
-        if date_sold <= cutoff_date:
-            for item in deeds_list:
-                if entry[0] == item[1]:#checks the mortgage entry name to find the right deed item
-                    list.append([entry[0], item[5], entry[2], entry[8],item[8]])#name from m.entry, bookpage from d.item
+        for item in deeds_list:
+            if entry[0] == item[1]:#checks the mortgage entry name to find the right deed item
+                list.append([entry[0], item[5], entry[2], entry[8],item[8],""])
+                # name from M, bookpage from D, date/time from M, mortgage amount from M, saleprice from D
     return list
 
 def write_csv_file(file_name, list_of_lists, *args, **kwargs):
@@ -131,35 +142,27 @@ def write_csv_file(file_name, list_of_lists, *args, **kwargs):
 
 startDate = "03/18/2018"
 endDate = "03/19/2018"
-lower_bound = "200000"
-upper_bound = "500000"
+lower_bound = "9999999999"
+upper_bound = "99999999999"
 
 # store target URL as variable - this will be dynamic from user input (hills or pinellas)
 tURL = 'https://officialrecords.mypinellasclerk.org/search/SearchTypeConsideration'
-driver = wd.Chrome(chrome_options=chrome_options)
+driver = wd.Chrome(root_path+"\\bin\\webdriver\\chromedriver.exe",chrome_options=chrome_options)
 driver.get(tURL)
-
 # hit the accept button to be able to do anything else
 driver.find_element_by_id("btnButton").click()
 # date range entry
-dateFrom = driver.find_element_by_id("RecordDateFrom")
-dateFrom.clear()
-dateFrom.send_keys(startDate)
-dateTo = driver.find_element_by_id("RecordDateTo")
-dateTo.clear()
-dateTo.send_keys(endDate)
-# upper/lower bound entry
-lowerBound = driver.find_element_by_id("LowerBound")
-lowerBound.clear()
-lowerBound.send_keys(lower_bound)
-upperBound = driver.find_element_by_id("UpperBound")
-upperBound.clear()
-upperBound.send_keys(upper_bound)
+clear_and_send_list = [["RecordDateFrom",startDate],
+                       ["RecordDateTo",endDate],
+                       ["LowerBound",lower_bound],
+                       ["UpperBound",upper_bound]]
+for row in clear_and_send_list:
+    clear_and_send(row[0],row[1])
 # time to search
 driver.find_element_by_id("btnSearch").click()
-
 # for it to load fully
-wait_for_class("t-grid-content")
+wait_for_class("t-grid-content",timeout=8,exit_message="No results found. Try a different query.")
+
 while True:
     try:
         driver.find_element_by_class_name("t-no-data")
@@ -170,7 +173,12 @@ driver.find_element_by_id("btnCsvButton").click()
 
 """--Let's crack open the cold one with the bois"""
 # wait for download
-while (not os.path.isfile(exports_path + "\\SearchResults.csv")):
+start_time=time.time()
+while not os.path.isfile(exports_path + "\\SearchResults.csv"):
+    if (time.time()-start_time)>=8:
+        print("Error in downloading data. Please try again. If the problem persists, cry heck and let loose the doggos of war.")
+        driver.quit()
+        quit()
     pass
 # rename
 nowTime = str(datetime.now()).replace(":", "").replace(".", "-")
@@ -192,6 +200,7 @@ report_file_name = reports_path+report_suffix
 write_csv_file(report_file_name, new_bookpage_list)
 
 driver.close()
+os.startfile(report_file_name)
 """ 
 ---Handy Legend---
 [0] = Direct Name
