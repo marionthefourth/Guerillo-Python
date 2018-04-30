@@ -95,9 +95,12 @@ class Backend:
         for backend_obj in counties_by_state.each():
             from guerillo.classes.county import County
             county = County(pyre=backend_obj, uid="")
-            if county.state_name == state_name or county.county_name == county_name:
+            if (county.state_name == state_name or county.county_name == county_name) \
+                    or (state_name is None and county_name is None):
                 county.lock = Backend.read(type=BackendType.LOCK, uid=county.lock.uid)
                 county.request_queue = Backend.read(type=BackendType.REQUEST_QUEUE, uid=county.request_queue.uid)
+                if county_name is not None:
+                    return county
                 counties.append(county)
         return counties
 

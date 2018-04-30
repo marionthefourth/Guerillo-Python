@@ -42,11 +42,32 @@ class County(BackendObject):
     def generate_lock(self):
         self.lock = AuxiliaryObject(container_uid=self.uid, type=BackendType.LOCK)
 
-    def encode_to_user(self, user_uid):
-        return Fernet(self.key).encrypt((self.uid + user_uid).encode("utf-8"))
+    def register_to_user(self, user):
+        # Add to Lock
+        self.lock.connect(user)
+        from guerillo.backend.backend import Backend
+        Backend.update(self.lock)
+        # Add To User's Keychain
+        user.keychain.connect(self)
+        Backend.update(user.keychain)
+
+    def deregister_from_user(self, user):
+        # Remove from Lock
+        self.lock.disconnect(user)
+        from guerillo.backend.backend import Backend
+        Backend.update(self.lock)
+        # Remove from User's Keychain
+        user.keychain.disconnect(self)
+        Backend.update(user.keychain)
+
+    def authenticate_user(self, user):
+        return user in self.lock.connected_uids_list
+
+    def encode(self, user):
+        return Fernet(self.key).encrypt((self.uid + user.uid).encode("utf-8"))
 
     def decode(self, user_id):
-        return Fernet(self.key).decrypt(self.encode_to_user(user_id))
+        return Fernet(self.key).decrypt(self.register_to_user(user_id))
 
     def get_full_fips_code(self):
         return self.state_fips + self.county_fips

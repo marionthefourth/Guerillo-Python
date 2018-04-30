@@ -23,6 +23,24 @@ class User(BackendObject):
         else:
             self.from_dictionary(pyres=pyres, pyre=pyre)
 
+    def request(self, county):
+        if county.request_queue.connected_uids_list is None:
+            county.request_queue.connected_uids_list = list()
+
+        if self.uid not in county.request_queue.connected_uids_list:
+            county.request_queue.connect(self)
+            from guerillo.backend.backend import Backend
+            Backend.update(county.request_queue)
+
+    def dequest(self, county):
+        if county.request_queue.connected_uids_list is None:
+            county.request_queue.connected_uids_list = list()
+
+        if self.uid in county.request_queue.connected_uids_list:
+            county.request_queue.disconnect(self)
+            from guerillo.backend.backend import Backend
+            Backend.update(county.request_queue)
+
     def from_dictionary(self, pyres=None, pyre=None):
         dictionary = super().from_dictionary(pyres=pyres, pyre=pyre)
         self.email = dictionary["email"]

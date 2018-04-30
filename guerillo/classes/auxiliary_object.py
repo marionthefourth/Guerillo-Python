@@ -34,15 +34,33 @@ class AuxiliaryObject(BackendObject):
         else:
             connected_uid_key = "user"
 
-            connected_uid_key += "_uid_"
+        connected_uid_key += "_uid_"
 
         if index is not None:
-            connected_uid_key += index
+            connected_uid_key += str('{:03d}'.format(index+1))
 
         return connected_uid_key
 
+    def connect(self, item):
+        if self.connected_uid_list is None:
+            self.connected_uid_list = list()
+            self.connected_uid_list.append(item.uid)
+            return
+
+        if item.uid not in self.connected_uid_list:
+            self.connected_uid_list.append(item.uid)
+
+    def disconnect(self, item):
+        if self.connected_uid_list is None:
+            self.connected_uid_list = list()
+            return
+
+        if item.uid in self.connected_uid_list:
+            self.connected_uid_list = [x if x != item.uid else "" for x in self.connected_uid_list]
+            # self.connected_uid_list.remove(item.uid)
+
     def from_dictionary(self, pyres=None, pyre=None):
-        dictionary = super().pyres_to_dictionary(pyres=pyres, pyre=pyre)
+        dictionary = super().from_dictionary(pyres=pyres, pyre=pyre)
         self.connected_uid_list = list()
         for key in dictionary:
             if self.get_connected_uid_key() in key:
@@ -51,7 +69,7 @@ class AuxiliaryObject(BackendObject):
         self.container_uid = dictionary[AuxiliaryObject.get_container_key(self.type)]
 
     def to_dictionary(self):
-        if self.connected_uid_list is not None:
+        if self.connected_uid_list is not None and len(self.connected_uid_list) != 0:
             return {
                 **super().to_dictionary(),
                 **{AuxiliaryObject.get_container_key(self.type): self.container_uid},
