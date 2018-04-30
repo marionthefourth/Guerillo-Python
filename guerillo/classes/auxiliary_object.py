@@ -5,15 +5,15 @@ class AuxiliaryObject(BackendObject):
 
     type = BackendType.AUX
 
-    def __init__(self, uid=None, connected_uid_list=None, container_uid=None, type=None, obj=None):
+    def __init__(self, uid=None, connected_uid_list=None, container_uid=None, type=None, pyres=None, pyre=None):
         super().__init__(uid)
         self.type = type
         self.container_uid = container_uid
 
-        if obj is None:
+        if pyres is None and pyre is None:
             self.connected_uid_list = connected_uid_list
         else:
-            self.from_dictionary(obj=obj)
+            self.from_dictionary(pyres=pyres, pyre=pyre)
 
     def get_connected_uid_dictionary(self):
         connected_uid_dict = dict()
@@ -41,8 +41,8 @@ class AuxiliaryObject(BackendObject):
 
         return connected_uid_key
 
-    def from_dictionary(self, obj=None):
-        dictionary = super().from_dictionary(obj=obj)
+    def from_dictionary(self, pyres=None, pyre=None):
+        dictionary = super().pyres_to_dictionary(pyres=pyres, pyre=pyre)
         self.connected_uid_list = list()
         for key in dictionary:
             if self.get_connected_uid_key() in key:

@@ -60,16 +60,17 @@ class CensusCountyAPI:
             if state_filter is not None and state_filter == data[0]:
                 if county_filter is None:
                     counties.append(county)
+                    continue
                 elif county_filter == data[3]:
-                    return county
+                    return [county]
 
             if county_filter is not None and county_filter == data[3]:
                     if state_filter is None:
-                        return "Not Found"
+                        return ["Not Found"]
                     elif state_filter == data[0]:
-                        return county
+                        return [county]
 
-            if county_filter is None and county_filter is None:
+            if state_filter is None and county_filter is None:
                 counties.append(county)
 
             print(county.to_dictionary())

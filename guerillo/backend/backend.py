@@ -71,20 +71,35 @@ class Backend:
         if type == BackendType.COUNTY:
             # Read County Data
             from guerillo.classes.county import County
-            county = County(obj=backend_obj, uid="")
+            county = County(pyres=backend_obj, uid="")
             county.lock = Backend.read(type=BackendType.LOCK, uid=county.lock.uid)
             county.request_queue = Backend.read(type=BackendType.REQUEST_QUEUE, uid=county.request_queue.uid)
             return county
         elif type == BackendType.USER:
             # Read User Data
             from guerillo.classes.user import User
-            user = User(obj=backend_obj)
+            user = User(pyres=backend_obj)
             user.keychain = Backend.read(type=BackendType.KEYCHAIN, uid=user.keychain.uid)
             return user
         else:
             # Read User Keychain, County Lock or Request Queue
             from guerillo.classes.auxiliary_object import AuxiliaryObject
-            return AuxiliaryObject(type=type, obj=backend_obj)
+            return AuxiliaryObject(type=type, pyres=backend_obj)
+
+    @staticmethod
+    def get_counties(state_name=None, county_name=None):
+        counties = list()
+        from guerillo.classes.backend_object import BackendType
+        counties_by_state = Backend.get().database().child(Backend.get_type_folder(BackendType.COUNTY)).get()
+
+        for backend_obj in counties_by_state.each():
+            from guerillo.classes.county import County
+            county = County(pyre=backend_obj, uid="")
+            if county.state_name == state_name or county.county_name == county_name:
+                county.lock = Backend.read(type=BackendType.LOCK, uid=county.lock.uid)
+                county.request_queue = Backend.read(type=BackendType.REQUEST_QUEUE, uid=county.request_queue.uid)
+                counties.append(county)
+        return counties
 
     @staticmethod
     def get_configuration():

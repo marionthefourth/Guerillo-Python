@@ -28,15 +28,18 @@ class BackendObject:
         self.uid = Backend.get().database().generate_key()
 
     @staticmethod
-    def pyre_to_dictionary(obj=None):
+    def pyres_to_dictionary(pyres=None, pyre=None):
         dictionary = dict()
-        for item in obj.pyres:
-            dictionary[item.item[0]] = item.item[1]
+        if pyres is not None:
+            for item in pyres.pyres:
+                dictionary[item.item[0]] = item.item[1]
+        elif pyre is not None:
+            dictionary = pyre.item[1]
 
         return dictionary
 
-    def from_dictionary(self, obj=None):
-        dictionary = BackendObject.pyre_to_dictionary(obj=obj)
+    def from_dictionary(self, pyres=None, pyre=None):
+        dictionary = BackendObject.pyres_to_dictionary(pyres=pyres, pyre=pyre)
         self.uid = dictionary["uid"]
         return dictionary
 

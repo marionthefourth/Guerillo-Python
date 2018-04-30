@@ -9,16 +9,16 @@ class County(BackendObject):
     type = BackendType.COUNTY
 
     def __init__(self, state_fips=None, county_fips=None, key=None, state_name=None, county_name=None,
-                 uid=None, lock=None, request_queue=None, obj=None):
+                 uid=None, lock=None, request_queue=None, pyres=None, pyre=None):
         super().__init__(uid=uid)
         self.state_fips = state_fips
         self.state_name = state_name
         self.county_fips = county_fips
         self.county_name = county_name
         self.lock = AuxiliaryObject(container_uid=self.uid, type=BackendType.LOCK)
-        self.request_queue = AuxiliaryObject(container_uid=self.uid, type=BackendType.REQUEST)
+        self.request_queue = AuxiliaryObject(container_uid=self.uid, type=BackendType.REQUEST_QUEUE)
 
-        if obj is None:
+        if pyres is None and pyre is None:
             if key is not None:
                 self.key = key
             else:
@@ -31,7 +31,10 @@ class County(BackendObject):
                 self.request_queue = request_queue
 
         else:
-            self.from_dictionary(obj=obj)
+            self.from_dictionary(pyres=pyres, pyre=pyre)
+
+    def __repr__(self):
+        return self.get_full_fips_code() + " - " + self.county_name + ", " + self.state_name
 
     def generate_key(self):
         self.key = Fernet.generate_key()
@@ -51,15 +54,15 @@ class County(BackendObject):
     def get_state_and_county(self):
         return self.county_name + ", " + self.state_name
 
-    def from_dictionary(self, obj=None):
-        dictionary = super().from_dictionary(obj=obj)
+    def from_dictionary(self, pyres=None, pyre=None):
+        dictionary = super().from_dictionary(pyres=pyres, pyre=pyre)
         self.state_name = dictionary["state_name"]
         self.state_fips = dictionary["state_fips"]
         self.county_name = dictionary["county_name"]
         self.county_fips = dictionary["county_fips"]
         self.key = dictionary["key"].encode("utf-8")
         self.lock.uid = dictionary["lock_uid"]
-        self.request_queue = dictionary["request_queue_uid"]
+        self.request_queue.uid = dictionary["request_queue_uid"]
 
     def to_dictionary(self):
         return {
