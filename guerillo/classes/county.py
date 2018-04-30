@@ -34,7 +34,10 @@ class County(BackendObject):
             self.from_dictionary(pyres=pyres, pyre=pyre)
 
     def __repr__(self):
-        return self.get_full_fips_code() + " - " + self.county_name + ", " + self.state_name
+        return super().__repr__() + self.get_full_fips_code() + " - " + self.county_name + ", " + self.state_name
+
+    def __str__(self):
+        return super().__str__() + self.get_full_fips_code() + " - " + self.county_name + ", " + self.state_name
 
     def generate_key(self):
         self.key = Fernet.generate_key()

@@ -24,6 +24,12 @@ class BackendObject:
         else:
             self.generate_uid()
 
+    def __repr__(self):
+        return self.type.__str__() + ": "
+
+    def __str__(self):
+        return self.type.__str__() + ": "
+
     def generate_uid(self):
         self.uid = Backend.get().database().generate_key()
 
