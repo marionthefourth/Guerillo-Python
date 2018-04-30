@@ -1,4 +1,4 @@
-from .backend_object import BackendObject
+from guerillo.classes.backend_object import BackendObject
 
 
 class HomeownerSearchResult(BackendObject):

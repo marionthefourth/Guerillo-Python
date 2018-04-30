@@ -1,4 +1,4 @@
-from guerillo.FIPS import FIPS
+from guerillo.classes.county import County
 from guerillo.utils.data_sanitizers.sanitizer import Sanitizer
 from guerillo.utils.file_storage.file_storage import FileStorage
 
@@ -42,11 +42,11 @@ class CensusCountyAPI:
         return states_with_counties_list
 
     @staticmethod
-    def get_fips(state_filter=None, county_filter=None):
+    def get_counties(state_filter=None, county_filter=None):
         """ Read Text File Containing Data """
         text_file = FileStorage.read("national_county.txt")
 
-        fips_list = list()
+        counties = list()
 
         state_filter = Sanitizer.state_name(state_filter)
         county_filter = Sanitizer.county_name(county_filter, ending=True)
@@ -55,34 +55,30 @@ class CensusCountyAPI:
             """ Check State Abbreviation Against Previous Abbreviation """
             # if different or empty, has moved on to new state
             data = line.split(",")
-            fips = FIPS(
-                state_name=data[0],
-                state_code=data[1],
-                county_code=data[2],
-                county_name=data[3]
-            )
+            county = County(state_name=data[0], state_fips=data[1], county_fips=data[2], county_name=data[3])
 
             if state_filter is not None and state_filter == data[0]:
                 if county_filter is None:
-                    fips_list.append(fips)
+                    counties.append(county)
+                    continue
                 elif county_filter == data[3]:
-                    return fips
+                    return [county]
 
             if county_filter is not None and county_filter == data[3]:
                     if state_filter is None:
-                        return "Not Found"
+                        return ["Not Found"]
                     elif state_filter == data[0]:
-                        return fips
+                        return [county]
 
-            if county_filter is None and county_filter is None:
-                fips_list.append(fips)
+            if state_filter is None and county_filter is None:
+                counties.append(county)
 
-            print(fips.to_dictionary())
+            print(county.to_dictionary())
 
-        return fips_list
+        return counties
 
     @staticmethod
-    def get_state(fips=None, county_name=None):
+    def get_state_name(fips=None, county_name=None):
         text_file = FileStorage.read("national_county.txt")
 
         county_name = Sanitizer.county_name(county_name, ending=True)
@@ -97,7 +93,7 @@ class CensusCountyAPI:
         return "Not found"
 
     @staticmethod
-    def get_county(fips):
+    def get_county_name(fips):
         text_file = FileStorage.read("national_county.txt")
 
         for line in text_file:
