@@ -38,9 +38,13 @@ class Backend:
 
     @staticmethod
     def update(data):
-        Backend.get().database().child(Backend.get_type_folder(data.type)).child(data.uid).update(data.to_dictionary())
-
         from guerillo.classes.backend_object import BackendType
+        db = Backend.get().database().child(Backend.get_type_folder(data.type)).child(data.uid)
+        if data.type == BackendType.REQUEST_QUEUE or data.type == BackendType.LOCK or data.type == BackendType.KEYCHAIN:
+            db.set(data.to_dictionary())
+        else:
+            db.update(data.to_dictionary())
+
         if data.type == BackendType.COUNTY:
             # Update County Lock, and Request Queue Data
             Backend.update(data.lock)
