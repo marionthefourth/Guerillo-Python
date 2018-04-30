@@ -1,10 +1,13 @@
 from cryptography.fernet import Fernet
 
-from guerillo.classes.auxiliary_object import AuxiliaryObject, AuxiliaryType
-from guerillo.classes.backend_object import BackendObject
+from guerillo.classes.auxiliary_object import AuxiliaryObject
+from guerillo.classes.backend_object import BackendObject, BackendType
 
 
 class County(BackendObject):
+
+    type = BackendType.COUNTY
+
     def __init__(self, state_fips=None, county_fips=None, key=None, state_name=None, county_name=None,
                  uid=None, lock=None, request_queue=None, obj=None):
         super().__init__(uid=uid)
@@ -12,6 +15,9 @@ class County(BackendObject):
         self.state_name = state_name
         self.county_fips = county_fips
         self.county_name = county_name
+        self.lock = AuxiliaryObject(container_uid=self.uid, type=BackendType.LOCK)
+        self.request_queue = AuxiliaryObject(container_uid=self.uid, type=BackendType.REQUEST)
+
         if obj is None:
             if key is not None:
                 self.key = key
@@ -20,13 +26,10 @@ class County(BackendObject):
 
             if lock is not None:
                 self.lock = lock
-            else:
-                self.lock = AuxiliaryObject(container_uid=self.uid, aux_type=AuxiliaryType.LOCK)
 
             if request_queue is not None:
                 self.request_queue = request_queue
-            else:
-                self.request_queue = AuxiliaryObject(container_uid=self.uid, aux_type=AuxiliaryType.REQUEST)
+
         else:
             self.from_dictionary(obj=obj)
 
@@ -34,7 +37,7 @@ class County(BackendObject):
         self.key = Fernet.generate_key()
 
     def generate_lock(self):
-        self.lock = AuxiliaryObject(container_uid=self.uid, aux_type=AuxiliaryType.LOCK)
+        self.lock = AuxiliaryObject(container_uid=self.uid, type=BackendType.LOCK)
 
     def encode_to_user(self, user_uid):
         return Fernet(self.key).encrypt((self.uid + user_uid).encode("utf-8"))
@@ -49,13 +52,14 @@ class County(BackendObject):
         return self.county_name + ", " + self.state_name
 
     def from_dictionary(self, obj=None):
-        super().from_dictionary(obj=obj)
-        self.state_name = obj["state_name"]
-        self.state_fips = obj["state_fips"]
-        self.county_name = obj["county_name"]
-        self.county_fips = obj["county_fips"]
-        self.key = obj["key"].encode("utf-8")
-
+        dictionary = super().from_dictionary(obj=obj)
+        self.state_name = dictionary["state_name"]
+        self.state_fips = dictionary["state_fips"]
+        self.county_name = dictionary["county_name"]
+        self.county_fips = dictionary["county_fips"]
+        self.key = dictionary["key"].encode("utf-8")
+        self.lock.uid = dictionary["lock_uid"]
+        self.request_queue = dictionary["request_queue_uid"]
 
     def to_dictionary(self):
         return {
