@@ -10,30 +10,35 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import UnexpectedAlertPresentException
+from selenium import webdriver as wd
 import csv
 import os
-
-root_path = os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
-exports_path = root_path+"\\bin\\exports\\"
-reports_path = root_path+"\\bin\\reports\\"
-from selenium import webdriver as wd
-
-chrome_options = wd.ChromeOptions()
-prefs = {'download.default_directory': exports_path}
-chrome_options.add_experimental_option('prefs', prefs)
-from bs4 import BeautifulSoup as soup
+import bs4
 from selenium.webdriver.common.keys import Keys
 from datetime import date, time, datetime, timedelta
+import time
 
-"""Functions--"""
 
-def wait_for_class(class_name):  # TODO: need to add timeout functionality
+root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+exports_path = root_path + "\\bin\\exports\\"
+reports_path = root_path + "\\bin\\reports\\"
+
+
+def wait_for_class(class_name, timeout=None, exit_message=""):
+    if timeout is not None:
+        start_time = time.time()
     while True:
         try:
             driver.find_element_by_class_name(class_name)
             break
         except NoSuchElementException:
+            if timeout is not None:
+                if (time.time() - start_time) >= timeout:
+                    print(exit_message)
+                    driver.quit()
+                    quit()
             pass
+
 
 def wait_for_id(id):  # TODO: need to add timeout functionality
     while (True):
@@ -43,6 +48,7 @@ def wait_for_id(id):  # TODO: need to add timeout functionality
         except NoSuchElementException:
             pass
 
+
 def wait_for_name(name):  # TODO: need to add timeout functionality
     while (True):
         try:
@@ -50,6 +56,12 @@ def wait_for_name(name):  # TODO: need to add timeout functionality
             break
         except NoSuchElementException:
             pass
+
+
+def clear_and_send(ele_id, text_to_send):
+    driver.find_element_by_id(ele_id).clear()
+    driver.find_element_by_id(ele_id).send_keys(text_to_send)
+
 
 def csv_to_deeds_and_mortgages(file_name):
     # open file and turn the lines into a list of strings
@@ -68,9 +80,10 @@ def csv_to_deeds_and_mortgages(file_name):
         if item[3] == "MORTGAGE": mortgages.append(item)
     return (deeds, mortgages)
 
+
 def scrape_location_addresses_with_bookpage(bookpage_list):
-    for (i,bookpage) in enumerate(bookpage_list):
-        if i!=0:
+    for (i, bookpage) in enumerate(bookpage_list):
+        if i != 0:
             driver.get("http://www.pcpao.org/clik.html?pg=http://www.pcpao.org/searchbyOR.php")
             # have to accept, simulate with space press
             driver.find_element_by_tag_name("button").send_keys(Keys.SPACE)
@@ -82,84 +95,193 @@ def scrape_location_addresses_with_bookpage(bookpage_list):
             # wait for load, then get the link (hardcoded because always one result)
             wait_for_id("linkBar")
             aTags = driver.find_element_by_id("ITB").find_elements_by_tag_name("a")
-            driver.get(aTags[1].get_attribute("href"))
-            while True:
-                try:
-                    driver.switch_to.default_content()
-                    # wait for load, then switch to the frame with the data
-                    wait_for_name("bodyFrame")
-                    driver.switch_to.frame(driver.find_element_by_name("bodyFrame"))
-                    # relaible way to get address is to go to tax estimator link from here
-                    a_tags = []
-                    a_tags = driver.find_elements_by_tag_name("a")
-                    for tag in a_tags:
-                        if tag.text == "Tax Estimator":
-                            driver.get(tag.get_attribute("href"))
-                            break
-                    break
-                except UnexpectedAlertPresentException:
-                    alert = driver.switch_to.alert
-                    alert.accept()
-            #here we handle if we ended up at the tax assessor
-            button_tags = driver.find_elements_by_tag_name("button")
-            for button in button_tags:
-                if button.text == "I agree":
-                    button.send_keys(Keys.SPACE)
-            wait_for_id("addr_ns")
-            site_address = driver.find_element_by_id("addr_ns").get_attribute("value")
-            bookpage[1] = site_address
+            if len(aTags) == 0:
+                bookpage[1] = "No Book/Page"
+            else:
+                driver.get(aTags[1].get_attribute("href"))
+                while True:
+                    try:
+                        driver.switch_to.default_content()
+                        # wait for load, then switch to the frame with the data
+                        wait_for_name("bodyFrame")
+                        driver.switch_to.frame(driver.find_element_by_name("bodyFrame"))
+                        # relaible way to get address is to go to tax estimator link from here
+                        a_tags = []
+                        a_tags = driver.find_elements_by_tag_name("a")
+                        for tag in a_tags:
+                            if tag.text == "Tax Estimator":
+                                driver.get(tag.get_attribute("href"))
+                                break
+                        break
+                    except UnexpectedAlertPresentException:
+                        alert = driver.switch_to.alert
+                        alert.accept()
+                # here we handle if we ended up at the tax assessor
+                button_tags = driver.find_elements_by_tag_name("button")
+                for button in button_tags:
+                    if button.text == "I agree":
+                        button.send_keys(Keys.SPACE)
+                wait_for_id("addr_ns")
+                site_address = driver.find_element_by_id("addr_ns").get_attribute("value")
+                bookpage[1] = site_address
+                bookpage[6] = ""
+                bookpage[7] = ""
+                if bookpage[0] != "" and bookpage[1] != "":
+                    bookpage[5] = "Very High"
 
-def create_bookpage_list(deeds_list,mortgages_list): #only necessary for qualifying entries, i.e., old enough (~30 days)
-    #remember that we're checking the mortgages (because we want those leads; deeds alone might not be the right kind)
-    #but we need to pull the DEED bookpage number
-    cutoff_date = date.today() - timedelta(days=30)
-    list = [["Name","Address","Date/Time","Amount of Mortgage","Property Sale Price"]]
+
+def create_bookpage_list(deeds_list, mortgages_list):
+    # remember that we're checking the mortgages (because we want those leads; deeds alone might not be the right kind)
+    # but we need to pull the DEED bookpage number
+    list = [["Name", "Address", "Date/Time", "Amount of Mortgage", "Property Sale Price", "Confidence"]]
     for entry in mortgages_list:
-        date_sold = datetime.strptime(entry[2].split(" ")[0], "%m/%d/%Y").date()
-        if date_sold <= cutoff_date:
+        if entry[0] != "":
             for item in deeds_list:
-                if entry[0] == item[1]:#checks the mortgage entry name to find the right deed item
-                    list.append([entry[0], item[5], entry[2], entry[8],item[8]])#name from m.entry, bookpage from d.item
+                if entry[0] == item[1]:  # checks the mortgage entry name to find the right deed item
+                    list.append([entry[0], item[5], entry[2], entry[8], item[8], "", entry[6], item[0]])
+                    # name from M, bookpage from D, date/time from M, mortgage amount from M, saleprice from D
+                    # placeholder for confidence level, legal descr, counterparty name
     return list
+
 
 def write_csv_file(file_name, list_of_lists, *args, **kwargs):
     mycsv = csv.writer(open(file_name, 'w', newline=''), *args, **kwargs)
     for row in list_of_lists:
         mycsv.writerow(row)
 
-"""--Functions"""
 
-startDate = "03/18/2018"
-endDate = "03/19/2018"
+def generate_nonbookpage_search_list(post_bookpage_list):  # sanitize name with comma formatting, legal description as components
+    search_list = []
+    i = 0
+    for entry in post_bookpage_list:
+        if entry[1] == "No Book/Page":
+            # name is already LAST FIRST but just needs to be LAST, FIRST with comma
+            # legal descr we want broken into a list of each word, space delimited from input
+            sanitized_name = entry[7].split(" ")[0] + ", " + entry[7].split(" ")[1]
+            search_list.append([sanitized_name, entry[6].split(" "),i])
+        i = i + 1
+    # so we're left with a list of lists, which are [0] - string, [1] - list
+    return search_list
+
+
+def scrape_without_bookpage(search_list,main_list):  # main list is the big original one where we add the site address
+    # TODO: handle javapopup like in other scraper
+    i = 0
+    for item in search_list:
+        NAME_STRING = item[0]  # we'll be doing a query with the LAST, FIRST format name
+        driver.get("http://www.pcpao.org/query_name.php?Text1=" + NAME_STRING + "&nR=1000")
+        header = driver.find_element_by_tag_name("th")
+        search_result_count = int(header.text.split("through ")[1].split(" of")[0])
+        if search_result_count >= 50:
+            print("Too many search results. Skipping this entry.")
+            main_list[item[2]][1] = ""
+        else:
+            ITB = driver.find_element_by_id("ITB")  # main table with data
+            ITB_td_tags = ITB.find_elements_by_tag_name("td")
+            continue_search = True
+            for tag in ITB_td_tags:  # if no results, remove the comma from name and search again
+                # this necessary b/c LLCs/entities
+                if tag.text == "Your search returned no records":
+                    driver.get("http://www.pcpao.org/query_name.php?Text1=" + NAME_STRING.replace(",", "") + "&nR=1000")
+                    ITB2 = driver.find_element_by_id("ITB")
+                    ITB2_td_tags = ITB2.find_elements_by_tag_name("td")
+                    for tag in ITB2_td_tags:
+                        if tag.text == "Your search returned no records": #if still no results, we're done
+                            main_list[item[2]][1] = ""
+                            print("No results found for name " + item[0] + " with given legal description")
+                            continue_search = False
+                            break
+                    break
+            # now check for no results once more. if NOT no results, continue
+            ITB = driver.find_element_by_id("ITB")  # main table with data
+            if continue_search:
+                soup = bs4.BeautifulSoup(ITB.get_attribute("outerHTML"), "html.parser")
+                rows = soup.find_all('tr')
+                # now, row[*].find_all('td') returns a list that has each item comma delimited
+                # the 5 index should be the subdivision (which our legal description can look against)
+                # the 1 index is the a tag we can get the link from for the parcel
+                sub_and_link = []  # let's just make a list of the results to parse through firs
+                for row in rows:
+                    row_list = row.find_all('td')
+                    if len(row_list) >= 6:
+                        sub_and_link.append([row_list[5].text, row_list[1].a['href']])
+                # now use the list to traverse legal description vs subdivision name
+                for line in sub_and_link:
+                    match_found = False
+                    match_count = 0  # we'll be counting the number of word matches (order unimportant)
+                    # 2 or more matches should signify a hit
+                    subdivision_searchable = line[0].split(" ") #line[0] is the subdivision name
+                    for word in item[1]:  # this was our input list with the space delimited legal descr.
+                        for other_word in subdivision_searchable:
+                            if word == other_word:
+                                match_count = match_count + 1
+                        if match_count >=2:
+                            break
+                    if match_count >= 2:
+                        match_found = True
+                        driver.get("http://www.pcpao.org/" + line[1])  # this takes us to parcel
+                        while True:
+                            try:
+                                driver.switch_to.default_content()
+                                # wait for load, then switch to the frame with the data
+                                wait_for_name("bodyFrame")
+                                driver.switch_to.frame(driver.find_element_by_name("bodyFrame"))
+                                # relaible way to get address is to go to tax estimator link from here
+                                a_tags = []
+                                a_tags = driver.find_elements_by_tag_name("a")
+                                for tag in a_tags:
+                                    if tag.text == "Tax Estimator":
+                                        driver.get(tag.get_attribute("href"))
+                                        break
+                                break
+                            except UnexpectedAlertPresentException:
+                                alert = driver.switch_to.alert
+                                alert.accept()
+                        # here we handle if we ended up at the tax assessor
+                        button_tags = driver.find_elements_by_tag_name("button")
+                        for button in button_tags:
+                            if button.text == "I agree":
+                                button.send_keys(Keys.SPACE)
+                        wait_for_id("addr_ns")
+                        site_address = driver.find_element_by_id("addr_ns").get_attribute("value")
+                        main_list[item[2]][1] = site_address
+                        main_list[item[2]][6] = ""
+                        main_list[item[2]][7] = ""
+                        main_list[item[2]][5] = "High"
+                        break
+                if match_found == False:
+                    main_list[item[2]][1] = ""
+                    print("No results found for name " + item[0] + " with given legal description")
+        i = i +1
+
+    
+
+startDate = "04/19/2018"
+endDate = "04/20/2018"
 lower_bound = "200000"
-upper_bound = "500000"
+upper_bound = "600000"
 
 # store target URL as variable - this will be dynamic from user input (hills or pinellas)
+chrome_options = wd.ChromeOptions()
+prefs = {'download.default_directory': exports_path}
+chrome_options.add_experimental_option('prefs', prefs)
 tURL = 'https://officialrecords.mypinellasclerk.org/search/SearchTypeConsideration'
-driver = wd.Chrome(chrome_options=chrome_options)
+driver = wd.Chrome(root_path + "\\bin\\webdriver\\chromedriver.exe", chrome_options=chrome_options)
 driver.get(tURL)
-
 # hit the accept button to be able to do anything else
 driver.find_element_by_id("btnButton").click()
 # date range entry
-dateFrom = driver.find_element_by_id("RecordDateFrom")
-dateFrom.clear()
-dateFrom.send_keys(startDate)
-dateTo = driver.find_element_by_id("RecordDateTo")
-dateTo.clear()
-dateTo.send_keys(endDate)
-# upper/lower bound entry
-lowerBound = driver.find_element_by_id("LowerBound")
-lowerBound.clear()
-lowerBound.send_keys(lower_bound)
-upperBound = driver.find_element_by_id("UpperBound")
-upperBound.clear()
-upperBound.send_keys(upper_bound)
+clear_and_send_list = [["RecordDateFrom", startDate],
+                       ["RecordDateTo", endDate],
+                       ["LowerBound", lower_bound],
+                       ["UpperBound", upper_bound]]
+for row in clear_and_send_list:
+    clear_and_send(row[0], row[1])
 # time to search
 driver.find_element_by_id("btnSearch").click()
-
 # for it to load fully
-wait_for_class("t-grid-content")
+wait_for_class("t-grid-content", timeout=20, exit_message="No results found. Try a different query.")
+
 while True:
     try:
         driver.find_element_by_class_name("t-no-data")
@@ -170,11 +292,18 @@ driver.find_element_by_id("btnCsvButton").click()
 
 """--Let's crack open the cold one with the bois"""
 # wait for download
-while (not os.path.isfile(exports_path + "\\SearchResults.csv")):
+start_time = time.time()
+while not os.path.isfile(exports_path + "\\SearchResults.csv"):
+    if (time.time() - start_time) >= 8:
+        print(
+            "Error in downloading data. Please try again. If the problem persists, cry heck and let loose the doggos of war.")
+        driver.quit()
+        quit()
     pass
 # rename
 nowTime = str(datetime.now()).replace(":", "").replace(".", "-")
-new_file_name = exports_path + "\\" + startDate.replace("/", "") + "-" + endDate.replace("/", "") + " " + nowTime + ".csv"
+new_file_name = exports_path + "\\" + startDate.replace("/", "") + "-" + endDate.replace("/",
+                                                                                         "") + " " + nowTime + ".csv"
 os.rename(exports_path + "\\SearchResults.csv", new_file_name)
 
 # call the method and assign the sexy new returned data
@@ -182,32 +311,31 @@ d_and_m = csv_to_deeds_and_mortgages(new_file_name)
 d_list = d_and_m[0]
 m_list = d_and_m[1]
 
-new_bookpage_list = create_bookpage_list(d_list,m_list)
+new_bookpage_list = create_bookpage_list(d_list, m_list)
 scrape_location_addresses_with_bookpage(new_bookpage_list)
-print(new_bookpage_list)
+main_list = new_bookpage_list  # now that first scrape was done, give it a more fitting name
+
+# time to now scrape for the ones that didn't have a bookpage
+secondary_searchable_list = generate_nonbookpage_search_list(main_list)
+scrape_without_bookpage(secondary_searchable_list, main_list)  # 2ndary list our check/trigger list, but
+# main_list is the one that will have the address injected
+print(main_list)
 now = datetime.now()
+
 report_suffix = now.strftime("%Y-%m-%d %H-%M.csv")
-report_file_name = reports_path+report_suffix
+report_file_name = reports_path + report_suffix
+write_csv_file(report_file_name, main_list)
 
-write_csv_file(report_file_name, new_bookpage_list)
+driver.quit()
+os.startfile(report_file_name)
 
-driver.close()
-""" 
----Handy Legend---
-[0] = Direct Name
-[1] = Indrect Name
-[2] = Date and time (split by space to get either or)
-[3] = Deed/mtg
-[4] = "OR"
-[5] = Book/Page
-[6] = Legal desc
-[7] = instrument #
-[8] = considerationg (with cents formated .0000)
-
-"""
-
-
-#TODO: Entirely reconfigure the logic for 'old enough'. Look through entire list of original data
-#and grab book page. Do the bookpage search on all items older than a week
-#any of the ones that don't return a result on the bookpage search are noted/logged
-#those noted/logged then are searched for the convoluted way
+# ---Handy Legend---
+# [0] = Direct Name
+# [1] = Indrect Name
+# [2] = Date and time (split by space to get either or)
+# [3] = Deed/mtg
+# [4] = "OR"
+# [5] = Book/Page
+# [6] = Legal desc
+# [7] = instrument #
+# [8] = consideration (with cents formatted .0000)
