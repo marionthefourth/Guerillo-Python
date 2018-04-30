@@ -85,7 +85,6 @@ def csv_to_deeds_and_mortgages(file_name):
         if item[3] == "MORTGAGE": mortgages.append(item)
     return (deeds, mortgages)
 
-
 def scrape_location_addresses_with_bookpage(bookpage_list):
     for (i, bookpage) in enumerate(bookpage_list):
         if i != 0:
@@ -134,7 +133,6 @@ def scrape_location_addresses_with_bookpage(bookpage_list):
                 if bookpage[0] != "" and bookpage[1] != "":
                     bookpage[5] = "Very High"
 
-
 def create_bookpage_list(deeds_list, mortgages_list):
     # remember that we're checking the mortgages (because we want those leads; deeds alone might not be the right kind)
     # but we need to pull the DEED bookpage number
@@ -148,41 +146,70 @@ def create_bookpage_list(deeds_list, mortgages_list):
                     # placeholder for confidence level, legal descr, counterparty name
     return list
 
-
 def write_csv_file(file_name, list_of_lists, *args, **kwargs):
     mycsv = csv.writer(open(file_name, 'w', newline=''), *args, **kwargs)
     for row in list_of_lists:
         mycsv.writerow(row)
 
+def generate_nonbookpage_search_list(post_bookpage_list): #sanitize name with comma formatting, legal description as components
+    search_list = []
+    for entry in post_bookpage_list:
+        if entry == "No Book/Page":
+            #name is already LAST FIRST but just needs to be LAST, FIRST with comma
+            #legal descr we want broken into a list of each word, space delimited from input
+            sanitized_name = entry[7].split(" ")[0]+", "+entry[7].split(" ")[1]
+            search_list.append([sanitized_name,entry[6].split(" ")])
+    #so we're left with a list of lists, which are [0] - string, [1] - list
+    return search_list
 
-def test_run():  # TODO: actually compare legal desc to sub name
-    # will likely need to pass in the info to this method
-    NAME_STRING = "Test, Ernest"
-    driver.get("http://www.pcpao.org/query_name.php?Text1=" + NAME_STRING + "&nR=1000")
-    # remember an individual name is LAST, FIRST
-    ITB = driver.find_element_by_id("ITB")
-    soup = bs4.BeautifulSoup(ITB.get_attribute("outerHTML"), "html.parser")
-    rows = soup.find_all('tr')
-    # row[*].find_all('td') returns a list that has each item comma delimited
-    # the 0 index should be the name which we need to check first
-    # the 5 index should be the subdivision (which our legal description can look against)
-    # the 1 index is the a tag we can get the link from for the parcel
-    name_sub_link = []
-    for row in rows:
-        row_list = row.find_all('td')
-        if len(row_list) >= 6:
-            name_sub_link.append([row_list[0].text, row_list[5].text, row_list[1].a['href']])
-
-    for row in name_sub_link:
-        if row[0].lower() == NAME_STRING.lower():  # remember an individual name is LAST, FIRST
-            # TODO: add logic for legal desc/sub checking here FIRST, then proceed to below
-            driver.get("http://www.pcpao.org/" + row[2])
+def scrape_without_bookpage(search_list,main_list):  # main list is the big original one where we add the site address
+                                                    # TODO: handle javapopup like in other scraper
+    for item in search_list:
+        NAME_STRING = item[0] #we'll be doing a query with the LAST, FIRST format name
+        driver.get("http://www.pcpao.org/query_name.php?Text1=" + NAME_STRING + "&nR=1000")
+        ITB = driver.find_element_by_id("ITB") #main table with data
+        ITB_td_tags = ITB.find_elements_by_tag_name("td")
+        for tag in ITB_td_tags: #if no results, remove the comma from name and search again
+                                #this necessary b/c LLCs/entities
+            if tag.text =="Your search returned no records":
+                driver.get("http://www.pcpao.org/query_name.php?Text1=" + NAME_STRING.replace(",","") + "&nR=1000")
+                ITB = driver.find_element_by_id("ITB")
+                ITB_td_tags = ITB.find_elements_by_tag_name("td")
+                break
+        #now check for no results once more. if NOT no results, continue
+        continue_search = True
+        for tag in ITB_td_tags:
+            if tag.text =="Your search returned no records":
+                continue_search = False
+        if continue_search:
+            soup = bs4.BeautifulSoup(ITB.get_attribute("outerHTML"), "html.parser")
+            rows = soup.find_all('tr')
+            # now, row[*].find_all('td') returns a list that has each item comma delimited
+            # the 5 index should be the subdivision (which our legal description can look against)
+            # the 1 index is the a tag we can get the link from for the parcel
+            sub_and_link = [] # let's just make a list of the results to parse through firs
+            for row in rows:
+                row_list = row.find_all('td')
+                if len(row_list) >= 6:
+                    sub_and_link.append([row_list[5].text, row_list[1].a['href']])
+            #now use the list to traverse legal description vs subdivision name
+            for row in sub_and_link:
+                match_count = 0 #we'll be counting the number of word matches (order unimportant)
+                                #2 or more matches should signify a hit
+                for word in item[1]: #this was our input list with the space delimited legal descr.
+                    if word in row[0]: #row[0] is the subdivision name from the query results
+                        match_count = match_count+1
+                if match_count >=2:
+                    driver.get("http://www.pcpao.org/" + row[1]) #this takes us to parcel
+                    #TODO: add logic to pull site adress. can use same as other scraper that used tax link
+        else:
+            print("No results found for name "+item[0]+" with given legal description")
 
 
 """--Functions"""
 
-startDate = "04/13/2018"
-endDate = "04/21/2018"
+startDate = "04/19/2018"
+endDate = "04/20/2018"
 lower_bound = "200000"
 upper_bound = "600000"
 
@@ -235,15 +262,20 @@ m_list = d_and_m[1]
 
 new_bookpage_list = create_bookpage_list(d_list, m_list)
 scrape_location_addresses_with_bookpage(new_bookpage_list)
-secondary_searchable_list = new_bookpage_list
-print(new_bookpage_list)
+main_list = new_bookpage_list #now that first scrape was done, give it a more fitting name
+
+#time to now scrape for the ones that didn't have a bookpage
+secondary_searchable_list = generate_nonbookpage_search_list(main_list)
+scrape_without_bookpage(secondary_searchable_list,main_list)#2ndary list our check/trigger list, but
+                                                            #main_list is the one that will have the address injected
+print(main_list)
 now = datetime.now()
 
-# TODO: secondary search function run here on secondary_searchable_list
+
 
 report_suffix = now.strftime("%Y-%m-%d %H-%M.csv")
 report_file_name = reports_path + report_suffix
-write_csv_file(report_file_name, new_bookpage_list)  # TODO: change the file to secondary_searchable_list
+write_csv_file(report_file_name, main_list)  # TODO: change the file to secondary_searchable_list
 
 driver.close()
 os.startfile(report_file_name)
