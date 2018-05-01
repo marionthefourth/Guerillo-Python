@@ -22,6 +22,9 @@ prefs = {'download.default_directory': exports_path}
 chrome_options.add_experimental_option('prefs', prefs)
 driver = wd.Chrome(root_path + "\\bin\\webdriver\\chromedriver.exe", chrome_options=chrome_options)
 
+
+
+"""Property Appraiser Traverse & Scrape Logic"""
 name_string = "SMITH JACK L"
 name_to_search = name_string.split(" ")[0]+", "+name_string.split(" ")[1]
                  #this example should be "SMITH, JACK"
@@ -31,9 +34,9 @@ driver.get(
         +"&pagesize=80"
 )
 table = driver.find_element_by_id("table-basic-results")
-tr_tags = table.find_elements_by_tag_name("tr")
+table_tr_tags = table.find_elements_by_tag_name("tr")
 cleaned_rows = []
-for tr_tag in tr_tags:
+for tr_tag in table_tr_tags:
     td_tags = tr_tag.find_elements_by_tag_name("td")
     cleaned_row = []
     for td_tag in td_tags:
@@ -49,9 +52,9 @@ CONSIDERATION = 4
 HOMESTEAD = 5
 """"""
 
-#this js you can just click the row WebElement as a whole:
+#this javascript you can just click the row WebElement as a whole:
 ###EXAMPLE:
-tr_tags[2].click()
+table_tr_tags[2].click()
 ### after clicking, then this logic (dynamc, not just example anymore):
 legal_description = ""
 body_tags = driver.find_elements_by_tag_name("tbody")
@@ -60,11 +63,3 @@ for body_tag in body_tags:
         legal_description = body_tag.text
         
 
-########### these lines just for testing
-#for cleaned_row in cleaned_rows:
-#    if len(cleaned_row) != 0:
-#        if cleaned_row[FOLIO] != "":
-#            driver.get("https://hillsborough.county-taxes.com/public/real_estate/parcels/A"
-#                       +cleaned_row[FOLIO].replace("-","")
-#            )
-############
