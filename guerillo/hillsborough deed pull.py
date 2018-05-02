@@ -66,29 +66,34 @@ data_results = ["Mortgage Amount","Full Name","Counterparty Name","Date","Legal 
 for row in table_rows:
     rc = row.find_elements_by_tag_name("td") #rc = row_columns
     if len(rc)>=12:
-        data_results.append([
-                rc[3].text,rc[4].text,rc[5].text,rc[6].text,rc[11].text
-        ])
+        data_results.append(
+                rc[2].text,rc[3].text,rc[4].text,rc[5].text,rc[10].text
+        )
 
 
 print(data_results)
 """
 Columns by Header
-1: Result/Row#
-2: Status (????)
-3: Mortgage Amount
-4: Full Name
-5: Counterparty Name
-6: Date
-7: Document Type
-8: Book (O = official record)
-9: Book #
-10: Page #
-11: Legal Desc
-9: Instrument #
+0: Result/Row#
+1: Status (????)
+2: Mortgage Amount
+3: Full Name
+4: Counterparty Name
+5: Date
+6: Document Type
+7: Book (O = official record)
+8: Book #
+9: Page #
+10: Legal Desc
+11: Instrument #
 
 Only really need 3,4,5,6,11
 """
 #TODO: handle max limit of 2000 searchs (hills may need to be limited)
 #TODO: maybe just search mortgages, then look for that deed through more queries
-#TODO: 
+#TODO: pull legal, do a single search with legal sec
+#TODO: the full name from the mortgage will be the counterparty, so verify all entries
+#TODO: to have that. THen make sure the doctype is a deed
+#TODO: if over 3 weeks old, start by just looking for full name in HCAPFL first
+#TODO: if that can' find it, then scour the counterparty and search that way
+#TODO: for anything newer than 3 weeks, same process but vice-versa
