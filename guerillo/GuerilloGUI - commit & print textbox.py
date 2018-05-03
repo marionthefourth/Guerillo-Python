@@ -7,101 +7,116 @@ Created on Sun Apr 15 13:57:50 2018
 Table of Contents:
 
 """
-from tkinter import *
+import tkinter.constants as tc
 import tkinter as tk
 import tkinter.messagebox as msg
 from PIL import Image,ImageTk
 import webbrowser
-
+import os
 
 
 """ Methods"""
-def doNothing():
+def do_nothing():
     print("would have done something")
-def linkToPano(event):
+def link_to_pano(event):
     webbrowser.open_new(r"http://www.panoramic.global")
 
-inputValue = ""
+input_value = ""
 def retrieve_input(tB):
-    global inputValue
-    inputValue = tB.get("1.0","end-1c")
-    tB.delete(1.0,END)
-    return inputValue
-def display_input():
-    adjustaLabel.configure(text=inputValue)
+    global input_value
+    input_value = tB.get("1.0", "end-1c")
+    tB.delete(1.0,tc.END)
+    return input_value
+
     
     
 """end of Methods"""
 
-
+root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+images_path = root_path + "\\res\\img\\"
 
 """ Main Window Setup """
 
 #basic core window setup
 root = tk.Tk()
 root.title("Guerillo")
-root.iconbitmap('phone.ico')
+root.iconbitmap(images_path + 'phone.ico')
 root.geometry('800x500') #syntax is 'WidthxHeight'
 root.config(background="white")
 
 
+
 #create status bar
-statusFrame = Frame(root)
-statusFrame.pack(side=BOTTOM, fill=X)
-status = Label (statusFrame, text="Ready to search.", bd=1,relief=SUNKEN, anchor=W)
-status.pack(side=BOTTOM, fill=X)
+status_frame = tk.Frame(root)
+status_frame.pack(side=tc.BOTTOM, fill=tc.X)
+status = tk.Label (status_frame, text="Ready to search.", bd=1, relief=tc.SUNKEN, anchor=tc.W)
+status.pack(side=tc.BOTTOM, fill=tc.X)
 
 #create main frame (wherein a grid will be used) - color is for help while working and should be removed
-mF = Frame(root, bg="yellow")
-mF.pack(side=TOP,fill=BOTH,expand=1)
+mF = tk.Frame(root, bg="yellow")
+mF.pack(side=tc.TOP,fill=tc.BOTH,expand=1)
 
 
 #get logo and scale it down
-sourceImage = Image.open("pano.png")
-sourceImage = sourceImage.resize((int(sourceImage.width/2),int(sourceImage.height/2)))
-logo = ImageTk.PhotoImage(sourceImage)
+#TODO: just resize actual image. the scale down drops quality for some reason
+pano_source_image = Image.open(images_path + "pano.png")
+pano_source_image = pano_source_image.resize((int(pano_source_image.width / 2), int(pano_source_image.height / 2)))
+logo = ImageTk.PhotoImage(pano_source_image)
 
 
 #get logo embedded at bottom right corner
-logoLabel = tk.Label(root, image=logo, highlightthickness = 0, borderwidth = 0, cursor="hand2", anchor=E)
-logoLabel.image=logo
-logoLabel.place(rely=1.0, relx=1.0, x=-11, y=-20, anchor=SE)
-logoLabel.bind("<Button-1>",linkToPano)
+logo_label = tk.Label(root, image=logo, highlightthickness = 0, borderwidth = 0, cursor="hand2", anchor=tc.E)
+logo_label.image=logo
+logo_label.place(rely=1.0, relx=1.0, x=-11, y=-20, anchor=tc.SE)
+logo_label.bind("<Button-1>", link_to_pano)
 
 
 #create basic menu
-topMenu = Menu(root)
-root.config(menu=topMenu)
+top_menu = tk.Menu(root)
+root.config(menu=top_menu)
 #add a file dropdown menu
-fileMenu = Menu(topMenu,tearoff=False)
-topMenu.add_cascade(label="File",menu=fileMenu)
-fileMenu.add_command(label="New Search / Clear Page", command=doNothing)
-fileMenu.add_separator()
-fileMenu.add_command(label="Quit", command=root.destroy)
+file_menu = tk.Menu(top_menu, tearoff=False)
+top_menu.add_cascade(label="File", menu=file_menu)
+file_menu.add_command(label="New Search / Clear Page", command=do_nothing)
+file_menu.add_separator()
+file_menu.add_command(label="Quit", command=root.destroy)
 
 
 """ end of main window setup """
 
 """ Entry Grid Setup """
-#build Entry Grid Frame
-egF = Frame(mF, bg="purple")
-egF.pack(side=LEFT,fill=BOTH)
-egF.columnconfigure(2,minsize=75)
+#build entry grid frame (grid layout for text entry components and search button)
+entry_grid_frame = tk.Frame(mF, bg="purple")
+entry_grid_frame.pack(side=tc.LEFT, fill=tc.BOTH)
+entry_grid_frame.columnconfigure(3, minsize=75)
 
 
-#build first column of grid with entry box and display area
-entryBox = Text(egF, height=2,width=10)
-entryBox.grid(row=0,column=0)
-adjustaLabel= Label(egF,bg="blue")
-adjustaLabel.grid(row=1,column=0,sticky=N+S+E+W)
+#build column elements (labels, text inputs, search button)
+lower_bound_label = tk.Label(entry_grid_frame,bg="white",text="Minimum Mortgage Amount")
+lower_bound_label.grid(row=0,column=0)
+lower_bound_input = tk.Text(entry_grid_frame, height=1, width=10)
+lower_bound_input.grid(row=0,column=1)
 
-#build second column of grid with command buttons
-buttonCommit=Button(egF,height=1,width=10, text="Commit",command=lambda:retrieve_input(entryBox))
-buttonCommit.grid(row=0,column=1,columnspan=2,sticky=E+W,padx=10)
-colorLabel = Label(egF,bg="grey")
-colorLabel.grid(row=1,column=1,columnspan=2,sticky=N+S+E+W)
-buttonPrint=Button(egF,height=1,width=10,text="Print",command=lambda:display_input())
-buttonPrint.grid(row=1,column=1,columnspan=2,sticky=E+W,padx=10)
+upper_bound_label = tk.Label(entry_grid_frame,bg="white",text="Maximum Mortgage Amount")
+upper_bound_label.grid(row=1,column=0)
+upper_bound_input = tk.Text(entry_grid_frame, height=1, width=10)
+upper_bound_input.grid(row=1,column=1)
+
+start_date_label = tk.Label(entry_grid_frame,bg="white",text="Maximum Mortgage Amount")
+start_date_label.grid(row=2,column=0)
+start_date_input = tk.Text(entry_grid_frame, height=1, width=10)
+start_date_input.grid(row=2,column=1)
+
+end_date_label = tk.Label(entry_grid_frame,bg="white",text="Maximum Mortgage Amount")
+end_date_label.grid(row=3,column=0)
+end_date_input = tk.Text(entry_grid_frame, height=1, width=10)
+end_date_input.grid(row=3,column=1)
+
+##########build second column of grid with command buttons
+search_button=tk.Button(entry_grid_frame, height=1, width=10, text="Search", command=lambda:retrieve_input(lower_bound_input))
+search_button.grid(row=0,column=2,columnspan=2,sticky=tc.E+tc.W,padx=10)
+color_label = tk.Label(entry_grid_frame, bg="grey")
+color_label.grid(row=1, column=2, columnspan=2, sticky=tc.N + tc.S + tc.E + tc.W)
 """ end of entry grid setup """
 
 root.mainloop()
