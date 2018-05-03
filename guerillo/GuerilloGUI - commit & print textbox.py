@@ -41,7 +41,7 @@ images_path = root_path + "\\res\\img\\"
 root = tk.Tk()
 root.title("Guerillo")
 root.iconbitmap(images_path + 'phone.ico')
-root.geometry('800x500') #syntax is 'WidthxHeight'
+root.geometry('600x300') #syntax is 'WidthxHeight'
 root.config(background="white")
 
 
@@ -53,8 +53,8 @@ status = tk.Label (status_frame, text="Ready to search.", bd=1, relief=tc.SUNKEN
 status.pack(side=tc.BOTTOM, fill=tc.X)
 
 #create main frame (wherein a grid will be used) - color is for help while working and should be removed
-mF = tk.Frame(root, bg="yellow")
-mF.pack(side=tc.TOP,fill=tc.BOTH,expand=1)
+main_frame = tk.Frame(root, bg="yellow")
+main_frame.pack(side=tc.TOP, fill=tc.BOTH, expand=1)
 
 
 #get logo and scale it down
@@ -86,37 +86,36 @@ file_menu.add_command(label="Quit", command=root.destroy)
 
 """ Entry Grid Setup """
 #build entry grid frame (grid layout for text entry components and search button)
-entry_grid_frame = tk.Frame(mF, bg="purple")
+entry_grid_frame = tk.Frame(main_frame, bg="white")
 entry_grid_frame.pack(side=tc.LEFT, fill=tc.BOTH)
 entry_grid_frame.columnconfigure(3, minsize=75)
 
 
 #build column elements (labels, text inputs, search button)
 lower_bound_label = tk.Label(entry_grid_frame,bg="white",text="Minimum Mortgage Amount")
-lower_bound_label.grid(row=0,column=0)
+lower_bound_label.grid(row=0,column=0,sticky=tc.E)
 lower_bound_input = tk.Text(entry_grid_frame, height=1, width=10)
 lower_bound_input.grid(row=0,column=1)
 
 upper_bound_label = tk.Label(entry_grid_frame,bg="white",text="Maximum Mortgage Amount")
-upper_bound_label.grid(row=1,column=0)
+upper_bound_label.grid(row=1,column=0,sticky=tc.E)
 upper_bound_input = tk.Text(entry_grid_frame, height=1, width=10)
 upper_bound_input.grid(row=1,column=1)
 
-start_date_label = tk.Label(entry_grid_frame,bg="white",text="Maximum Mortgage Amount")
-start_date_label.grid(row=2,column=0)
+start_date_label = tk.Label(entry_grid_frame,bg="white",text="Start Date")
+start_date_label.grid(row=2,column=0,sticky=tc.E)
 start_date_input = tk.Text(entry_grid_frame, height=1, width=10)
 start_date_input.grid(row=2,column=1)
 
-end_date_label = tk.Label(entry_grid_frame,bg="white",text="Maximum Mortgage Amount")
-end_date_label.grid(row=3,column=0)
+end_date_label = tk.Label(entry_grid_frame,bg="white",text="End Date")
+end_date_label.grid(row=3,column=0,sticky=tc.E)
 end_date_input = tk.Text(entry_grid_frame, height=1, width=10)
 end_date_input.grid(row=3,column=1)
 
 ##########build second column of grid with command buttons
-search_button=tk.Button(entry_grid_frame, height=1, width=10, text="Search", command=lambda:retrieve_input(lower_bound_input))
-search_button.grid(row=0,column=2,columnspan=2,sticky=tc.E+tc.W,padx=10)
-color_label = tk.Label(entry_grid_frame, bg="grey")
-color_label.grid(row=1, column=2, columnspan=2, sticky=tc.N + tc.S + tc.E + tc.W)
+search_button=tk.Button(entry_grid_frame, height=2, width=10, text="Search", command=lambda:retrieve_input(lower_bound_input))
+search_button.grid(row=1,column=2,columnspan=2,rowspan=2,sticky=tc.E+tc.W,padx=10)
+
 """ end of entry grid setup """
 
 root.mainloop()
