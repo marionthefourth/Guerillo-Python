@@ -265,7 +265,10 @@ class Pinellas:
     def clean_final_list(self, main_list):
         for row in main_list:
             if row[1]=="":
-                del row
+                print("Bad row found")
+                main_list.remove(row)
+        print("End of method")
+        print(main_list)
 
 
     def run(self, input_list):
@@ -333,6 +336,7 @@ class Pinellas:
         self.scrape_without_bookpage(secondary_searchable_list, main_list)  # 2ndary list our check/trigger list, but
         # main_list is the one that will have the address injected
         self.clean_final_list(main_list)
+        print("Second check outside of method")
         print(main_list)
 
 
