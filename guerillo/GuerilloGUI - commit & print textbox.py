@@ -13,6 +13,7 @@ import tkinter.messagebox as msg
 from PIL import Image,ImageTk
 import webbrowser
 import os
+import guerillo.pinellas as pinellas
 
 
 """ Methods"""
@@ -22,12 +23,14 @@ def link_to_pano(event):
     webbrowser.open_new(r"http://www.panoramic.global")
 
 output_list = []
-def retrieve_inputs(fields_list):
+def retrieve_inputs_and_run(fields_list):
     global output_list
     output_list = []
     for field_reference in fields_list:
         output_list.append(field_reference.get("1.0", "end-1c"))
     print(output_list)
+    pinellas_instance = pinellas.Pinellas()
+    pinellas_instance.run(output_list)
     return output_list
 
 def clear_inputs(fields_list):
@@ -65,9 +68,8 @@ main_frame.pack(side=tc.TOP, fill=tc.BOTH, expand=1)
 
 
 #get logo and scale it down
-#TODO: just resize actual image. the scale down drops quality for some reason
 pano_source_image = Image.open(images_path + "pano.png")
-pano_source_image = pano_source_image.resize((int(pano_source_image.width / 2), int(pano_source_image.height / 2)))
+#pano_source_image = pano_source_image.resize((int(pano_source_image.width / 2), int(pano_source_image.height / 2)))
 logo = ImageTk.PhotoImage(pano_source_image)
 
 
@@ -122,15 +124,16 @@ end_date_input = tk.Text(entry_grid_frame, height=1, width=10)
 end_date_input.grid(row=3,column=1)
 entry_fields_list.append(end_date_input)
 
-search_button=tk.Button(entry_grid_frame, height=2, width=10, text="Search", command=lambda:retrieve_inputs(entry_fields_list))
+search_button=tk.Button(entry_grid_frame, height=2, width=10, text="Search", command=lambda:retrieve_inputs_and_run(entry_fields_list))
 search_button.grid(row=1,column=2,columnspan=2,rowspan=2,sticky=tc.E+tc.W,padx=10)
 
 #have to add this section here because thsi is all done in-line.
 #if done above where it makes more sense, the entry_fields_list variable doesn't exist yet
 #this can be handled more appropriately once the class is created and things are instantiated...maybe?
-file_menu.add_command(label="New Search / Clear Page", command=lambda:clear_inputs(entry_fields_list))
+file_menu.add_command(label="New Search / Clear Page",command=lambda:clear_inputs(entry_fields_list))
 file_menu.add_separator()
 file_menu.add_command(label="Quit", command=root.destroy)
+
 """ end of entry grid setup """
 
 root.mainloop()
