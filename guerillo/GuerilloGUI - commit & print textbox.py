@@ -30,6 +30,11 @@ def retrieve_inputs(fields_list):
     print(output_list)
     return output_list
 
+def clear_inputs(fields_list):
+    for field_reference in fields_list:
+        print(field_reference.get("1.0", "end-1c"))
+        field_reference.delete('1.0', tc.END)
+
     
     
 """end of Methods"""
@@ -43,7 +48,7 @@ images_path = root_path + "\\res\\img\\"
 root = tk.Tk()
 root.title("Guerillo")
 root.iconbitmap(images_path + 'phone.ico')
-root.geometry('600x300') #syntax is 'WidthxHeight'
+root.geometry('500x300') #syntax is 'WidthxHeight'
 root.config(background="white")
 
 
@@ -55,7 +60,7 @@ status = tk.Label (status_frame, text="Ready to search.", bd=1, relief=tc.SUNKEN
 status.pack(side=tc.BOTTOM, fill=tc.X)
 
 #create main frame (wherein a grid will be used) - color is for help while working and should be removed
-main_frame = tk.Frame(root, bg="yellow")
+main_frame = tk.Frame(root, bg="white")
 main_frame.pack(side=tc.TOP, fill=tc.BOTH, expand=1)
 
 
@@ -79,9 +84,7 @@ root.config(menu=top_menu)
 #add a file dropdown menu
 file_menu = tk.Menu(top_menu, tearoff=False)
 top_menu.add_cascade(label="File", menu=file_menu)
-file_menu.add_command(label="New Search / Clear Page", command=do_nothing)
-file_menu.add_separator()
-file_menu.add_command(label="Quit", command=root.destroy)
+
 
 
 """ end of main window setup """
@@ -119,10 +122,15 @@ end_date_input = tk.Text(entry_grid_frame, height=1, width=10)
 end_date_input.grid(row=3,column=1)
 entry_fields_list.append(end_date_input)
 
-##########build second column of grid with command buttons
 search_button=tk.Button(entry_grid_frame, height=2, width=10, text="Search", command=lambda:retrieve_inputs(entry_fields_list))
 search_button.grid(row=1,column=2,columnspan=2,rowspan=2,sticky=tc.E+tc.W,padx=10)
 
+#have to add this section here because thsi is all done in-line.
+#if done above where it makes more sense, the entry_fields_list variable doesn't exist yet
+#this can be handled more appropriately once the class is created and things are instantiated...maybe?
+file_menu.add_command(label="New Search / Clear Page", command=lambda:clear_inputs(entry_fields_list))
+file_menu.add_separator()
+file_menu.add_command(label="Quit", command=root.destroy)
 """ end of entry grid setup """
 
 root.mainloop()
