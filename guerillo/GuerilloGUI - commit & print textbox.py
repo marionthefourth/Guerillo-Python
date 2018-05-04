@@ -21,12 +21,14 @@ def do_nothing():
 def link_to_pano(event):
     webbrowser.open_new(r"http://www.panoramic.global")
 
-input_value = ""
-def retrieve_input(tB):
-    global input_value
-    input_value = tB.get("1.0", "end-1c")
-    tB.delete(1.0,tc.END)
-    return input_value
+output_list = []
+def retrieve_inputs(fields_list):
+    global output_list
+    output_list = []
+    for field_reference in fields_list:
+        output_list.append(field_reference.get("1.0", "end-1c"))
+    print(output_list)
+    return output_list
 
     
     
@@ -85,6 +87,7 @@ file_menu.add_command(label="Quit", command=root.destroy)
 """ end of main window setup """
 
 """ Entry Grid Setup """
+entry_fields_list = []
 #build entry grid frame (grid layout for text entry components and search button)
 entry_grid_frame = tk.Frame(main_frame, bg="white")
 entry_grid_frame.pack(side=tc.LEFT, fill=tc.BOTH)
@@ -96,24 +99,28 @@ lower_bound_label = tk.Label(entry_grid_frame,bg="white",text="Minimum Mortgage 
 lower_bound_label.grid(row=0,column=0,sticky=tc.E)
 lower_bound_input = tk.Text(entry_grid_frame, height=1, width=10)
 lower_bound_input.grid(row=0,column=1)
+entry_fields_list.append(lower_bound_input)
 
 upper_bound_label = tk.Label(entry_grid_frame,bg="white",text="Maximum Mortgage Amount")
 upper_bound_label.grid(row=1,column=0,sticky=tc.E)
 upper_bound_input = tk.Text(entry_grid_frame, height=1, width=10)
 upper_bound_input.grid(row=1,column=1)
+entry_fields_list.append(upper_bound_input)
 
 start_date_label = tk.Label(entry_grid_frame,bg="white",text="Start Date")
 start_date_label.grid(row=2,column=0,sticky=tc.E)
 start_date_input = tk.Text(entry_grid_frame, height=1, width=10)
 start_date_input.grid(row=2,column=1)
+entry_fields_list.append(start_date_input)
 
 end_date_label = tk.Label(entry_grid_frame,bg="white",text="End Date")
 end_date_label.grid(row=3,column=0,sticky=tc.E)
 end_date_input = tk.Text(entry_grid_frame, height=1, width=10)
 end_date_input.grid(row=3,column=1)
+entry_fields_list.append(end_date_input)
 
 ##########build second column of grid with command buttons
-search_button=tk.Button(entry_grid_frame, height=2, width=10, text="Search", command=lambda:retrieve_input(lower_bound_input))
+search_button=tk.Button(entry_grid_frame, height=2, width=10, text="Search", command=lambda:retrieve_inputs(entry_fields_list))
 search_button.grid(row=1,column=2,columnspan=2,rowspan=2,sticky=tc.E+tc.W,padx=10)
 
 """ end of entry grid setup """
