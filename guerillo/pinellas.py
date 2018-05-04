@@ -109,24 +109,24 @@ class Pinellas:
                 if len(aTags) == 0:
                     bookpage[1] = "No Book/Page"
                 else:
-                    self.driver.get(aTags[1].get_attribute("href"))
-                    while True:
-                        try:
-                            self.driver.switch_to.default_content()
-                            # wait for load, then switch to the frame with the data
-                            self.wait_for_name("bodyFrame")
-                            self.driver.switch_to.frame(self.driver.find_element_by_name("bodyFrame"))
-                            # relaible way to get address is to go to tax estimator link from here
-                            a_tags = []
-                            a_tags = self.driver.find_elements_by_tag_name("a")
-                            for tag in a_tags:
-                                if tag.text == "Tax Estimator":
-                                    self.driver.get(tag.get_attribute("href"))
-                                    break
-                            break
-                        except UnexpectedAlertPresentException:
-                            alert = self.driver.switch_to.alert
-                            alert.accept()
+                    self.driver.get(aTags[1].get_attribute("href").replace("general","taxEst"))
+                    # while True:
+                    #     try:
+                    #         self.driver.switch_to.default_content()
+                    #         # wait for load, then switch to the frame with the data
+                    #         self.wait_for_name("bodyFrame")
+                    #         self.driver.switch_to.frame(self.driver.find_element_by_name("bodyFrame"))
+                    #         # relaible way to get address is to go to tax estimator link from here
+                    #         a_tags = []
+                    #         a_tags = self.driver.find_elements_by_tag_name("a")
+                    #         for tag in a_tags:
+                    #             if tag.text == "Tax Estimator":
+                    #                 self.driver.get(tag.get_attribute("href"))
+                    #                 break
+                    #         break
+                    #     except UnexpectedAlertPresentException:
+                    #         alert = self.driver.switch_to.alert
+                    #         alert.accept()
                     # here we handle if we ended up at the tax assessor
                     button_tags = self.driver.find_elements_by_tag_name("button")
                     for button in button_tags:
@@ -137,14 +137,13 @@ class Pinellas:
                     bookpage[1] = site_address
                     bookpage[6] = ""
                     bookpage[7] = ""
-                    if bookpage[0] != "" and bookpage[1] != "":
-                        bookpage[5] = "Very High"
+
 
 
     def create_bookpage_list(self, deeds_list, mortgages_list):
         # remember that we're checking the mortgages (because we want those leads; deeds alone might not be the right kind)
         # but we need to pull the DEED bookpage number
-        list = [["Name", "Address", "Date/Time", "Amount of Mortgage", "Property Sale Price", "Confidence"]]
+        list = [["Name", "Address", "Date/Time", "Amount of Mortgage", "Property Sale Price"]]
         for entry in mortgages_list:
             if entry[0] != "":
                 for item in deeds_list:
@@ -176,7 +175,6 @@ class Pinellas:
 
 
     def scrape_without_bookpage(self, search_list,main_list):  # main list is the big original one where we add the site address
-        # TODO: handle javapopup like in other scraper
         i = 0
         for item in search_list:
             NAME_STRING = item[0]  # we'll be doing a query with the LAST, FIRST format name
@@ -230,24 +228,24 @@ class Pinellas:
                                 break
                         if match_count >= 2:
                             match_found = True
-                            self.driver.get("http://www.pcpao.org/" + line[1])  # this takes us to parcel
-                            while True:
-                                try:
-                                    self.driver.switch_to.default_content()
-                                    # wait for load, then switch to the frame with the data
-                                    self.wait_for_name("bodyFrame")
-                                    self.driver.switch_to.frame(self.driver.find_element_by_name("bodyFrame"))
-                                    # relaible way to get address is to go to tax estimator link from here
-                                    a_tags = []
-                                    a_tags = self.driver.find_elements_by_tag_name("a")
-                                    for tag in a_tags:
-                                        if tag.text == "Tax Estimator":
-                                            self.driver.get(tag.get_attribute("href"))
-                                            break
-                                    break
-                                except UnexpectedAlertPresentException:
-                                    alert = self.driver.switch_to.alert
-                                    alert.accept()
+                            self.driver.get("http://www.pcpao.org/" + line[1].replace("general","taxEst"))  # this takes us to parcel
+                            # while True:
+                            #     try:
+                            #         self.driver.switch_to.default_content()
+                            #         # wait for load, then switch to the frame with the data
+                            #         self.wait_for_name("bodyFrame")
+                            #         self.driver.switch_to.frame(self.driver.find_element_by_name("bodyFrame"))
+                            #         # relaible way to get address is to go to tax estimator link from here
+                            #         a_tags = []
+                            #         a_tags = self.driver.find_elements_by_tag_name("a")
+                            #         for tag in a_tags:
+                            #             if tag.text == "Tax Estimator":
+                            #                 self.driver.get(tag.get_attribute("href"))
+                            #                 break
+                            #         break
+                            #     except UnexpectedAlertPresentException:
+                            #         alert = self.driver.switch_to.alert
+                            #         alert.accept()
                             # here we handle if we ended up at the tax assessor
                             button_tags = self.driver.find_elements_by_tag_name("button")
                             for button in button_tags:
@@ -258,7 +256,6 @@ class Pinellas:
                             main_list[item[2]][1] = site_address
                             main_list[item[2]][6] = ""
                             main_list[item[2]][7] = ""
-                            main_list[item[2]][5] = "High"
                             break
                     if match_found == False:
                         main_list[item[2]][1] = ""
@@ -269,7 +266,6 @@ class Pinellas:
         for row in main_list:
             if row[1]=="":
                 del row
-        return main_list
 
 
     def run(self, input_list):
@@ -336,8 +332,9 @@ class Pinellas:
         secondary_searchable_list = self.generate_nonbookpage_search_list(main_list)
         self.scrape_without_bookpage(secondary_searchable_list, main_list)  # 2ndary list our check/trigger list, but
         # main_list is the one that will have the address injected
+        self.clean_final_list(main_list)
         print(main_list)
-        main_list = self.clean_final_list(main_list)
+
 
         now = datetime.now()
         report_suffix = now.strftime("%Y-%m-%d %H-%M.csv")

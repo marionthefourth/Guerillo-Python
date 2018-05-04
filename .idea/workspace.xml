@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9f5faddc-8283-4f53-aa37-3e4a8193a46d" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/guerillo/GuerilloGUI - commit &amp; print textbox.py" beforeDir="false" afterPath="$PROJECT_DIR$/guerillo/GuerilloGUI - commit &amp; print textbox.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/guerillo/pinellas.py" beforeDir="false" afterPath="$PROJECT_DIR$/guerillo/pinellas.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,8 +16,8 @@
       <file leaf-file-name="GuerilloGUI - commit &amp; print textbox.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/guerillo/GuerilloGUI - commit &amp; print textbox.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="34" lean-forward="true" selection-start-line="34" selection-end-line="34" />
+            <state relative-caret-position="136">
+              <caret line="35" column="30" lean-forward="true" selection-start-line="35" selection-start-column="30" selection-end-line="35" selection-end-column="30" />
               <folding>
                 <element signature="e#107#137#0" expanded="true" />
               </folding>
@@ -29,8 +28,8 @@
       <file leaf-file-name="pinellas.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/guerillo/pinellas.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="309">
-              <caret line="354" column="20" lean-forward="true" selection-start-line="354" selection-start-column="20" selection-end-line="354" selection-end-column="20" />
+            <state relative-caret-position="270">
+              <caret line="262" column="20" lean-forward="true" selection-start-line="262" selection-start-column="20" selection-end-line="262" selection-end-column="20" />
               <folding>
                 <element signature="e#94#183#0" expanded="true" />
                 <element signature="e#852#1264#0" />
@@ -38,12 +37,10 @@
                 <element signature="e#1552#1698#0" />
                 <element signature="e#1747#1850#0" />
                 <element signature="e#1900#2512#0" />
-                <element signature="e#2579#5031#0" />
-                <element signature="e#4222#5944#0" />
+                <element signature="e#3328#5998#0" />
                 <element signature="e#5092#5880#0" />
                 <element signature="e#5950#6077#0" />
                 <element signature="e#6214#6769#0" />
-                <element signature="e#6895#12395#0" />
                 <element signature="e#14044#14141#0" />
               </folding>
             </state>
@@ -62,6 +59,7 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>search</find>
+      <find>yunez</find>
       <find>TODO</find>
     </findStrings>
   </component>
@@ -532,8 +530,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/guerillo/GuerilloGUI - commit &amp; print textbox.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="34" lean-forward="true" selection-start-line="34" selection-end-line="34" />
+        <state relative-caret-position="136">
+          <caret line="35" column="30" lean-forward="true" selection-start-line="35" selection-start-column="30" selection-end-line="35" selection-end-column="30" />
           <folding>
             <element signature="e#107#137#0" expanded="true" />
           </folding>
@@ -542,8 +540,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/guerillo/pinellas.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="309">
-          <caret line="354" column="20" lean-forward="true" selection-start-line="354" selection-start-column="20" selection-end-line="354" selection-end-column="20" />
+        <state relative-caret-position="270">
+          <caret line="262" column="20" lean-forward="true" selection-start-line="262" selection-start-column="20" selection-end-line="262" selection-end-column="20" />
           <folding>
             <element signature="e#94#183#0" expanded="true" />
             <element signature="e#852#1264#0" />
@@ -551,12 +549,10 @@
             <element signature="e#1552#1698#0" />
             <element signature="e#1747#1850#0" />
             <element signature="e#1900#2512#0" />
-            <element signature="e#2579#5031#0" />
-            <element signature="e#4222#5944#0" />
+            <element signature="e#3328#5998#0" />
             <element signature="e#5092#5880#0" />
             <element signature="e#5950#6077#0" />
             <element signature="e#6214#6769#0" />
-            <element signature="e#6895#12395#0" />
             <element signature="e#14044#14141#0" />
           </folding>
         </state>
