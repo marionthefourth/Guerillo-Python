@@ -29,13 +29,14 @@ class Pinellas:
 
 
     def __init__(self, status_label=None):
+        self.status_label = status_label
         self.root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
         self.exports_path = self.root_path + "\\bin\\exports\\"
         self.reports_path = self.root_path + "\\bin\\reports\\"
         chrome_options = wd.ChromeOptions()
         prefs = {'download.default_directory': self.exports_path}
         chrome_options.add_experimental_option('prefs', prefs)
-        chrome_options.add_argument("window-position=-10000,0")
+        #chrome_options.add_argument("window-position=-10000,0")
         self.driver = wd.Chrome(self.root_path + "\\bin\\webdriver\\chromedriver.exe", chrome_options=chrome_options)
         #self.driver.set_window_position(-10000,0) #hides window without going headless (headless throws
                                                     # elementnotvisible exceptions and stuff)
@@ -107,6 +108,7 @@ class Pinellas:
                 self.driver.find_element_by_name("submitButtonName").send_keys(Keys.SPACE)
                 # wait for load, then get the link (hardcoded because always one result)
                 self.wait_for_id("linkBar")
+
                 aTags = self.driver.find_element_by_id("ITB").find_elements_by_tag_name("a")
                 if len(aTags) == 0:
                     bookpage[1] = "No Book/Page"
