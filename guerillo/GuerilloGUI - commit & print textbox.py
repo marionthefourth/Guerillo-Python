@@ -68,7 +68,7 @@ images_path = root_path + "\\res\\img\\"
 root = tk.Tk()
 root.title("Guerillo")
 root.iconbitmap(images_path + 'phone.ico')
-root.geometry('500x300') #syntax is 'WidthxHeight'
+root.geometry('400x300') #syntax is 'WidthxHeight'
 root.config(background="white")
 
 
@@ -113,37 +113,38 @@ top_menu.add_cascade(label="File", menu=file_menu)
 entry_fields_list = []
 #build entry grid frame (grid layout for text entry components and search button)
 entry_grid_frame = tk.Frame(main_frame, bg="white")
-entry_grid_frame.pack(side=tc.LEFT, fill=tc.BOTH)
-entry_grid_frame.columnconfigure(3, minsize=75)
+entry_grid_frame.place(in_=main_frame, anchor="c", relx=.50, rely=.30)
+entry_grid_frame.columnconfigure(1, minsize=75)
 
 
 #build column elements (labels, text inputs, search button)
-lower_bound_label = tk.Label(entry_grid_frame,bg="white",text="Minimum Mortgage Amount")
+lower_bound_label = tk.Label(entry_grid_frame,bg="white",text="Min Mortgage Amount",font=("Constantia", 12))
 lower_bound_label.grid(row=0,column=0,sticky=tc.E)
 lower_bound_input = tk.Text(entry_grid_frame, height=1, width=10)
 lower_bound_input.grid(row=0,column=1)
 entry_fields_list.append(lower_bound_input)
 
-upper_bound_label = tk.Label(entry_grid_frame,bg="white",text="Maximum Mortgage Amount")
+upper_bound_label = tk.Label(entry_grid_frame,bg="white",text="Max Mortgage Amount",font=("Constantia", 12))
 upper_bound_label.grid(row=1,column=0,sticky=tc.E)
 upper_bound_input = tk.Text(entry_grid_frame, height=1, width=10)
 upper_bound_input.grid(row=1,column=1)
 entry_fields_list.append(upper_bound_input)
 
-start_date_label = tk.Label(entry_grid_frame,bg="white",text="Start Date")
+start_date_label = tk.Label(entry_grid_frame,bg="white",text="Start Date",font=("Constantia", 12))
 start_date_label.grid(row=2,column=0,sticky=tc.E)
 start_date_input = tk.Text(entry_grid_frame, height=1, width=10)
 start_date_input.grid(row=2,column=1)
 entry_fields_list.append(start_date_input)
 
-end_date_label = tk.Label(entry_grid_frame,bg="white",text="End Date")
+end_date_label = tk.Label(entry_grid_frame,bg="white",text="End Date",font=("Constantia", 12))
 end_date_label.grid(row=3,column=0,sticky=tc.E)
 end_date_input = tk.Text(entry_grid_frame, height=1, width=10)
 end_date_input.grid(row=3,column=1)
 entry_fields_list.append(end_date_input)
 
-search_button=tk.Button(entry_grid_frame, height=2, width=10, text="Search", command=lambda:search_button_method(entry_fields_list,status))
-search_button.grid(row=1,column=2,columnspan=2,rowspan=2,sticky=tc.E+tc.W,padx=10)
+search_button=tk.Button(entry_grid_frame, height=2, width=10, text="Search", font=("Constantia", 12),
+                        command=lambda:search_button_method(entry_fields_list,status))
+search_button.grid(row=4,column=0,columnspan=2,sticky=tc.E+tc.W,padx=10)
 
 #have to add this section here because thsi is all done in-line.
 #if done above where it makes more sense, the entry_fields_list variable doesn't exist yet

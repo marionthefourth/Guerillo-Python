@@ -36,6 +36,8 @@ class Pinellas:
         chrome_options.add_experimental_option('prefs', prefs)
         self.driver = wd.Chrome(self.root_path + "\\bin\\webdriver\\chromedriver.exe", chrome_options=chrome_options)
         self.status_label = status_label
+        self.driver.set_window_position(-10000,0) #hides window without going headless (headless throws
+                                                #elementnotvisible exceptions and stuff)
 
     def wait_for_class(self, class_name, timeout=None, exit_message=""):
         if timeout is not None:
@@ -179,8 +181,8 @@ class Pinellas:
 
     def scrape_without_bookpage(self, search_list,main_list,status_label=None):  # main list is the big original one where we add the site address
         i = 0
-        status_label.configure(text="Handling item " + str(i + 1) + " of " + str(len(search_list)))
         for item in search_list:
+            status_label.configure(text="Handling item " + str(i + 1) + " of " + str(len(search_list)))
             NAME_STRING = item[0]  # we'll be doing a query with the LAST, FIRST format name
             self.driver.get("http://www.pcpao.org/query_name.php?Text1=" + NAME_STRING + "&nR=1000")
             header = self.driver.find_element_by_tag_name("th")
@@ -201,6 +203,7 @@ class Pinellas:
                         for tag in ITB2_td_tags:
                             if tag.text == "Your search returned no records": #if still no results, we're done
                                 main_list[item[2]][1] = ""
+                                main_list[item[2]][7] = ""
                                 print("No results found for name " + item[0] + " with given legal description")
                                 continue_search = False
                                 break
@@ -268,7 +271,7 @@ class Pinellas:
 
     def clean_final_list(self, main_list):
         for row in main_list:
-            if row[1]=="":
+            if str(row[1])=="":
                 print("Bad row found")
                 main_list.remove(row)
         print("End of method")

@@ -15,11 +15,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="GuerilloGUI - commit &amp; print textbox.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="GuerilloGUI - commit &amp; print textbox.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/guerillo/GuerilloGUI - commit &amp; print textbox.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="222">
-              <caret line="38" column="25" selection-start-line="38" selection-start-column="25" selection-end-line="38" selection-end-column="25" />
+            <state relative-caret-position="205">
+              <caret line="146" column="72" lean-forward="true" selection-start-line="146" selection-start-column="72" selection-end-line="146" selection-end-column="72" />
               <folding>
                 <element signature="e#107#137#0" expanded="true" />
               </folding>
@@ -27,17 +27,16 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="pinellas.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="pinellas.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/guerillo/pinellas.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="99" column="108" selection-start-line="99" selection-start-column="108" selection-end-line="99" selection-end-column="108" />
+            <state relative-caret-position="-561">
+              <caret line="39" column="88" selection-start-line="39" selection-start-column="88" selection-end-line="39" selection-end-column="88" />
               <folding>
                 <element signature="e#94#183#0" expanded="true" />
                 <element signature="e#6074#6888#0" />
                 <element signature="e#6972#7107#0" />
                 <element signature="e#7258#7853#0" />
-                <element signature="e#13927#14108#0" />
               </folding>
             </state>
           </provider>
@@ -59,7 +58,11 @@
       <find>yunez</find>
       <find>self.sta</find>
       <find>.configure</find>
+      <find>i =</find>
       <find>status</find>
+      <find>relx</find>
+      <find>button</find>
+      <find>Bad row</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -71,8 +74,8 @@
         <option value="$PROJECT_DIR$/guerillo/config.py" />
         <option value="$PROJECT_DIR$/guerillo/menu.py" />
         <option value="$PROJECT_DIR$/guerillo/pinellasScraping.py" />
-        <option value="$PROJECT_DIR$/guerillo/GuerilloGUI - commit &amp; print textbox.py" />
         <option value="$PROJECT_DIR$/guerillo/pinellas.py" />
+        <option value="$PROJECT_DIR$/guerillo/GuerilloGUI - commit &amp; print textbox.py" />
       </list>
     </option>
   </component>
@@ -235,7 +238,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="4" />
+      <option name="time" value="7" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
@@ -258,7 +261,6 @@
             <element signature="e#6074#6888#0" />
             <element signature="e#6972#7107#0" />
             <element signature="e#7258#7853#0" />
-            <element signature="e#13927#14108#0" />
           </folding>
         </state>
       </provider>
@@ -286,7 +288,6 @@
             <element signature="e#6074#6888#0" />
             <element signature="e#6972#7107#0" />
             <element signature="e#7258#7853#0" />
-            <element signature="e#13927#14108#0" />
           </folding>
         </state>
       </provider>
@@ -314,7 +315,6 @@
             <element signature="e#6074#6888#0" />
             <element signature="e#6972#7107#0" />
             <element signature="e#7258#7853#0" />
-            <element signature="e#13927#14108#0" />
           </folding>
         </state>
       </provider>
@@ -342,7 +342,6 @@
             <element signature="e#6074#6888#0" />
             <element signature="e#6972#7107#0" />
             <element signature="e#7258#7853#0" />
-            <element signature="e#13927#14108#0" />
           </folding>
         </state>
       </provider>
@@ -370,7 +369,6 @@
             <element signature="e#6074#6888#0" />
             <element signature="e#6972#7107#0" />
             <element signature="e#7258#7853#0" />
-            <element signature="e#13927#14108#0" />
           </folding>
         </state>
       </provider>
@@ -398,7 +396,6 @@
             <element signature="e#6074#6888#0" />
             <element signature="e#6972#7107#0" />
             <element signature="e#7258#7853#0" />
-            <element signature="e#13927#14108#0" />
           </folding>
         </state>
       </provider>
@@ -426,7 +423,6 @@
             <element signature="e#6074#6888#0" />
             <element signature="e#6972#7107#0" />
             <element signature="e#7258#7853#0" />
-            <element signature="e#13927#14108#0" />
           </folding>
         </state>
       </provider>
@@ -454,7 +450,6 @@
             <element signature="e#6074#6888#0" />
             <element signature="e#6972#7107#0" />
             <element signature="e#7258#7853#0" />
-            <element signature="e#13927#14108#0" />
           </folding>
         </state>
       </provider>
@@ -593,26 +588,25 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/guerillo/GuerilloGUI - commit &amp; print textbox.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="222">
-          <caret line="38" column="25" selection-start-line="38" selection-start-column="25" selection-end-line="38" selection-end-column="25" />
-          <folding>
-            <element signature="e#107#137#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/guerillo/pinellas.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="99" column="108" selection-start-line="99" selection-start-column="108" selection-end-line="99" selection-end-column="108" />
+        <state relative-caret-position="-561">
+          <caret line="39" column="88" selection-start-line="39" selection-start-column="88" selection-end-line="39" selection-end-column="88" />
           <folding>
             <element signature="e#94#183#0" expanded="true" />
             <element signature="e#6074#6888#0" />
             <element signature="e#6972#7107#0" />
             <element signature="e#7258#7853#0" />
-            <element signature="e#13927#14108#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/guerillo/GuerilloGUI - commit &amp; print textbox.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="205">
+          <caret line="146" column="72" lean-forward="true" selection-start-line="146" selection-start-column="72" selection-end-line="146" selection-end-column="72" />
+          <folding>
+            <element signature="e#107#137#0" expanded="true" />
           </folding>
         </state>
       </provider>
