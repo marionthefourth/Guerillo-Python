@@ -33,6 +33,7 @@ def link_to_pano(event):
 
 output_list = []
 def search_button_method(passed_fields_list,passed_status_label):
+    passed_status_label.configure(text="Getting prepped...")
     search_thread = SecondaryThread()
     search_thread.status_label = passed_status_label
     search_thread.fields_list = passed_fields_list
