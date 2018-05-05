@@ -26,7 +26,8 @@ class Pinellas:
     exports_path = ""
     reports_path = ""
     chrome_options = None
-    def __init__(self):
+    status_label = None
+    def __init__(self,status_label=None):
         self.root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
         self.exports_path = self.root_path + "\\bin\\exports\\"
         self.reports_path = self.root_path + "\\bin\\reports\\"
@@ -34,6 +35,7 @@ class Pinellas:
         prefs = {'download.default_directory': self.exports_path}
         chrome_options.add_experimental_option('prefs', prefs)
         self.driver = wd.Chrome(self.root_path + "\\bin\\webdriver\\chromedriver.exe", chrome_options=chrome_options)
+        self.status_label = status_label
 
     def wait_for_class(self, class_name, timeout=None, exit_message=""):
         if timeout is not None:
@@ -92,9 +94,10 @@ class Pinellas:
         return (deeds, mortgages)
 
 
-    def scrape_location_addresses_with_bookpage(self, bookpage_list):
+    def scrape_location_addresses_with_bookpage(self, bookpage_list,status_label=None):
         for (i, bookpage) in enumerate(bookpage_list):
             if i != 0:
+                status_label.configure(text="Handling item " + str(i+1-1) +" of " + str(len(bookpage_list)-1))
                 self.driver.get("http://www.pcpao.org/clik.html?pg=http://www.pcpao.org/searchbyOR.php")
                 # have to accept, simulate with space press
                 self.driver.find_element_by_tag_name("button").send_keys(Keys.SPACE)
@@ -174,8 +177,9 @@ class Pinellas:
         return search_list
 
 
-    def scrape_without_bookpage(self, search_list,main_list):  # main list is the big original one where we add the site address
+    def scrape_without_bookpage(self, search_list,main_list,status_label=None):  # main list is the big original one where we add the site address
         i = 0
+        status_label.configure(text="Handling item " + str(i + 1) + " of " + str(len(search_list)))
         for item in search_list:
             NAME_STRING = item[0]  # we'll be doing a query with the LAST, FIRST format name
             self.driver.get("http://www.pcpao.org/query_name.php?Text1=" + NAME_STRING + "&nR=1000")
@@ -272,8 +276,7 @@ class Pinellas:
 
 
     def run(self, input_list):
-
-
+        self.status_label.configure(text="Search starting")
         lower_bound = input_list[0]
         upper_bound = input_list[1]
         startDate = input_list[2]
@@ -284,6 +287,7 @@ class Pinellas:
 
         tURL = 'https://officialrecords.mypinellasclerk.org/search/SearchTypeConsideration'
         self.driver.get(tURL)
+        self.status_label.configure(text="Searching...")
         # hit the accept button to be able to do anything else
         self.driver.find_element_by_id("btnButton").click()
         # date range entry
@@ -328,16 +332,19 @@ class Pinellas:
         m_list = d_and_m[1]
 
         new_bookpage_list = self.create_bookpage_list(d_list, m_list)
-        self.scrape_location_addresses_with_bookpage(new_bookpage_list)
+        self.status_label.configure(text="Processing " + str(len(new_bookpage_list)) + " items")
+        self.scrape_location_addresses_with_bookpage(new_bookpage_list, status_label = self.status_label)
         main_list = new_bookpage_list  # now that first scrape was done, give it a more fitting name
 
         # time to now scrape for the ones that didn't have a bookpage
         secondary_searchable_list = self.generate_nonbookpage_search_list(main_list)
-        self.scrape_without_bookpage(secondary_searchable_list, main_list)  # 2ndary list our check/trigger list, but
+        self.status_label.configure(text="Now processing " + str(len(secondary_searchable_list)) + " items")
+        self.scrape_without_bookpage(secondary_searchable_list, main_list,self.status_label)  # 2ndary list our check/trigger list, but
         # main_list is the one that will have the address injected
         self.clean_final_list(main_list)
         print("Second check outside of method")
         print(main_list)
+        self.status_label.configure(text="Almost done. Wrapping up.")
 
 
         now = datetime.now()

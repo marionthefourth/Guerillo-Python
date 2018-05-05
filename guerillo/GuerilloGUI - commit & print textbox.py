@@ -9,11 +9,20 @@ Table of Contents:
 """
 import tkinter.constants as tc
 import tkinter as tk
+import time
 import tkinter.messagebox as msg
 from PIL import Image,ImageTk
 import webbrowser
 import os
 import guerillo.pinellas as pinellas
+from threading import Thread
+
+class SecondaryThread(Thread):
+    fields_list = []
+    status_label = None
+    def run(self):
+        retrieve_inputs_and_run(self.fields_list,self.status_label)
+
 
 
 """ Methods"""
@@ -23,14 +32,22 @@ def link_to_pano(event):
     webbrowser.open_new(r"http://www.panoramic.global")
 
 output_list = []
-def retrieve_inputs_and_run(fields_list):
+def search_button_method(passed_fields_list,passed_status_label):
+    search_thread = SecondaryThread()
+    search_thread.status_label = passed_status_label
+    search_thread.fields_list = passed_fields_list
+    search_thread.start()
+
+
+def retrieve_inputs_and_run(fields_list,status_label):
     global output_list
     output_list = []
     for field_reference in fields_list:
         output_list.append(field_reference.get("1.0", "end-1c"))
     print(output_list)
-    pinellas_instance = pinellas.Pinellas()
+    pinellas_instance = pinellas.Pinellas(status_label)
     pinellas_instance.run(output_list)
+    status_label.configure(text="Ready to search.")
     return output_list
 
 def clear_inputs(fields_list):
@@ -61,6 +78,7 @@ status_frame = tk.Frame(root)
 status_frame.pack(side=tc.BOTTOM, fill=tc.X)
 status = tk.Label (status_frame, text="Ready to search.", bd=1, relief=tc.SUNKEN, anchor=tc.W)
 status.pack(side=tc.BOTTOM, fill=tc.X)
+
 
 #create main frame (wherein a grid will be used) - color is for help while working and should be removed
 main_frame = tk.Frame(root, bg="white")
@@ -124,7 +142,7 @@ end_date_input = tk.Text(entry_grid_frame, height=1, width=10)
 end_date_input.grid(row=3,column=1)
 entry_fields_list.append(end_date_input)
 
-search_button=tk.Button(entry_grid_frame, height=2, width=10, text="Search", command=lambda:retrieve_inputs_and_run(entry_fields_list))
+search_button=tk.Button(entry_grid_frame, height=2, width=10, text="Search", command=lambda:search_button_method(entry_fields_list,status))
 search_button.grid(row=1,column=2,columnspan=2,rowspan=2,sticky=tc.E+tc.W,padx=10)
 
 #have to add this section here because thsi is all done in-line.
