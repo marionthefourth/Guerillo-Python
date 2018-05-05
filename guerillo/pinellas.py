@@ -19,7 +19,6 @@ from datetime import date, time, datetime, timedelta
 import time
 
 
-
 class Pinellas:
     driver = None
     root_path = ""
@@ -27,17 +26,19 @@ class Pinellas:
     reports_path = ""
     chrome_options = None
     status_label = None
-    def __init__(self,status_label=None):
+
+
+    def __init__(self, status_label=None):
         self.root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
         self.exports_path = self.root_path + "\\bin\\exports\\"
         self.reports_path = self.root_path + "\\bin\\reports\\"
         chrome_options = wd.ChromeOptions()
         prefs = {'download.default_directory': self.exports_path}
         chrome_options.add_experimental_option('prefs', prefs)
+        chrome_options.add_argument("window-position=-10000,0")
         self.driver = wd.Chrome(self.root_path + "\\bin\\webdriver\\chromedriver.exe", chrome_options=chrome_options)
-        self.status_label = status_label
-        self.driver.set_window_position(-10000,0) #hides window without going headless (headless throws
-                                                #elementnotvisible exceptions and stuff)
+        #self.driver.set_window_position(-10000,0) #hides window without going headless (headless throws
+                                                    # elementnotvisible exceptions and stuff)
 
     def wait_for_class(self, class_name, timeout=None, exit_message=""):
         if timeout is not None:
@@ -54,7 +55,6 @@ class Pinellas:
                         quit()
                 pass
 
-
     def wait_for_id(self, id):  # TODO: need to add timeout functionality
         while (True):
             try:
@@ -62,7 +62,6 @@ class Pinellas:
                 break
             except NoSuchElementException:
                 pass
-
 
     def wait_for_name(self, name):  # TODO: need to add timeout functionality
         while (True):
@@ -72,11 +71,9 @@ class Pinellas:
             except NoSuchElementException:
                 pass
 
-
     def clear_and_send(self, ele_id, text_to_send):
         self.driver.find_element_by_id(ele_id).clear()
         self.driver.find_element_by_id(ele_id).send_keys(text_to_send)
-
 
     def csv_to_deeds_and_mortgages(self, file_name):
         # open file and turn the lines into a list of strings
@@ -91,15 +88,15 @@ class Pinellas:
         deeds = []
         mortgages = []
         for item in data_lists:
-            if item[3] == "DEED": deeds.append(item)
-            if item[3] == "MORTGAGE": mortgages.append(item)
+            if item[0] != "" and item[1] != "" and item[6] != "":
+                if item[3] == "DEED": deeds.append(item)
+                if item[3] == "MORTGAGE": mortgages.append(item)
         return (deeds, mortgages)
 
-
-    def scrape_location_addresses_with_bookpage(self, bookpage_list,status_label=None):
+    def scrape_location_addresses_with_bookpage(self, bookpage_list, status_label=None):
         for (i, bookpage) in enumerate(bookpage_list):
             if i != 0:
-                status_label.configure(text="Handling item " + str(i+1-1) +" of " + str(len(bookpage_list)-1))
+                status_label.configure(text="Handling item " + str(i + 1 - 1) + " of " + str(len(bookpage_list) - 1))
                 self.driver.get("http://www.pcpao.org/clik.html?pg=http://www.pcpao.org/searchbyOR.php")
                 # have to accept, simulate with space press
                 self.driver.find_element_by_tag_name("button").send_keys(Keys.SPACE)
@@ -114,7 +111,7 @@ class Pinellas:
                 if len(aTags) == 0:
                     bookpage[1] = "No Book/Page"
                 else:
-                    self.driver.get(aTags[1].get_attribute("href").replace("general","taxEst"))
+                    self.driver.get(aTags[1].get_attribute("href").replace("general", "taxEst"))
                     # while True:
                     #     try:
                     #         self.driver.switch_to.default_content()
@@ -135,7 +132,7 @@ class Pinellas:
                     # here we handle if we ended up at the tax assessor
                     button_tags = self.driver.find_elements_by_tag_name("button")
                     for button in button_tags:
-                        if button.text == "I agree":
+                        if button.text == "I Agree":
                             button.send_keys(Keys.SPACE)
                     self.wait_for_id("addr_ns")
                     site_address = self.driver.find_element_by_id("addr_ns").get_attribute("value")
@@ -143,29 +140,26 @@ class Pinellas:
                     bookpage[6] = ""
                     bookpage[7] = ""
 
-
-
     def create_bookpage_list(self, deeds_list, mortgages_list):
         # remember that we're checking the mortgages (because we want those leads; deeds alone might not be the right kind)
         # but we need to pull the DEED bookpage number
         list = [["Name", "Address", "Date/Time", "Amount of Mortgage", "Property Sale Price"]]
         for entry in mortgages_list:
-            if entry[0] != "":
                 for item in deeds_list:
                     if entry[0] == item[1]:  # checks the mortgage entry name to find the right deed item
                         list.append([entry[0], item[5], entry[2], entry[8], item[8], "", entry[6], item[0]])
                         # name from M, bookpage from D, date/time from M, mortgage amount from M, saleprice from D
-                        # placeholder for confidence level, legal descr, counterparty name
-        return list
+                        # empty placeholder, legal descr, counterparty name
 
+        return list
 
     def write_csv_file(self, file_name, list_of_lists, *args, **kwargs):
         mycsv = csv.writer(open(file_name, 'w', newline=''), *args, **kwargs)
         for row in list_of_lists:
             mycsv.writerow(row)
 
-
-    def generate_nonbookpage_search_list(self, post_bookpage_list):  # sanitize name with comma formatting, legal description as components
+    def generate_nonbookpage_search_list(self,
+                                         post_bookpage_list):  # sanitize name with comma formatting, legal description as components
         search_list = []
         i = 0
         for entry in post_bookpage_list:
@@ -173,16 +167,16 @@ class Pinellas:
                 # name is already LAST FIRST but just needs to be LAST, FIRST with comma
                 # legal descr we want broken into a list of each word, space delimited from input
                 sanitized_name = entry[7].split(" ")[0] + ", " + entry[7].split(" ")[1]
-                search_list.append([sanitized_name, entry[6].split(" "),i])
+                search_list.append([sanitized_name, entry[6].split(" "), i])
             i = i + 1
         # so we're left with a list of lists, which are [0] - string, [1] - list
         return search_list
 
-
-    def scrape_without_bookpage(self, search_list,main_list,status_label=None):  # main list is the big original one where we add the site address
+    def scrape_without_bookpage(self, search_list, main_list,
+                                status_label=None):  # main list is the big original one where we add the site address
         i = 0
         for item in search_list:
-            status_label.configure(text="Handling item " + str(i + 1) + " of " + str(len(search_list)))
+            status_label.configure(text="Taking a deeper look for item " + str(i + 1) + " of " + str(len(search_list)))
             NAME_STRING = item[0]  # we'll be doing a query with the LAST, FIRST format name
             self.driver.get("http://www.pcpao.org/query_name.php?Text1=" + NAME_STRING + "&nR=1000")
             header = self.driver.find_element_by_tag_name("th")
@@ -197,11 +191,12 @@ class Pinellas:
                 for tag in ITB_td_tags:  # if no results, remove the comma from name and search again
                     # this necessary b/c LLCs/entities
                     if tag.text == "Your search returned no records":
-                        self.driver.get("http://www.pcpao.org/query_name.php?Text1=" + NAME_STRING.replace(",", "") + "&nR=1000")
+                        self.driver.get(
+                            "http://www.pcpao.org/query_name.php?Text1=" + NAME_STRING.replace(",", "") + "&nR=1000")
                         ITB2 = self.driver.find_element_by_id("ITB")
                         ITB2_td_tags = ITB2.find_elements_by_tag_name("td")
                         for tag in ITB2_td_tags:
-                            if tag.text == "Your search returned no records": #if still no results, we're done
+                            if tag.text == "Your search returned no records":  # if still no results, we're done
                                 main_list[item[2]][1] = ""
                                 main_list[item[2]][7] = ""
                                 print("No results found for name " + item[0] + " with given legal description")
@@ -226,16 +221,17 @@ class Pinellas:
                         match_found = False
                         match_count = 0  # we'll be counting the number of word matches (order unimportant)
                         # 2 or more matches should signify a hit
-                        subdivision_searchable = line[0].split(" ") #line[0] is the subdivision name
+                        subdivision_searchable = line[0].split(" ")  # line[0] is the subdivision name
                         for word in item[1]:  # this was our input list with the space delimited legal descr.
                             for other_word in subdivision_searchable:
                                 if word == other_word:
                                     match_count = match_count + 1
-                            if match_count >=2:
+                            if match_count >= 2:
                                 break
                         if match_count >= 2:
                             match_found = True
-                            self.driver.get("http://www.pcpao.org/" + line[1].replace("general","taxEst"))  # this takes us to parcel
+                            self.driver.get("http://www.pcpao.org/" + line[1].replace("general",
+                                                                                      "taxEst"))  # this takes us to parcel
                             # while True:
                             #     try:
                             #         self.driver.switch_to.default_content()
@@ -267,16 +263,17 @@ class Pinellas:
                     if match_found == False:
                         main_list[item[2]][1] = ""
                         print("No results found for name " + item[0] + " with given legal description")
-            i = i +1
+            i = i + 1
 
     def clean_final_list(self, main_list):
-        for row in main_list:
-            if str(row[1])=="":
-                print("Bad row found")
-                main_list.remove(row)
+        bad_eggs = []
+        for i,entry in enumerate(main_list):
+            if entry[1] == "":
+                bad_eggs.append(i)
+        for bad_egg in reversed(bad_eggs):
+            main_list.pop(bad_egg)
         print("End of method")
         print(main_list)
-
 
     def run(self, input_list):
         self.status_label.configure(text="Search starting")
@@ -284,7 +281,6 @@ class Pinellas:
         upper_bound = input_list[1]
         startDate = input_list[2]
         endDate = input_list[3]
-
 
         # store target URL as variable - this will be dynamic from user input (hills or pinellas)
 
@@ -326,7 +322,7 @@ class Pinellas:
         # rename
         nowTime = str(datetime.now()).replace(":", "").replace(".", "-")
         new_file_name = self.exports_path + "\\" + startDate.replace("/", "") + "-" + endDate.replace("/",
-                                                                                                 "") + " " + nowTime + ".csv"
+                                                     "")+" " + lower_bound + " " + upper_bound + " " + nowTime + ".csv"
         os.rename(self.exports_path + "\\SearchResults.csv", new_file_name)
 
         # call the method and assign the sexy new returned data
@@ -336,19 +332,19 @@ class Pinellas:
 
         new_bookpage_list = self.create_bookpage_list(d_list, m_list)
         self.status_label.configure(text="Processing " + str(len(new_bookpage_list)) + " items")
-        self.scrape_location_addresses_with_bookpage(new_bookpage_list, status_label = self.status_label)
+        self.scrape_location_addresses_with_bookpage(new_bookpage_list, status_label=self.status_label)
         main_list = new_bookpage_list  # now that first scrape was done, give it a more fitting name
 
         # time to now scrape for the ones that didn't have a bookpage
         secondary_searchable_list = self.generate_nonbookpage_search_list(main_list)
         self.status_label.configure(text="Now processing " + str(len(secondary_searchable_list)) + " items")
-        self.scrape_without_bookpage(secondary_searchable_list, main_list,self.status_label)  # 2ndary list our check/trigger list, but
+        self.scrape_without_bookpage(secondary_searchable_list, main_list,
+                                     self.status_label)  # 2ndary list our check/trigger list, but
         # main_list is the one that will have the address injected
         self.clean_final_list(main_list)
         print("Second check outside of method")
         print(main_list)
         self.status_label.configure(text="Almost done. Wrapping up.")
-
 
         now = datetime.now()
         report_suffix = now.strftime("%Y-%m-%d %H-%M.csv")
