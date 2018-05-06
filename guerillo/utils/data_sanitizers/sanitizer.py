@@ -28,3 +28,18 @@ class Sanitizer:
             return county_name
         else:
             return None
+
+    @staticmethod
+    def general_name(name, comma=True):
+        if comma:
+            return name.split(" ")[0] + ", " + name.split(" ")[1]
+        else:
+            return name.replace(",", "")
+
+    @staticmethod
+    def date(date):
+        return date.replace("/", "")
+
+    @staticmethod
+    def date_time(date_time):
+        return date_time.replace(":", "").replace(".", "-")
