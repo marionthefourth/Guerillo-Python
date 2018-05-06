@@ -10,6 +10,7 @@ class BackendType(Enum):
     COUNTY = "County"
     DEFAULT = "Default"
     KEYCHAIN = "Keychain"
+    SEARCH_QUERY = "SearchQuery"
     REQUEST_QUEUE = "RequestQueue"
     HOMEOWNER_SEARCH_RESULT = "HomeownerSearchResult"
 
