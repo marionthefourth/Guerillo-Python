@@ -13,12 +13,12 @@ class Storage:
 
 
 class API:
-    KEY = "AIzaSyB2RcGVIugMdzzK6JoFbZb3E4WbQGgLjZM"
-    AUTH_DOMAIN = "guerillo-panoramic.firebaseapp.com"
     PROJECT_ID = "guerillo-panoramic"
-    DATABASE_URL = "https://guerillo-panoramic.firebaseio.com"
-    STORAGE_BUCKET = "guerillo-panoramic.appspot.com"
     MESSAGING_SENDER_ID = "161710239376"
+    KEY = "AIzaSyB2RcGVIugMdzzK6JoFbZb3E4WbQGgLjZM"
+    STORAGE_BUCKET = "guerillo-panoramic.appspot.com"
+    AUTH_DOMAIN = "guerillo-panoramic.firebaseapp.com"
+    DATABASE_URL = "https://guerillo-panoramic.firebaseio.com"
 
 
 class Directories:
@@ -30,7 +30,15 @@ class Queries:
 
 
 class URLs:
-    PCPAO = "http://www.pcpao.org/query_name.php"
+    class PCPAO:
+        HOME = "http://www.pcpao.org/"
+        QUERY_NAME = HOME + "query_name.php"
+        TEXT_1 = QUERY_NAME + "?Text1="
+        SEARCH_BY_OR = HOME + "clik.html?pg=" + HOME + "searchbyOR.php"
+
+
+    class MyPinellasClerk:
+        SEARCH_TYPE_CONSIDERATION = 'https://officialrecords.mypinellasclerk.org/search/SearchTypeConsideration'
     PUBREC = "https://pubrec3.hillsclerk.com/oncore/search.aspx"
     HCPAFL = "http://gis.hcpafl.org/propertysearch/#/nav/Basic%20Search"
     CENSUS_COUNTY_CODES = "https://www.census.gov/geo/reference/codes/cousub.html"
@@ -65,13 +73,17 @@ class Folders:
     BIN = "/bin"
     PYTHON = BIN + "/python"
     EXPORTS = BIN + "/exports/"
+    REPORTS = BIN + "/reports/"
     ANSI_DATA = BIN + "/ansi_data/"
+    WEB_DRIVERS = BIN + "/web_drivers/"
 
     CSVx = EXPORTS + "/csvs/"
 
 
 class KeyFiles:
     NATIONAL_COUNTY = "national_county.txt"
+    WEBDRIVER = "chromedriver.exe"
+    SEARCH_RESULTS = "SearchResults.csv"
 
     @staticmethod
     def get():
@@ -85,9 +97,9 @@ class FileExtensions:
 
 
 class OperatingSystems:
+    OSX = "darwin"
     LINUX = "linux"
     LINUX2 = "linux2"
-    OSX = "darwin"
     WINDOWS = "win32"
 
 
@@ -101,17 +113,48 @@ class Classes:
 
 
 class General:
+    class PCPAO:
+        BUTTON_SEARCH = "btnSearch"
+        BUTTON_CSV = "btnCsvButton"
+        BUTTON = "btnButton"
+        RECORD_FROM = "RecordDateFrom"
+        RECORD_TO = "RecordDateTo"
+        LOWER_BOUND = "LowerBound"
+        UPPER_BOUND = "UpperBound"
+        BUTTON_SUBMIT = "submitButtonName"
+        ITB = "ITB"
+        ADDR_NS = "addr_ns"
+        TAX_EST = "taxEst"
+        NO_RECORDS = "Your search returned no records."
+
+    class WebDriver:
+        DEFAULT_DOWNLOAD_DIRECTORY = "download.default_directory"
+
+
     TITLE = "title"
     PREPARING_TO_DOWNLOAD = "Preparing to download: "
     BACKWARDS_SLASH = "/"
     FORWARDS_SLASH = "\""
     DBL_BACKWARDS_SLASH = "//"
     DBL_FORWARDS_SLASH = "\\"""
+    TEXT_1 = "Text1"
     FORMAT = 'format'
     KEY = 'key'
     NO = "no"
     YES = "yes"
     ALL = "all"
+    DEED = "DEED"
+    MORTGAGE = "MORTGAGE"
+    PREFS = "prefs"
+    A = "a"
+    BUTTON = "button"
+    I_AGREE = "I Agree"
+    LINK_BAR = "linkBar"
+    VALUE = "value"
+    NO_BOOKPAGE = "No Book/Page"
+    TOO_MANY_RESULTS = "Too many search results. Skipping this entry."
+    DOWNLOADING_ERROR = "Error in downloading data. Please try again. If the problem persists, " \
+                        "cry heck and let loose the doggos of war."
 
 
 class HTML:
@@ -119,10 +162,18 @@ class HTML:
     RESULTS = "nR"
     NAME = "Text1"
     SP = "&sp="
+    TH = "th"
+    NUM_RESULTS_1000 = "&nR=1000"
     HTTP = "http"
     WWW = "www"
     Q = "&q="
+    TD = "td"
     HREF = "href"
     HTML_BUTTON_ID = "id_button_1324123_friend"
     A = "a"
     DIV = "div"
+    TR = "tr"
+    T_GRID_CONTENT = "t-grid-content"
+    T_NO_DATA = "t-no-data"
+    OUTER = "outerHTML"
+    PARSER = "html.parser"

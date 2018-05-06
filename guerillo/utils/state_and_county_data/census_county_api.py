@@ -1,4 +1,4 @@
-from guerillo.classes.county import County
+from guerillo.classes.backend_objects.county import County
 from guerillo.utils.data_sanitizers.sanitizer import Sanitizer
 from guerillo.utils.file_storage.file_storage import FileStorage
 

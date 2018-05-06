@@ -1,5 +1,5 @@
 from guerillo.backend.backend import Backend
-from guerillo.classes.backend_object import BackendObject, BackendType
+from guerillo.classes.backend_objects.backend_object import BackendObject, BackendType
 
 
 class AuxiliaryObject(BackendObject):

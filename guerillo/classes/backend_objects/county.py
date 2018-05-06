@@ -1,7 +1,7 @@
 from cryptography.fernet import Fernet
 
-from guerillo.classes.auxiliary_object import AuxiliaryObject
-from guerillo.classes.backend_object import BackendObject, BackendType
+from guerillo.classes.backend_objects.auxiliary_object import AuxiliaryObject
+from guerillo.classes.backend_objects.backend_object import BackendObject, BackendType
 
 
 class County(BackendObject):
