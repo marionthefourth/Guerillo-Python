@@ -36,7 +36,7 @@ class Pinellas:
         chrome_options = wd.ChromeOptions()
         prefs = {'download.default_directory': self.exports_path}
         chrome_options.add_experimental_option('prefs', prefs)
-        #chrome_options.add_argument("window-position=-10000,0")
+        chrome_options.add_argument("window-position=-10000,0")
         self.driver = wd.Chrome(self.root_path + "\\bin\\webdriver\\chromedriver.exe", chrome_options=chrome_options)
         #self.driver.set_window_position(-10000,0) #hides window without going headless (headless throws
                                                     # elementnotvisible exceptions and stuff)
@@ -270,12 +270,18 @@ class Pinellas:
     def clean_final_list(self, main_list):
         bad_eggs = []
         for i,entry in enumerate(main_list):
-            if entry[1] == "":
-                bad_eggs.append(i)
+            if i != 0:
+                if entry[1] == "":
+                    bad_eggs.append(i)
+                try:
+                    float(entry[3])
+                except ValueError:
+                    bad_eggs.append(i)
         for bad_egg in reversed(bad_eggs):
             main_list.pop(bad_egg)
-        print("End of method")
-        print(main_list)
+        header_row = main_list.pop(0)
+        main_list.sort(key=lambda x: float(x[3]),reverse=True)
+        main_list.insert(0,header_row)
 
     def run(self, input_list):
         self.status_label.configure(text="Search starting")
