@@ -8,6 +8,13 @@ class HomeownerSearchResult(BackendObject):
         self.homeowners = homeowners
         self.query = query
 
+    def clean(self):
+        indices_to_remove = list()
+        for (i, homeowner) in enumerate(self.homeowners):
+            if not homeowner.address:
+                indices_to_remove.append(i)
+        for index in reversed(indices_to_remove):
+            self.homeowners.pop(index)
 
     def to_dictionary(self):
         return {
