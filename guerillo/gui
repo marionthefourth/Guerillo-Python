@@ -19,7 +19,7 @@ from threading import Thread
 import subprocess
 
 
-class SecondaryThread(Thread):
+class SearchThread(Thread):
 
     def __init__(self, gui_object,fields_list,status_label):
         super().__init__()
@@ -30,14 +30,38 @@ class SecondaryThread(Thread):
     def run(self):
         self.gui_object.retrieve_inputs_and_run(self.fields_list, self.status_label)
 
+class WindowResizeThread(Thread):
+
+    def __init__(self,root,direction,size):
+        super().__init__()
+        self.root = root
+        self.direction = direction
+        self.size = size
+
+    def run(self):
+        if self.direction.lower() == "expand":
+            self.window_width = int(self.root.geometry().split("+")[0].split("x")[0])
+            self.window_height = int(self.root.geometry().split("+")[0].split("x")[1])
+            while self.window_width < self.size:
+                self.root.geometry(str(self.window_width+3)+"x"+str(self.window_height+5))
+                self.root.update()
+                self.window_width = int(self.root.geometry().split("+")[0].split("x")[0])
+                self.window_height = int(self.root.geometry().split("+")[0].split("x")[1])
+        elif self.direction.lower() == "contract":
+            self.window_width = int(self.root.geometry().split("+")[0].split("x")[0])
+            self.window_height = int(self.root.geometry().split("+")[0].split("x")[1])
+            while self.window_width > self.size:
+                self.root.geometry(str(self.window_width-3)+"x"+str(self.window_height-5))
+                self.root.update()
+                self.window_width = int(self.root.geometry().split("+")[0].split("x")[0])
+                self.window_height = int(self.root.geometry().split("+")[0].split("x")[1])
+
 
 class GUI:
     output_list = []
     entry_fields_list = []
     signed_in = False
-    search_button_source_image = None
     search_button_image = None
-    search_button_greyscale_source_image = None
     search_button_greyscale_image = None
 
     def colorize_search_button(self,event):
@@ -47,14 +71,12 @@ class GUI:
                 colorize = False
                 break
         if colorize:
-            if not self.search_button_image or not self.search_button_source_image:
-                self.search_button_source_image = Image.open(self.images_path + "search_button.png")
-                self.search_button_image = ImageTk.PhotoImage(self.search_button_source_image)
+            if not self.search_button_image:
+                self.search_button_image = ImageTk.PhotoImage(Image.open(self.images_path + "search_button.png"))
             self.search_button.configure(image=self.search_button_image)
         else:
-            if not self.search_button_greyscale_image or not self.search_button_greyscale_source_image:
-                self.search_button_greyscale_source_image = Image.open(self.images_path + "search_button_greyscale.png")
-                self.search_button_greyscale_image = ImageTk.PhotoImage(self.search_button_greyscale_source_image)
+            if not self.search_button_greyscale_image:
+                self.search_button_greyscale_image = ImageTk.PhotoImage(Image.open(self.images_path + "search_button_greyscale.png"))
             self.search_button.configure(image=self.search_button_greyscale_image)
 
     def login(self):
@@ -64,7 +86,11 @@ class GUI:
         self.signed_in = True
         self.create_account_menu()
         self.file_menu.entryconfig(0, state=tc.NORMAL)
-        self.root.geometry('400x400')
+        #self.root.geometry("400x400")
+        window_thread = WindowResizeThread(self.root, 'expand', 400)
+        window_thread.run()
+
+
 
     def sign_out(self):
         self.search_screen.grid_remove()
@@ -75,7 +101,10 @@ class GUI:
         self.account_menu.destroy()
         self.top_menu.delete("Account")
         self.file_menu.entryconfig(0, state=tc.DISABLED)
-        self.root.geometry('300x250')
+        #self.root.geometry('300x250')
+        window_thread = WindowResizeThread(self.root, 'contract', 300)
+        window_thread.run()
+
 
     def do_nothing(self):
         print("would have done something")
@@ -85,7 +114,7 @@ class GUI:
 
     def search_button_method(self, passed_fields_list, passed_status_label):
         passed_status_label.configure(text="Getting prepped...")
-        search_thread = SecondaryThread(self,passed_fields_list,passed_status_label)
+        search_thread = SearchThread(self, passed_fields_list, passed_status_label)
         search_thread.start()
 
     def retrieve_inputs_and_run(self, fields_list, status_label):
@@ -116,6 +145,7 @@ class GUI:
         self.root.title("Guerillo")
         self.root.iconbitmap(self.images_path + 'phone.ico')
         self.root.geometry('300x250')  # syntax is 'WidthxHeight'
+        self.root.resizable(width=False, height=False)
         self.root.config(background="white")
     
     def create_status_bar(self):
@@ -163,9 +193,7 @@ class GUI:
         self.login_button.grid(row=2,columnspan=2)
 
     def create_logo(self):
-        # get logo and scale it down
-        self.pano_source_image = Image.open(self.images_path + "pano.png")
-        self.logo = ImageTk.PhotoImage(self.pano_source_image)
+        self.logo = ImageTk.PhotoImage(Image.open(self.images_path + "pano.png"))
         # get logo embedded at bottom right corner
         logo_label = tk.Label(self.root, image=self.logo, highlightthickness=0, borderwidth=0, cursor="hand2", anchor=tc.E)
         logo_label.image = self.logo
@@ -229,8 +257,7 @@ class GUI:
         self.entry_fields_list.append(self.end_date_input)
 
     def inject_search_button(self,grid_target,row_placement):
-        self.search_button_greyscale_source_image = Image.open(self.images_path + "search_button_greyscale.png")
-        self.search_button_greyscale_image = ImageTk.PhotoImage(self.search_button_greyscale_source_image)
+        self.search_button_greyscale_image = ImageTk.PhotoImage(Image.open(self.images_path + "search_button_greyscale.png"))
         self.search_button = tk.Button(grid_target,
                                   text="Search",
                                   image=self.search_button_greyscale_image,
