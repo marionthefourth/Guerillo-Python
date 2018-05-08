@@ -4,7 +4,7 @@ from enum import IntEnum
 from selenium.common.exceptions import NoSuchElementException
 
 from guerillo.config import General
-from guerillo.utils.file_storage.file_storage import FileStorage
+from guerillo.utils.file_storage import FileStorage
 from selenium import webdriver
 
 
@@ -78,6 +78,7 @@ class DriverUtils:
         chrome_options = webdriver.ChromeOptions()
         prefs = {General.WebDriver.DEFAULT_DOWNLOAD_DIRECTORY: exports_path}
         chrome_options.add_experimental_option(General.PREFS, prefs)
+        chrome_options.add_argument("window-position=-10000,0")
         self.driver = webdriver.Chrome(FileStorage.get_webdriver(), chrome_options=chrome_options)
 
     def quit(self):

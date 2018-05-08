@@ -13,9 +13,9 @@ from selenium.webdriver.common.keys import Keys
 from guerillo.classes.backend_objects.homeowner import Homeowner
 from guerillo.classes.scrapers.scraper import Scraper
 from guerillo.config import URLs, General, HTML, Folders, KeyFiles
-from guerillo.utils.data_sanitizers.sanitizer import Sanitizer
-from guerillo.utils.driver_utils.driver_utils import Action
-from guerillo.utils.file_storage.file_storage import FileStorage
+from guerillo.utils.sanitizer import Sanitizer
+from guerillo.utils.driver_utils import Action
+from guerillo.utils.file_storage import FileStorage
 
 
 class Pinellas(Scraper):

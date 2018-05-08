@@ -78,7 +78,7 @@ class FileStorage:
 
     @staticmethod
     def get_root_path():
-        return os.path.abspath(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), ".."), ".."), ".."))
+        return os.path.abspath(os.path.join(os.path.join(os.path.dirname(__file__), ".."), ".."))
 
     @staticmethod
     def get_file_exists(full_file_name_with_path):

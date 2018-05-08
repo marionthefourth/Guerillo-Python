@@ -1,4 +1,4 @@
-from guerillo.utils.driver_utils.driver_utils import DriverUtils
+from guerillo.utils.driver_utils import DriverUtils
 from guerillo.classes.backend_objects.homeowner_search_result import HomeownerSearchResult
 
 

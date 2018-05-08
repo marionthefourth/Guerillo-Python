@@ -1,7 +1,5 @@
 from enum import Enum
 
-from guerillo.classes.backend_objects.backend_object import BackendObject
-
 
 class ConfidenceLevel(Enum):
     NONE = -1
