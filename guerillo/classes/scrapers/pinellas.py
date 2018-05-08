@@ -6,10 +6,8 @@ Created on Sun Apr 22 21:14:10 2018
 """
 import os
 from datetime import datetime
-
 import bs4
 from selenium.webdriver.common.keys import Keys
-
 from guerillo.classes.backend_objects.homeowner import Homeowner
 from guerillo.classes.scrapers.scraper import Scraper
 from guerillo.config import URLs, General, HTML, Folders, KeyFiles
@@ -19,6 +17,9 @@ from guerillo.utils.file_storage import FileStorage
 
 
 class Pinellas(Scraper):
+  
+    def __init__(self, status_label=None):
+      super().__init__()
 
     def create_deeds_and_mortgages_list(self, file_name):
         data_lists = list()
@@ -46,7 +47,9 @@ class Pinellas(Scraper):
         })
 
     def pull_address_by_bookpage(self):
-        for homeowner in self.search_result.homeowners:
+        for (i,homeowner) in enumerate(self.search_result.homeowners):
+            self.status_label.configure(text="Handling item " + str(i + 1 - 1) + " of " + str(len(self.search_result.homeowners) - 1))
+
             self.search_by_bookpage(homeowner.bookpage)
             # Get the link (hardcoded because always one result)
             addresses = self.driver_utils.driver.find_element_by_id(General.PCPAO.ITB).find_elements_by_tag_name(HTML.A)
@@ -84,8 +87,10 @@ class Pinellas(Scraper):
     def create_report_list(self, file_name):
         deeds_and_mortgages = self.create_deeds_and_mortgages_list(file_name)
         self.create_bookpage_list(deeds_and_mortgages[0], deeds_and_mortgages[1])
+        self.status_label.configure(text="Processing " + str(len(self.search_result.homeowners)) + " items")
         self.pull_address_by_bookpage()
         # Scrape for non-bookpage data
+        self.status_label.configure(text="Now processing " + str(len(self.search_result.homeowners)) + " items")
         self.scrape_without_bookpage()  # 2nd list our check/trigger list, but
         # report_list is the one that will have the address injected
         self.search_result.clean()
@@ -144,8 +149,9 @@ class Pinellas(Scraper):
         return False
 
     def scrape_without_bookpage(self):
-        for homeowner in self.search_result.homeowners:
+        for (i, homeowner) in enumerate(self.search_result.homeowners):
             if homeowner.bookpage == General.NO_BOOKPAGE:
+                self.status_label.configure(text="Taking a deeper look for item " + str(i + 1) + " of " + str(len(self.search_result.homeowners)))
                 if self.get_search_result_count_by_name(homeowner.name) <= 50:
                     if self.should_continue_search(homeowner.name):
                         match_with_line = self.find_subdivision_match(homeowner)
@@ -196,16 +202,20 @@ class Pinellas(Scraper):
 
     def run(self):
         # Should receive from UI
+        self.status_label.configure(text="Search starting")
         # UI After Tapping Search Data Button
         # store target URL as variable - this will be dynamic from user input (hills or pinellas)
 
         self.accept_terms_and_conditions()  # Pinellas Starts Here
+        self.status_label.configure(text="Searching...")
         self.fill_search_query_fields()  # Data Ranges Entry
         downloaded_file_name = self.download_csv_file()  # Download CSV file provided and rename it
 
         # Assign New Data (Deeds & Mortgages)
         self.create_report_list(downloaded_file_name)
         # Update Report Data
+        
+        self.status_label.configure(text="Almost done. Wrapping up.")
         report_file_name = FileStorage.get_full_path(Folders.REPORTS) + datetime.now().strftime("%Y-%m-%d %H-%M.csv")
         FileStorage.save_data_to_csv(report_file_name, self.search_result.to_list())
 
@@ -222,3 +232,4 @@ class Pinellas(Scraper):
     # [6] = Legal desc
     # [7] = instrument #
     # [8] = consideration (with cents formatted .0000)
+    
