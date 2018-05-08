@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="9f5faddc-8283-4f53-aa37-3e4a8193a46d" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/guerillo/gui" beforeDir="false" afterPath="$PROJECT_DIR$/guerillo/gui" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/guerillo/pinellas.py" beforeDir="false" afterPath="$PROJECT_DIR$/guerillo/pinellas.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -14,38 +15,29 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="config.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/guerillo/config.py">
+      <file leaf-file-name="gui" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/guerillo/gui">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="612">
-              <caret line="36" selection-start-line="36" selection-end-line="36" />
+            <state relative-caret-position="227">
+              <caret line="41" selection-start-line="41" selection-end-line="43" selection-end-column="20" />
+              <folding>
+                <element signature="e#532#566#0" />
+                <element signature="e#596#647#0" />
+                <element signature="e#736#960#0" />
+                <element signature="e#1022#1359#0" />
+                <element signature="e#1396#1529#0" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="menu.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/guerillo/menu.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="340">
-              <caret line="20" column="19" selection-start-line="20" selection-start-column="19" selection-end-line="20" selection-end-column="19" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="pinellas.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="pinellas.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/guerillo/pinellas.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="137">
-              <caret line="281" lean-forward="true" selection-start-line="281" selection-end-line="281" />
+            <state relative-caret-position="238">
+              <caret line="38" column="9" selection-start-line="38" selection-start-column="9" selection-end-line="38" selection-end-column="9" />
               <folding>
                 <element signature="e#94#183#0" expanded="true" />
-                <element signature="e#1015#1427#0" />
-                <element signature="e#1498#1640#0" />
-                <element signature="e#1715#1861#0" />
-                <element signature="e#1910#2013#0" />
-                <element signature="e#2063#2675#0" />
-                <element signature="e#5255#6043#0" />
-                <element signature="e#6113#6240#0" />
               </folding>
             </state>
           </provider>
@@ -60,6 +52,27 @@
       </list>
     </option>
   </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>search</find>
+      <find>TODO</find>
+      <find>yunez</find>
+      <find>self.sta</find>
+      <find>.configure</find>
+      <find>i =</find>
+      <find>status</find>
+      <find>relx</find>
+      <find>button</find>
+      <find>Bad row</find>
+      <find>iden</find>
+      <find>__init</find>
+      <find>handling</find>
+      <find>show_browser</find>
+      <find>i agree</find>
+      <find>text1</find>
+      <find>create_boo</find>
+    </findStrings>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -69,13 +82,17 @@
         <option value="$PROJECT_DIR$/guerillo/config.py" />
         <option value="$PROJECT_DIR$/guerillo/menu.py" />
         <option value="$PROJECT_DIR$/guerillo/pinellasScraping.py" />
+        <option value="$PROJECT_DIR$/guerillo/GuerilloGUI - commit &amp; print textbox.py" />
         <option value="$PROJECT_DIR$/guerillo/pinellas.py" />
+        <option value="$PROJECT_DIR$/guerillo/gui" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="width" value="1366" />
-    <option name="height" value="768" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="348" />
+    <option name="y" value="-20" />
+    <option name="width" value="710" />
+    <option name="height" value="681" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -123,6 +140,7 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Kenneth\Documents\GitHub\GuerilloPython\guerillo" />
       <recent name="$PROJECT_DIR$/guerillo" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -143,7 +161,43 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.gui">
+    <configuration name="GuerilloGUI - commit &amp; print textbox" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="GuerilloPython" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/guerillo" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/guerillo/GuerilloGUI - commit &amp; print textbox.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="gui" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="GuerilloPython" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/guerillo" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/guerillo/gui" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
     <configuration name="pinellas_scraping" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="GuerilloPython" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -158,12 +212,19 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/guerillo/pinellas.py" />
       <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
+    <list>
+      <item itemvalue="Python.pinellas_scraping" />
+      <item itemvalue="Python.GuerilloGUI - commit &amp; print textbox" />
+      <item itemvalue="Python.gui" />
+    </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.gui" />
+        <item itemvalue="Python.GuerilloGUI - commit &amp; print textbox" />
         <item itemvalue="Python.pinellas_scraping" />
       </list>
     </recent_temporary>
@@ -182,15 +243,15 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1366" height="768" extended-state="0" />
+    <frame x="-8" y="-8" width="1382" height="784" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25185186" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.07540263" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.32776934" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.32928678" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32776934" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.24592593" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Favorites" order="2" side_tool="true" />
@@ -201,6 +262,7 @@
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32776934" />
     </layout>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -208,10 +270,92 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="2" />
+      <option name="time" value="8" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/guerillo/gui">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2023">
+          <caret line="119" lean-forward="true" selection-start-line="119" selection-end-line="119" />
+          <folding>
+            <element signature="e#532#566#0" />
+            <element signature="e#596#647#0" />
+            <element signature="e#736#960#0" />
+            <element signature="e#1022#1359#0" />
+            <element signature="e#1396#1529#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/guerillo/pinellas.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1853">
+          <caret line="109" selection-start-line="109" selection-end-line="109" />
+          <folding>
+            <element signature="e#94#183#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/guerillo/GuerilloGUI - commit &amp; print textbox.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="561">
+          <caret line="33" column="16" lean-forward="true" selection-start-line="33" selection-start-column="16" selection-end-line="33" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/guerillo/pinellas.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="663">
+          <caret line="39" column="88" selection-start-line="39" selection-start-column="88" selection-end-line="39" selection-end-column="88" />
+          <folding>
+            <element signature="e#94#183#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/guerillo/GuerilloGUI - commit &amp; print textbox.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="595">
+          <caret line="35" column="30" lean-forward="true" selection-start-line="35" selection-start-column="30" selection-end-line="35" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/guerillo/pinellas.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4539">
+          <caret line="267" column="38" lean-forward="true" selection-start-line="267" selection-start-column="38" selection-end-line="267" selection-end-column="38" />
+          <folding>
+            <element signature="e#94#183#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/guerillo/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="612">
+          <caret line="36" selection-start-line="36" selection-end-line="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/guerillo/menu.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="20" column="19" selection-start-line="20" selection-start-column="19" selection-end-line="20" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/guerillo/pinellas.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4777">
+          <caret line="281" lean-forward="true" selection-start-line="281" selection-end-line="281" />
+          <folding>
+            <element signature="e#94#183#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/guerillo/config.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="612">
@@ -232,13 +376,6 @@
           <caret line="209" column="36" lean-forward="true" selection-start-line="209" selection-start-column="36" selection-end-line="209" selection-end-column="36" />
           <folding>
             <element signature="e#94#183#0" expanded="true" />
-            <element signature="e#1015#1427#0" />
-            <element signature="e#1498#1640#0" />
-            <element signature="e#1715#1861#0" />
-            <element signature="e#1910#2013#0" />
-            <element signature="e#2063#2675#0" />
-            <element signature="e#5255#6043#0" />
-            <element signature="e#6113#6240#0" />
           </folding>
         </state>
       </provider>
@@ -263,13 +400,6 @@
           <caret line="158" selection-start-line="158" selection-end-line="158" />
           <folding>
             <element signature="e#94#183#0" expanded="true" />
-            <element signature="e#1015#1427#0" />
-            <element signature="e#1498#1640#0" />
-            <element signature="e#1715#1861#0" />
-            <element signature="e#1910#2013#0" />
-            <element signature="e#2063#2675#0" />
-            <element signature="e#5255#6043#0" />
-            <element signature="e#6113#6240#0" />
           </folding>
         </state>
       </provider>
@@ -294,13 +424,6 @@
           <caret line="88" column="37" lean-forward="true" selection-start-line="88" selection-start-column="37" selection-end-line="88" selection-end-column="37" />
           <folding>
             <element signature="e#94#183#0" expanded="true" />
-            <element signature="e#1015#1427#0" />
-            <element signature="e#1498#1640#0" />
-            <element signature="e#1715#1861#0" />
-            <element signature="e#1910#2013#0" />
-            <element signature="e#2063#2675#0" />
-            <element signature="e#5255#6043#0" />
-            <element signature="e#6113#6240#0" />
           </folding>
         </state>
       </provider>
@@ -325,13 +448,6 @@
           <caret line="249" lean-forward="true" selection-start-line="249" selection-end-line="249" />
           <folding>
             <element signature="e#94#183#0" expanded="true" />
-            <element signature="e#1015#1427#0" />
-            <element signature="e#1498#1640#0" />
-            <element signature="e#1715#1861#0" />
-            <element signature="e#1910#2013#0" />
-            <element signature="e#2063#2675#0" />
-            <element signature="e#5255#6043#0" />
-            <element signature="e#6113#6240#0" />
           </folding>
         </state>
       </provider>
@@ -356,13 +472,6 @@
           <caret line="209" column="14" lean-forward="true" selection-start-line="209" selection-start-column="14" selection-end-line="209" selection-end-column="14" />
           <folding>
             <element signature="e#94#183#0" expanded="true" />
-            <element signature="e#1015#1427#0" />
-            <element signature="e#1498#1640#0" />
-            <element signature="e#1715#1861#0" />
-            <element signature="e#1910#2013#0" />
-            <element signature="e#2063#2675#0" />
-            <element signature="e#5255#6043#0" />
-            <element signature="e#6113#6240#0" />
           </folding>
         </state>
       </provider>
@@ -387,13 +496,6 @@
           <caret line="166" column="13" lean-forward="true" selection-start-line="166" selection-start-column="13" selection-end-line="166" selection-end-column="13" />
           <folding>
             <element signature="e#94#183#0" expanded="true" />
-            <element signature="e#1015#1427#0" />
-            <element signature="e#1498#1640#0" />
-            <element signature="e#1715#1861#0" />
-            <element signature="e#1910#2013#0" />
-            <element signature="e#2063#2675#0" />
-            <element signature="e#5255#6043#0" />
-            <element signature="e#6113#6240#0" />
           </folding>
         </state>
       </provider>
@@ -496,20 +598,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/guerillo/config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="612">
-          <caret line="36" selection-start-line="36" selection-end-line="36" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/guerillo/menu.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="20" column="19" selection-start-line="20" selection-start-column="19" selection-end-line="20" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/guerillo/pinellasScraping.py" />
     <entry file="file://$USER_HOME$/Anaconda3/Lib/http/client.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -518,19 +606,61 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/guerillo/menu.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="20" column="19" selection-start-line="20" selection-start-column="19" selection-end-line="20" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/guerillo/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="36" selection-start-line="36" selection-end-line="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Anaconda3/Lib/threading.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="138">
+          <caret line="852" column="8" selection-start-line="852" selection-start-column="8" selection-end-line="852" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Anaconda3/Lib/tkinter/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="138">
+          <caret line="1456" selection-start-line="1456" selection-end-line="1456" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/guerillo/GuerilloGUI - commit &amp; print textbox.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="221">
+          <caret line="37" column="52" selection-start-line="37" selection-start-column="52" selection-end-line="37" selection-end-column="52" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/guerillo/pinellas.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="137">
-          <caret line="281" lean-forward="true" selection-start-line="281" selection-end-line="281" />
+        <state relative-caret-position="238">
+          <caret line="38" column="9" selection-start-line="38" selection-start-column="9" selection-end-line="38" selection-end-column="9" />
           <folding>
             <element signature="e#94#183#0" expanded="true" />
-            <element signature="e#1015#1427#0" />
-            <element signature="e#1498#1640#0" />
-            <element signature="e#1715#1861#0" />
-            <element signature="e#1910#2013#0" />
-            <element signature="e#2063#2675#0" />
-            <element signature="e#5255#6043#0" />
-            <element signature="e#6113#6240#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/guerillo/gui">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="227">
+          <caret line="41" selection-start-line="41" selection-end-line="43" selection-end-column="20" />
+          <folding>
+            <element signature="e#532#566#0" />
+            <element signature="e#596#647#0" />
+            <element signature="e#736#960#0" />
+            <element signature="e#1022#1359#0" />
+            <element signature="e#1396#1529#0" />
           </folding>
         </state>
       </provider>
