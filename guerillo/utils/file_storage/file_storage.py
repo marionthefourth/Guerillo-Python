@@ -1,3 +1,4 @@
+import csv
 import os
 from sys import platform
 from jedi.evaluate.utils import ignored
@@ -7,20 +8,23 @@ from guerillo.config import FileExtensions, Folders, FileHeaders, Storage, Gener
 class FileStorage:
 
     @staticmethod
-    def read(file_name):
+    def read(file_name, county_filter=None):
         """ Get's Directory of File Based on Name/Extension """
     # TODO - Fix this code to be dynamic
         """ file_path = FileStorage.direct_to_folder(
             FileStorage.get_root_path(),
             [FileStorage.get_file_folder(FileStorage.get_file_extension(file_name))]
         ) + file_name """
-
         file_path = None
-        if FileStorage.is_special_file(file_name):
-            file_path = FileStorage.direct_to_folder(
-                FileStorage.get_root_path(),
-                [FileStorage.root_to_special_file(file_name)]
-            ) + file_name
+        if not county_filter:
+            if FileStorage.is_special_file(file_name):
+                file_path = FileStorage.direct_to_folder(
+                    FileStorage.get_root_path(),
+                    [FileStorage.root_to_special_file(file_name)]
+                ) + file_name
+        else:
+            if county_filter == "Pinellas":
+                file_path = file_name
 
         if os.path.isfile(file_path):
             with open(file_path, 'r') as file:
@@ -32,6 +36,34 @@ class FileStorage:
             return ["", ""]  # Returns Safe Data if File Doesn't Exist
 
     @staticmethod
+    def get_webdriver():
+        return FileStorage.direct_to_folder(
+                    FileStorage.get_root_path(),
+                    [FileStorage.root_to_special_file(KeyFiles.WEBDRIVER)]
+                ) + KeyFiles.WEBDRIVER
+
+    @staticmethod
+    def save_data_to_csv(file_name, data):
+        csv_file = csv.writer(open(file_name, 'w', newline=''))
+        for row in data:
+            csv_file.writerow(row)
+
+    @staticmethod
+    def rename(file_name, new_file_name):
+        os.rename(file_name, new_file_name)
+
+    @staticmethod
+    def handle_timeout(driver, file):
+        import time
+        start_time = time.time()
+        while not os.path.isfile(file):
+            if (time.time() - start_time) >= 8:
+                print(General.DOWNLOADING_ERROR)
+                driver.quit()
+                quit()
+            pass
+
+    @staticmethod
     def is_special_file(file_name):
         for file in KeyFiles.get():
             if file_name == file:
@@ -41,6 +73,8 @@ class FileStorage:
     def root_to_special_file(file_name):
         if file_name == KeyFiles.NATIONAL_COUNTY:
             return Folders.ANSI_DATA
+        elif file_name == KeyFiles.WEBDRIVER:
+            return Folders.WEB_DRIVERS
 
     @staticmethod
     def get_root_path():
@@ -56,6 +90,10 @@ class FileStorage:
             file_path=FileStorage.get_root_path(),
             folder=FileStorage.get_file_folder(file_extension)
         )
+
+    @staticmethod
+    def get_full_path(file_path):
+        return FileStorage.direct_to_folder(FileStorage.get_root_path(), file_path)
 
     @staticmethod
     def get_file_name_with_path(file_extension, index=0, secondary_file_extension=None):
