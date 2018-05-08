@@ -1,10 +1,18 @@
-from guerillo.backend.firebase_backend import FirebaseModule as FBM
-from guerillo.user import User
-from guerillo.utils.state_and_county_data.census_county_api import CensusCountyAPI
+from guerillo.__tests__ import pinellas_tests
 
-user_marion = User(email="me@marionrucker.com", full_name="Marion Rucker", username="marionthefourth")
+# AutoUpdater.run()
+pinellas_tests()
 
-FBM.create_account(user_marion)
+
+
+
+
+
+
+
+
+
+
 
 
 

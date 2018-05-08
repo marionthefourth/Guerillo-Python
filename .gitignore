@@ -145,6 +145,8 @@ pyvenv.cfg
 Thumbs.db
 ehthumbs.db
 ehthumbs_vista.db
+vendor/
+build/
 
 # Folder config file
 Desktop.ini
@@ -169,3 +171,4 @@ lib/python3.6/site-packages/pip-9.0.1-py3.6.egg/pip/_vendor/pkg_resources/__init
 *.xml
 .idea/workspace.xml
 lib/python3.6/site-packages/pip-9.0.1-py3.6.egg/pip/_vendor/requests/packages/chardet/hebrewprober.py
+.idea/workspace.xml

@@ -36,9 +36,9 @@ class URLs:
         TEXT_1 = QUERY_NAME + "?Text1="
         SEARCH_BY_OR = HOME + "clik.html?pg=" + HOME + "searchbyOR.php"
 
-
     class MyPinellasClerk:
         SEARCH_TYPE_CONSIDERATION = 'https://officialrecords.mypinellasclerk.org/search/SearchTypeConsideration'
+
     PUBREC = "https://pubrec3.hillsclerk.com/oncore/search.aspx"
     HCPAFL = "http://gis.hcpafl.org/propertysearch/#/nav/Basic%20Search"
     CENSUS_COUNTY_CODES = "https://www.census.gov/geo/reference/codes/cousub.html"
@@ -59,7 +59,6 @@ class FileHeaders:
 
 
 class Folders:
-
     SCRIPTS = "/guerillo"
     BACKEND = SCRIPTS + "/backend"
 
@@ -130,7 +129,6 @@ class General:
     class WebDriver:
         DEFAULT_DOWNLOAD_DIRECTORY = "download.default_directory"
 
-
     TITLE = "title"
     PREPARING_TO_DOWNLOAD = "Preparing to download: "
     BACKWARDS_SLASH = "/"
@@ -177,3 +175,61 @@ class HTML:
     T_NO_DATA = "t-no-data"
     OUTER = "outerHTML"
     PARSER = "html.parser"
+
+
+class PACKAGES:
+    ALL = ['os', 'sys', 'ctypes', 'win32con', 'pyrebase', 'selenium', 'bs4', 'esky', 'time', 'enum', 'csv', 'jedi',
+           'tkinter', 'PIL', 'webbrowser', 'cryptography']
+
+
+class SCRIPTS:
+    class FOLDERS:
+        GUERILLO = "guerillo/"
+        CLASSES = GUERILLO + "classes/"
+        BACKEND_OBJECTS = CLASSES + "backend_objects/"
+        SCRAPERS = CLASSES + "scrapers/"
+        UTILS = GUERILLO + "utils/"
+        STATE_CODIFIER = UTILS + "state_codifier/"
+        BACKEND = GUERILLO + "backend/"
+
+    # Backend
+    BACKEND = FOLDERS.BACKEND + "backend.py"
+
+    BACKENDS_ALL = [BACKEND]
+    # Backend Objects
+    AUXILARY = FOLDERS.BACKEND_OBJECTS + "auxiliary_object.py"
+    BACKEND_OBJECT = FOLDERS.BACKEND_OBJECTS + "backend_object.py"
+    COUNTY = FOLDERS.BACKEND_OBJECTS + "county.py"
+    HOMEOWNER = FOLDERS.BACKEND_OBJECTS + "homeowner.py"
+    HOMEOWNER_SEARCH_RESULT = FOLDERS.BACKEND_OBJECTS + "homeowner_search_result.py"
+    SEARCH_QUERY = FOLDERS.BACKEND_OBJECTS + "search_query.py"
+    USER = FOLDERS.BACKEND_OBJECTS + "user.py"
+
+    BACKEND_OBJECTS_ALL = [AUXILARY, BACKEND_OBJECT, COUNTY, HOMEOWNER, HOMEOWNER_SEARCH_RESULT, SEARCH_QUERY, USER]
+    # Scrapers
+    SCRAPER = FOLDERS.SCRAPERS + "scraper.py"
+    PINELLAS = FOLDERS.SCRAPERS + "pinellas.py"
+
+    SCRAPERS_ALL = [SCRAPER, PINELLAS]
+    # Utils
+    SANITIZER = FOLDERS.UTILS + "sanitizer.py"
+    DRIVER_UTILS = FOLDERS.UTILS + "driver_utils.py"
+    FILE_STORAGE = FOLDERS.UTILS + "file_storage.py"
+    CENSUS_COUNTY_API = FOLDERS.UTILS + "census_county_api.py"
+    ABBREV_TO_NAME = FOLDERS.STATE_CODIFIER + "abbreviation_to_name.py"
+    NAME_TO_ABBREV = FOLDERS.STATE_CODIFIER + "name_to_abbreviation.py"
+    STATE_CODIFIER = FOLDERS.STATE_CODIFIER + "state_codifier.py"
+    AUTO_UPDATER = FOLDERS.UTILS + "auto_updater.py"
+
+    UTILS_ALL = [SANITIZER, DRIVER_UTILS, FILE_STORAGE, CENSUS_COUNTY_API, ABBREV_TO_NAME, NAME_TO_ABBREV,
+                 STATE_CODIFIER, AUTO_UPDATER]
+    # General Files
+    MAIN = FOLDERS.GUERILLO + "__main__.py"
+    TESTS = FOLDERS.GUERILLO + "__tests__.py"
+    CONFIG = FOLDERS.GUERILLO + "config.py"
+    GUI = FOLDERS.GUERILLO + "GuerilloGUI - commit & print textbox.py"
+    MENU = FOLDERS.GUERILLO + "menu.py"
+
+    GENERAL_ALL = [MAIN, TESTS, CONFIG, GUI, MENU]
+
+    ALL = BACKENDS_ALL + BACKEND_OBJECTS_ALL + UTILS_ALL + GENERAL_ALL
