@@ -230,4 +230,6 @@ class DriverUtils:
                 element = element.find_element_by_id(dictionary[sub_action_key])
             elif sub_action_key == Action.GET_ATTRIBUTE:
                 element = element.get_attribute(dictionary[sub_action_key])
+            elif sub_action_key == Action.FIND_TAG_NAME:
+                element = element.find_element_by_tag_name(dictionary[sub_action_key])
         return element

@@ -17,9 +17,10 @@ from guerillo.utils.file_storage import FileStorage
 
 
 class Pinellas(Scraper):
-  
-    def __init__(self, status_label=None):
-      super().__init__()
+
+    def __init__(self, search_query=None, exports_path=None, status_label=None):
+        super().__init__(search_query, exports_path)
+        self.status_label = status_label
 
     def create_deeds_and_mortgages_list(self, file_name):
         data_lists = list()
@@ -47,15 +48,14 @@ class Pinellas(Scraper):
         })
 
     def pull_address_by_bookpage(self):
-        for (i,homeowner) in enumerate(self.search_result.homeowners):
-            self.status_label.configure(text="Handling item " + str(i + 1 - 1) + " of " + str(len(self.search_result.homeowners) - 1))
+        for (i, homeowner) in enumerate(self.search_result.homeowners):
+            self.status_label.configure(
+                text="Handling item " + str(i + 1 - 1) + " of " + str(len(self.search_result.homeowners) - 1))
 
             self.search_by_bookpage(homeowner.bookpage)
             # Get the link (hardcoded because always one result)
             addresses = self.driver_utils.driver.find_element_by_id(General.PCPAO.ITB).find_elements_by_tag_name(HTML.A)
-            if len(addresses) == 0:
-                homeowner.bookpage = General.NO_BOOKPAGE
-            else:
+            if len(addresses) != 0:
                 address = self.get_site_address(
                     addresses[1].get_attribute(HTML.HREF).replace("general", General.PCPAO.TAX_EST))
                 homeowner.address = address
@@ -101,21 +101,22 @@ class Pinellas(Scraper):
             0: {Action.GET: URLs.PCPAO.TEXT_1 + name + HTML.NUM_RESULTS_1000},
             1: {Action.RETURN: {Action.FIND_TAG_NAME: HTML.TH}}
         })
+        if not hasattr(header, 'text'):
+            return 1000
         return int(header.text.split("through ")[1].split(" of")[0])
 
     def should_continue_search(self, name):
         return self.driver_utils.action_multi({
-                    0: {Action.COMPLEX: {
-                        Action.RETURN_PREP: {False: {Action.MATCH_TEXT: 2}},
-                        Action.REPEAT_PREP: {0: {Action.FIND_ID: Action.GET}, 1: {Action.FIND_ID: Action.MATCH_TEXT}},
-                        Action.FIND_ID: General.PCPAO.ITB,
-                        Action.FIND_TAG_NAME: HTML.TD,
-                        Action.MATCH_TEXT: General.PCPAO.NO_RECORDS,
-                        Action.GET: URLs.PCPAO.TEXT_1 + Sanitizer.general_name(name,
-                                                                               comma=False) + HTML.NUM_RESULTS_1000,
-                        Action.RETURN: {}
-                    }},
-                })
+            0: {Action.COMPLEX: {
+                Action.RETURN_PREP: {False: {Action.MATCH_TEXT: 2}},
+                Action.REPEAT_PREP: {0: {Action.FIND_ID: Action.GET}, 1: {Action.FIND_ID: Action.MATCH_TEXT}},
+                Action.FIND_ID: General.PCPAO.ITB,
+                Action.FIND_TAG_NAME: HTML.TD,
+                Action.MATCH_TEXT: General.PCPAO.NO_RECORDS,
+                Action.GET: URLs.PCPAO.TEXT_1 + Sanitizer.general_name(name) + HTML.NUM_RESULTS_1000,
+                Action.RETURN: {}
+            }},
+        })
 
     def find_subdivision_match(self, supplementary_list_item):
         # Check for Results Again
@@ -150,10 +151,11 @@ class Pinellas(Scraper):
 
     def scrape_without_bookpage(self):
         for (i, homeowner) in enumerate(self.search_result.homeowners):
-            if homeowner.bookpage == General.NO_BOOKPAGE:
-                self.status_label.configure(text="Taking a deeper look for item " + str(i + 1) + " of " + str(len(self.search_result.homeowners)))
-                if self.get_search_result_count_by_name(homeowner.name) <= 50:
-                    if self.should_continue_search(homeowner.name):
+            if not homeowner.address:
+                self.status_label.configure(text="Taking a deeper look for item " + str(i + 1) + " of " + str(
+                    len(self.search_result.homeowners)))
+                if self.get_search_result_count_by_name(homeowner.counterparty_name) <= 50:
+                    if self.should_continue_search(homeowner.counterparty_name):
                         match_with_line = self.find_subdivision_match(homeowner)
                         if match_with_line[0]:
                             url = URLs.PCPAO.HOME + match_with_line[1][1].replace("general", General.PCPAO.TAX_EST)
@@ -214,7 +216,7 @@ class Pinellas(Scraper):
         # Assign New Data (Deeds & Mortgages)
         self.create_report_list(downloaded_file_name)
         # Update Report Data
-        
+
         self.status_label.configure(text="Almost done. Wrapping up.")
         report_file_name = FileStorage.get_full_path(Folders.REPORTS) + datetime.now().strftime("%Y-%m-%d %H-%M.csv")
         FileStorage.save_data_to_csv(report_file_name, self.search_result.to_list())
@@ -232,4 +234,3 @@ class Pinellas(Scraper):
     # [6] = Legal desc
     # [7] = instrument #
     # [8] = consideration (with cents formatted .0000)
-    

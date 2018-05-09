@@ -9,52 +9,18 @@ Table of Contents:
 """
 import tkinter.constants as tc
 import tkinter as tk
-import time
-import tkinter.messagebox as msg
 from PIL import Image, ImageTk
 import webbrowser
 import os
-import guerillo.pinellas as pinellas
 from threading import Thread
 import subprocess
 
-
-class SearchThread(Thread):
-
-    def __init__(self, gui_object,fields_list,status_label):
-        super().__init__()
-        self.gui_object = gui_object
-        self.status_label = status_label
-        self. fields_list = fields_list
-
-    def run(self):
-        self.gui_object.retrieve_inputs_and_run(self.fields_list, self.status_label)
-
-class WindowResizeThread(Thread):
-
-    def __init__(self,root,direction,size):
-        super().__init__()
-        self.root = root
-        self.direction = direction
-        self.size = size
-
-    def run(self):
-        if self.direction.lower() == "expand":
-            self.window_width = int(self.root.geometry().split("+")[0].split("x")[0])
-            self.window_height = int(self.root.geometry().split("+")[0].split("x")[1])
-            while self.window_width < self.size:
-                self.root.geometry(str(self.window_width+3)+"x"+str(self.window_height+5))
-                self.root.update()
-                self.window_width = int(self.root.geometry().split("+")[0].split("x")[0])
-                self.window_height = int(self.root.geometry().split("+")[0].split("x")[1])
-        elif self.direction.lower() == "contract":
-            self.window_width = int(self.root.geometry().split("+")[0].split("x")[0])
-            self.window_height = int(self.root.geometry().split("+")[0].split("x")[1])
-            while self.window_width > self.size:
-                self.root.geometry(str(self.window_width-3)+"x"+str(self.window_height-5))
-                self.root.update()
-                self.window_width = int(self.root.geometry().split("+")[0].split("x")[0])
-                self.window_height = int(self.root.geometry().split("+")[0].split("x")[1])
+from guerillo.classes.backend_objects.search_query import SearchQuery
+from guerillo.classes.scrapers.pinellas import Pinellas
+from guerillo.config import Folders
+from guerillo.threads.search_thread import SearchThread
+from guerillo.threads.window_resize_thread import WindowResizeThread
+from guerillo.utils.file_storage import FileStorage
 
 
 class GUI:
@@ -64,10 +30,10 @@ class GUI:
     search_button_image = None
     search_button_greyscale_image = None
 
-    def colorize_search_button(self,event):
+    def colorize_search_button(self, event):
         colorize = True
         for field_reference in self.entry_fields_list:
-            if field_reference.get()=="":
+            if field_reference.get() == "":
                 colorize = False
                 break
         if colorize:
@@ -76,7 +42,8 @@ class GUI:
             self.search_button.configure(image=self.search_button_image)
         else:
             if not self.search_button_greyscale_image:
-                self.search_button_greyscale_image = ImageTk.PhotoImage(Image.open(self.images_path + "search_button_greyscale.png"))
+                self.search_button_greyscale_image = ImageTk.PhotoImage(
+                    Image.open(self.images_path + "search_button_greyscale.png"))
             self.search_button.configure(image=self.search_button_greyscale_image)
 
     def login(self):
@@ -86,11 +53,9 @@ class GUI:
         self.signed_in = True
         self.create_account_menu()
         self.file_menu.entryconfig(0, state=tc.NORMAL)
-        #self.root.geometry("400x400")
+        # self.root.geometry("400x400")
         window_thread = WindowResizeThread(self.root, 'expand', 400)
         window_thread.run()
-
-
 
     def sign_out(self):
         self.search_screen.grid_remove()
@@ -101,10 +66,9 @@ class GUI:
         self.account_menu.destroy()
         self.top_menu.delete("Account")
         self.file_menu.entryconfig(0, state=tc.DISABLED)
-        #self.root.geometry('300x250')
+        # self.root.geometry('300x250')
         window_thread = WindowResizeThread(self.root, 'contract', 300)
         window_thread.run()
-
 
     def do_nothing(self):
         print("would have done something")
@@ -118,11 +82,15 @@ class GUI:
         search_thread.start()
 
     def retrieve_inputs_and_run(self, fields_list, status_label):
-        output_list = []
+        input_list = []
         for field_reference in fields_list:
-            output_list.append(field_reference.get())
-        pinellas_instance = pinellas.Pinellas(status_label)
-        pinellas_instance.run(output_list)
+            input_list.append(field_reference.get())
+        pinellas_instance = Pinellas(
+            search_query=SearchQuery(inputs=input_list),
+            exports_path=FileStorage.get_full_path(Folders.EXPORTS),
+            status_label=status_label
+        )
+        pinellas_instance.run()
         status_label.configure(text="Ready to search.")
 
     def clear_inputs(self, fields_list):
@@ -134,11 +102,10 @@ class GUI:
 
     def open_reports_folder(self):
         print('activated')
-        subprocess.call("explorer "+self.reports_path, shell=True)
+        subprocess.call("explorer " + self.reports_path, shell=True)
 
-##########
-##########
-
+    ##########
+    ##########
 
     def create_core_window(self):
         self.root = tk.Tk()
@@ -147,41 +114,42 @@ class GUI:
         self.root.geometry('300x250')  # syntax is 'WidthxHeight'
         self.root.resizable(width=False, height=False)
         self.root.config(background="white")
-    
+
     def create_status_bar(self):
         self.status_frame = tk.Frame(self.root)
         self.status = tk.Label(self.status_frame, text="Ready to search.", bd=1, relief=tc.SUNKEN, anchor=tc.W)
         self.status.pack(side=tc.BOTTOM, fill=tc.X)
 
     def create_main_frame(self):
-        self.main_frame = tk.Frame(self.root,bg="yellow")
-        self.main_frame.pack(fill=tc.BOTH,expand=1)
+        self.main_frame = tk.Frame(self.root, bg="yellow")
+        self.main_frame.pack(fill=tc.BOTH, expand=1)
         self.main_frame.grid_rowconfigure(0, weight=1)
         self.main_frame.grid_columnconfigure(0, weight=1)
 
     def create_search_screen(self):
         self.search_screen = tk.Frame(self.main_frame, bg="white")
-        self.search_screen.grid(row=0,column=0,sticky="nsew")
+        self.search_screen.grid(row=0, column=0, sticky="nsew")
 
     def create_login_screen(self):
-        self.login_screen = tk.Frame(self.main_frame,bg="white")
-        self.login_screen.grid(row=0,column=0,sticky="nsew")
+        self.login_screen = tk.Frame(self.main_frame, bg="white")
+        self.login_screen.grid(row=0, column=0, sticky="nsew")
 
-        self.login_elements_frame = tk.Frame(self.login_screen,bg="white")
+        self.login_elements_frame = tk.Frame(self.login_screen, bg="white")
         self.login_elements_frame.place(in_=self.login_screen, anchor="c", relx=.50, rely=.40)
 
-        #U/N label and field
-        self.username_label = tk.Label(self.login_elements_frame,bg="white",text="Email or Username",font=("Constantia",12))
+        # U/N label and field
+        self.username_label = tk.Label(self.login_elements_frame, bg="white", text="Email or Username",
+                                       font=("Constantia", 12))
         self.username_label.grid(row=0)
-        self.username_field = tk.Entry(self.login_elements_frame,width=22)
-        self.username_field.grid(row=0,column=1)
+        self.username_field = tk.Entry(self.login_elements_frame, width=22)
+        self.username_field.grid(row=0, column=1)
 
-        #PW label and field
-        self.password_label = tk.Label(self.login_elements_frame,bg="white",text="Password",font=("Constantia",12))
+        # PW label and field
+        self.password_label = tk.Label(self.login_elements_frame, bg="white", text="Password", font=("Constantia", 12))
         self.password_label.grid(row=1)
-        self.password_field = tk.Entry(self.login_elements_frame,width=22,show="*")
-        self.password_field.grid(row=1,column=1)
-        #login button
+        self.password_field = tk.Entry(self.login_elements_frame, width=22, show="*")
+        self.password_field.grid(row=1, column=1)
+        # login button
         self.login_button_source_image = Image.open(self.images_path + "login_button.png")
         self.login_button_image = ImageTk.PhotoImage(self.login_button_source_image)
         self.login_button = tk.Button(self.login_elements_frame,
@@ -189,13 +157,14 @@ class GUI:
                                       highlightthickness=0,
                                       image=self.login_button_image,
                                       text="     Login     ",
-                                      command=lambda:self.login())
-        self.login_button.grid(row=2,columnspan=2)
+                                      command=lambda: self.login())
+        self.login_button.grid(row=2, columnspan=2)
 
     def create_logo(self):
         self.logo = ImageTk.PhotoImage(Image.open(self.images_path + "pano.png"))
         # get logo embedded at bottom right corner
-        logo_label = tk.Label(self.root, image=self.logo, highlightthickness=0, borderwidth=0, cursor="hand2", anchor=tc.E)
+        logo_label = tk.Label(self.root, image=self.logo, highlightthickness=0, borderwidth=0, cursor="hand2",
+                              anchor=tc.E)
         logo_label.image = self.logo
         logo_label.place(rely=1.0, relx=1.0, x=-11, y=-20, anchor=tc.SE)
         logo_label.bind("<Button-1>", self.link_to_pano)
@@ -207,9 +176,10 @@ class GUI:
         # add a file dropdown menu
         self.file_menu = tk.Menu(self.top_menu, tearoff=False)
         self.top_menu.add_cascade(label="File", menu=self.file_menu)
-        self.file_menu.add_command(label="New Search / Clear Page", command=lambda: self.clear_inputs(self.entry_fields_list)) #TODO: check if we dont need lamba anymore
-        self.file_menu.entryconfig(0,state=tc.DISABLED)
-        self.file_menu.add_command(label="Open Reports Folder",command=lambda:self.open_reports_folder())
+        self.file_menu.add_command(label="New Search / Clear Page", command=lambda: self.clear_inputs(
+            self.entry_fields_list))  # TODO: check if we dont need lamba anymore
+        self.file_menu.entryconfig(0, state=tc.DISABLED)
+        self.file_menu.add_command(label="Open Reports Folder", command=lambda: self.open_reports_folder())
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Quit", command=self.root.destroy)
 
@@ -217,58 +187,60 @@ class GUI:
         self.account_menu = tk.Menu(self.top_menu, tearoff=False)
         self.top_menu.add_cascade(label="Account", menu=self.account_menu)
         self.account_menu.add_command(label="Account Options", command=lambda: self.do_nothing())
-        self.account_menu.add_command(label="Sign Out",command=lambda:self.sign_out())
+        self.account_menu.add_command(label="Sign Out", command=lambda: self.sign_out())
 
     def create_entry_grid(self):
         # build entry grid frame (grid layout for text entry components and search button)
         self.entry_grid_frame = tk.Frame(self.search_screen, bg="white")
         self.entry_grid_frame.place(in_=self.search_screen, anchor="c", relx=.50, rely=.45)
 
-    def inject_lower_bound_elements(self,grid_target,row_placement):
+    def inject_lower_bound_elements(self, grid_target, row_placement):
         self.lower_bound_label = tk.Label(grid_target, bg="white", text="Min Mortgage Amount", font=("Constantia", 12))
-        self.lower_bound_label.grid(row=row_placement, column=0, sticky=tc.E,pady=5)
-        self.lower_bound_input = tk.Entry(grid_target, width=15,font = "Calibri 13")
-        self.lower_bound_input.bind("<Key>",self.colorize_search_button)
+        self.lower_bound_label.grid(row=row_placement, column=0, sticky=tc.E, pady=5)
+        self.lower_bound_input = tk.Entry(grid_target, width=15, font="Calibri 13")
+        self.lower_bound_input.bind("<Key>", self.colorize_search_button)
         self.lower_bound_input.grid(row=row_placement, column=1)
         self.entry_fields_list.append(self.lower_bound_input)
 
-    def inject_upper_bound_elements(self,grid_target,row_placement):
+    def inject_upper_bound_elements(self, grid_target, row_placement):
         self.upper_bound_label = tk.Label(grid_target, bg="white", text="Max Mortgage Amount", font=("Constantia", 12))
-        self.upper_bound_label.grid(row=row_placement, column=0, sticky=tc.E,pady=5)
-        self.upper_bound_input = tk.Entry(grid_target, width=15,font = "Calibri 13")
+        self.upper_bound_label.grid(row=row_placement, column=0, sticky=tc.E, pady=5)
+        self.upper_bound_input = tk.Entry(grid_target, width=15, font="Calibri 13")
         self.upper_bound_input.grid(row=row_placement, column=1)
-        self.upper_bound_input.bind("<Key>",self.colorize_search_button)
+        self.upper_bound_input.bind("<Key>", self.colorize_search_button)
         self.entry_fields_list.append(self.upper_bound_input)
 
-    def inject_start_date_elements(self,grid_target,row_placement):
+    def inject_start_date_elements(self, grid_target, row_placement):
         self.start_date_label = tk.Label(grid_target, bg="white", text="Start Date", font=("Constantia", 12))
-        self.start_date_label.grid(row=row_placement, column=0, sticky=tc.E,pady=5)
-        self.start_date_input = tk.Entry(grid_target, width=15,font = "Calibri 13")
+        self.start_date_label.grid(row=row_placement, column=0, sticky=tc.E, pady=5)
+        self.start_date_input = tk.Entry(grid_target, width=15, font="Calibri 13")
         self.start_date_input.grid(row=row_placement, column=1)
-        self.start_date_input.bind("<Key>",self.colorize_search_button)
+        self.start_date_input.bind("<Key>", self.colorize_search_button)
         self.entry_fields_list.append(self.start_date_input)
 
-    def inject_end_date_elements(self,grid_target,row_placement):
+    def inject_end_date_elements(self, grid_target, row_placement):
         self.end_date_label = tk.Label(grid_target, bg="white", text="End Date", font=("Constantia", 12))
-        self.end_date_label.grid(row=row_placement,column=0, sticky=tc.E,pady=5)
-        self.end_date_input = tk.Entry(grid_target, width=15,font = "Calibri 13")
+        self.end_date_label.grid(row=row_placement, column=0, sticky=tc.E, pady=5)
+        self.end_date_input = tk.Entry(grid_target, width=15, font="Calibri 13")
         self.end_date_input.grid(row=row_placement, column=1)
-        self.end_date_input.bind("<Key>",self.colorize_search_button)
+        self.end_date_input.bind("<Key>", self.colorize_search_button)
         self.entry_fields_list.append(self.end_date_input)
 
-    def inject_search_button(self,grid_target,row_placement):
-        self.search_button_greyscale_image = ImageTk.PhotoImage(Image.open(self.images_path + "search_button_greyscale.png"))
+    def inject_search_button(self, grid_target, row_placement):
+        self.search_button_greyscale_image = ImageTk.PhotoImage(
+            Image.open(self.images_path + "search_button_greyscale.png"))
         self.search_button = tk.Button(grid_target,
-                                  text="Search",
-                                  image=self.search_button_greyscale_image,
-                                  highlightthickness=0,
-                                  borderwidth=0,
-                                  command=lambda: self.search_button_method(self.entry_fields_list, self.status)) #TODO: Check if we dont need lambda anymore
+                                       text="Search",
+                                       image=self.search_button_greyscale_image,
+                                       highlightthickness=0,
+                                       borderwidth=0,
+                                       command=lambda: self.search_button_method(self.entry_fields_list,
+                                                                                 self.status))  # TODO: Check if we dont need lambda anymore
         self.search_button.grid(row=row_placement, column=0, columnspan=2, pady=10)
 
-    def inject_county_dropdown(self,grid_target,row_placement):
-        self.county_dropdown_label = tk.Label(grid_target,bg="white",text="County to Search",font=("Constantia",12))
-        self.county_dropdown_label.grid(row=row_placement,column=0,sticky=tc.E)
+    def inject_county_dropdown(self, grid_target, row_placement):
+        self.county_dropdown_label = tk.Label(grid_target, bg="white", text="County to Search", font=("Constantia", 12))
+        self.county_dropdown_label.grid(row=row_placement, column=0, sticky=tc.E)
         self.county_options = [
             "Pinellas",
             "Hillsborough"
@@ -276,25 +248,22 @@ class GUI:
         self.variable = tk.StringVar(grid_target)
         self.variable.set(self.county_options[0])
         self.county_dropdown = tk.OptionMenu(grid_target, self.variable, *self.county_options)
-        self.county_dropdown.grid(row=row_placement,column = 1)
+        self.county_dropdown.grid(row=row_placement, column=1)
         self.county_dropdown.configure(state="disabled")
 
-    def inject_guerillo_header(self,grid_target,row_placement):
-        self.guerillo_header = tk.Label(grid_target,bg="white",text="Guerillo",font=("Constantia",40))
-        self.guerillo_header.grid(row=row_placement,column=0,columnspan=2,pady=3)
+    def inject_guerillo_header(self, grid_target, row_placement):
+        self.guerillo_header = tk.Label(grid_target, bg="white", text="Guerillo", font=("Constantia", 40))
+        self.guerillo_header.grid(row=row_placement, column=0, columnspan=2, pady=3)
 
-    def inject_search_query_elements(self,grid_target,row_count):
-        self.inject_search_button(grid_target,row_count-1) #has to be first b/c it needs to exist before creating
-                                                            #the upcoming textfields
-        self.inject_guerillo_header(grid_target,row_count-7)
-        self.inject_county_dropdown(grid_target,row_count-6)
-        self.inject_lower_bound_elements(grid_target,row_count-5)
-        self.inject_upper_bound_elements(grid_target,row_count-4)
-        self.inject_start_date_elements(grid_target,row_count-3)
-        self.inject_end_date_elements(grid_target,row_count-2)
-
-
-
+    def inject_search_query_elements(self, grid_target, row_count):
+        self.inject_search_button(grid_target, row_count - 1)  # has to be first b/c it needs to exist before creating
+        # the upcoming textfields
+        self.inject_guerillo_header(grid_target, row_count - 7)
+        self.inject_county_dropdown(grid_target, row_count - 6)
+        self.inject_lower_bound_elements(grid_target, row_count - 5)
+        self.inject_upper_bound_elements(grid_target, row_count - 4)
+        self.inject_start_date_elements(grid_target, row_count - 3)
+        self.inject_end_date_elements(grid_target, row_count - 2)
 
     def __init__(self):
         self.root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -308,13 +277,8 @@ class GUI:
         self.create_status_bar()
         self.create_top_menu()
         self.create_entry_grid()
-        self.inject_search_query_elements(self.entry_grid_frame,7)
+        self.inject_search_query_elements(self.entry_grid_frame, 7)
         self.search_screen.grid_remove()
         self.create_login_screen()
 
         self.root.mainloop()
-
-
-
-
-gui = GUI()
