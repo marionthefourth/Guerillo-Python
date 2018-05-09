@@ -1,7 +1,9 @@
 from guerillo.__tests__ import pinellas_tests
 
 # AutoUpdater.run()
-pinellas_tests()
+from guerillo.gui import GUI
+
+gui = GUI()
 
 
 

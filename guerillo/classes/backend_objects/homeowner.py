@@ -24,6 +24,7 @@ class Homeowner:
             self.property_sale = deed_item[8]
             self.legal_description = mortgage_item[6]
             self.counterparty_name = deed_item[0]
+            self.address = None
         else:
             self.name = name
             self.address = address
