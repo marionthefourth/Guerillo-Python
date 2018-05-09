@@ -1,4 +1,5 @@
 import pyrebase as pyrebase
+from requests import HTTPError
 
 from guerillo.config import API
 
@@ -15,9 +16,13 @@ class Backend:
     @staticmethod
     def sign_in(user):
         # TODO - Allow User to Sign In With Username & Password or Email & Password
-        account = Backend.get().auth().sign_in_with_email_and_password(user.email, user.password)
-        from guerillo.classes.backend_objects.backend_object import BackendType
-        return Backend.read(type=BackendType.USER, uid=account['localId'])
+        try:
+            account = Backend.get().auth().sign_in_with_email_and_password(user.email, user.password)
+            from guerillo.classes.backend_objects.backend_object import BackendType
+            return Backend.read(type=BackendType.USER, uid=account['localId'])
+        except HTTPError:
+            return None
+
 
     @staticmethod
     def get_account_info(id_token):

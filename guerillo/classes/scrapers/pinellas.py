@@ -7,6 +7,7 @@ Created on Sun Apr 22 21:14:10 2018
 import os
 from datetime import datetime
 import bs4
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 from guerillo.classes.backend_objects.homeowner import Homeowner
 from guerillo.classes.scrapers.scraper import Scraper
@@ -23,10 +24,7 @@ class Pinellas(Scraper):
         self.status_label = status_label
 
     def create_deeds_and_mortgages_list(self, file_name):
-        data_lists = list()
-        for item in FileStorage.read(file_name, county_filter="Pinellas"):
-            data_lists.append(item.replace('"', "").replace("\n", "").split(","))
-
+        data_lists = FileStorage.read(file_name, county_filter="Pinellas")
         deeds = list()
         mortgages = list()
         for item in data_lists:
@@ -64,7 +62,7 @@ class Pinellas(Scraper):
         return self.driver_utils.action_multi({
             0: {Action.GET: url},
             1: {Action.COMPLEX: {  # Should be @ Tax Accessor
-                Action.FIND_TAG_NAME: General.BUTTON,
+                Action.FIND_TAGS_BY_NAME: General.BUTTON,
                 Action.MATCH_TEXT: General.I_AGREE,
                 Action.SEND_KEYS: Keys.SPACE
             }},
@@ -99,7 +97,7 @@ class Pinellas(Scraper):
     def get_search_result_count_by_name(self, name):
         header = self.driver_utils.action_multi({
             0: {Action.GET: URLs.PCPAO.TEXT_1 + name + HTML.NUM_RESULTS_1000},
-            1: {Action.RETURN: {Action.FIND_TAG_NAME: HTML.TH}}
+            1: {Action.RETURN: {Action.FIND_TAGS_BY_NAME: HTML.TH}}
         })
         if not hasattr(header, 'text'):
             return 1000
@@ -111,7 +109,7 @@ class Pinellas(Scraper):
                 Action.RETURN_PREP: {False: {Action.MATCH_TEXT: 2}},
                 Action.REPEAT_PREP: {0: {Action.FIND_ID: Action.GET}, 1: {Action.FIND_ID: Action.MATCH_TEXT}},
                 Action.FIND_ID: General.PCPAO.ITB,
-                Action.FIND_TAG_NAME: HTML.TD,
+                Action.FIND_TAGS_BY_NAME: HTML.TD,
                 Action.MATCH_TEXT: General.PCPAO.NO_RECORDS,
                 Action.GET: URLs.PCPAO.TEXT_1 + Sanitizer.general_name(name) + HTML.NUM_RESULTS_1000,
                 Action.RETURN: {}
@@ -163,10 +161,24 @@ class Pinellas(Scraper):
                             return
 
     def accept_terms_and_conditions(self):
-        self.driver_utils.action_multi({
-            0: {Action.GET: URLs.MyPinellasClerk.SEARCH_TYPE_CONSIDERATION},
-            1: {Action.CLICK: General.PCPAO.BUTTON}  # Hit Accept Button
-        })
+        #has_error =
+            try:
+                self.driver_utils.action_multi({
+                0: {Action.GET: URLs.MyPinellasClerk.SEARCH_TYPE_CONSIDERATION},
+                #1: {Action.COMPLEX: {Action.FIND_TAG_NAME: 'h1', Action.MATCH_TEXT: "Server Error in '/' Application.",
+                                     #Action.CHECK: None
+                                     #}}
+                #,
+                2: {Action.CLICK: General.PCPAO.BUTTON}  # Hit Accept Button
+            })
+            except NoSuchElementException:
+                self.status_label.configure(text="County records unavailable, likely due to their servers. Please try again later.")
+                self.driver_utils.quit()
+                quit()
+
+
+        #if has_error:
+            #self.status_label.configure(text="County records servers unavailable. Please try again later.")
 
     def fill_search_query_fields(self):
         self.driver_utils.action_multi({

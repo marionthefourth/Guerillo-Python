@@ -10,11 +10,6 @@ class FileStorage:
     @staticmethod
     def read(file_name, county_filter=None):
         """ Get's Directory of File Based on Name/Extension """
-    # TODO - Fix this code to be dynamic
-        """ file_path = FileStorage.direct_to_folder(
-            FileStorage.get_root_path(),
-            [FileStorage.get_file_folder(FileStorage.get_file_extension(file_name))]
-        ) + file_name """
         file_path = None
         if not county_filter:
             if FileStorage.is_special_file(file_name):
@@ -27,8 +22,13 @@ class FileStorage:
                 file_path = file_name
 
         if os.path.isfile(file_path):
-            with open(file_path, 'r') as file:
-                return file.readlines()
+            if FileStorage.get_file_extension(file_path) == FileExtensions.CSV:
+                with open(file_path,'r') as file:
+                    reader = csv.reader(file)
+                    return list(reader)
+            else:
+                with open(file_path, 'r') as file:
+                    return file.readlines()
         elif os.path.isfile(file_name):
             with open(file_name, 'r') as file:
                 return file.readlines()

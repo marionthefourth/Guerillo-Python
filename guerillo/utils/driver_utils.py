@@ -31,12 +31,15 @@ class Action(IntEnum):
     FIND = 80
     FIND_ID = 81
     FIND_TAG_NAME = 82
+    FIND_TAGS_BY_NAME = 83
     MATCH_TEXT = 90
     COMPLEX = 100
     REPEAT = 200
     REPEAT_PREP = 210
     RETURN = 300
     RETURN_PREP = 310
+    CHECK = 400
+
 
     @staticmethod
     def is_get(action):  # Any Get Operations are handled in 0 <= x < 1
@@ -184,12 +187,20 @@ class DriverUtils:
         repeat_ends = []
         loop_count = 1
         for sub_action_key in dictionary:
-            if sub_action_key == Action.FIND_TAG_NAME:
+            if sub_action_key == Action.FIND_TAGS_BY_NAME:
                 elements = self.driver.find_elements_by_tag_name(dictionary[sub_action_key])
+            elif sub_action_key == Action.FIND_TAG_NAME:
+                elements = []
+                elements.append(self.driver.find_element_by_tag_name(dictionary[sub_action_key]))
+            elif sub_action_key == Action.CHECK:
+                for value in return_values:
+                    if value == True and len(return_values) == 1:
+                        return "Throw an error. Y'done fucked up."
             elif sub_action_key == Action.MATCH_TEXT:
                 for element in elements:
                     if element.text == dictionary[sub_action_key]:
                         selected_element = element
+                        return_values.append(True)
                         break
                 if not return_values and not repeat_ends or loop_count == len(repeat_ends) and not return_values:
                     return
@@ -230,6 +241,6 @@ class DriverUtils:
                 element = element.find_element_by_id(dictionary[sub_action_key])
             elif sub_action_key == Action.GET_ATTRIBUTE:
                 element = element.get_attribute(dictionary[sub_action_key])
-            elif sub_action_key == Action.FIND_TAG_NAME:
+            elif sub_action_key == Action.FIND_TAGS_BY_NAME:
                 element = element.find_element_by_tag_name(dictionary[sub_action_key])
         return element

@@ -14,8 +14,11 @@ import webbrowser
 import os
 from threading import Thread
 import subprocess
+from tkinter import messagebox
 
+from guerillo.backend.backend import Backend
 from guerillo.classes.backend_objects.search_query import SearchQuery
+from guerillo.classes.backend_objects.user import User
 from guerillo.classes.scrapers.pinellas import Pinellas
 from guerillo.config import Folders
 from guerillo.threads.search_thread import SearchThread
@@ -30,7 +33,7 @@ class GUI:
     search_button_image = None
     search_button_greyscale_image = None
 
-    def colorize_search_button(self, event):
+    def activate_search_button(self, event):
         colorize = True
         for field_reference in self.entry_fields_list:
             if field_reference.get() == "":
@@ -40,22 +43,39 @@ class GUI:
             if not self.search_button_image:
                 self.search_button_image = ImageTk.PhotoImage(Image.open(self.images_path + "search_button.png"))
             self.search_button.configure(image=self.search_button_image)
+            self.search_button.config(command=lambda: self.search_button_method(self.entry_fields_list,
+                                                                                self.status
+                                                                                )
+                                      )
         else:
             if not self.search_button_greyscale_image:
                 self.search_button_greyscale_image = ImageTk.PhotoImage(
                     Image.open(self.images_path + "search_button_greyscale.png"))
             self.search_button.configure(image=self.search_button_greyscale_image)
+            self.search_button.config(command=lambda: self.do_nothing)
+
+    def enter_login(self,event):
+        self.login()
+
+    def enter_search(self,event):
+        self.search_button_method(self.entry_fields_list,self.status)
 
     def login(self):
-        self.login_screen.grid_remove()
-        self.search_screen.grid()
-        self.status_frame.pack(side=tc.BOTTOM, fill=tc.X)
-        self.signed_in = True
-        self.create_account_menu()
-        self.file_menu.entryconfig(0, state=tc.NORMAL)
-        # self.root.geometry("400x400")
-        window_thread = WindowResizeThread(self.root, 'expand', 400)
-        window_thread.run()
+
+        self.user = Backend.sign_in(User(email=self.username_field.get(),password=self.password_field.get()))
+        if self.user:
+            self.login_screen.grid_remove()
+            self.search_screen.grid()
+            self.status_frame.pack(side=tc.BOTTOM, fill=tc.X)
+            self.signed_in = True
+            self.create_account_menu()
+            self.file_menu.entryconfig(0, state=tc.NORMAL)
+            self.inject_county_dropdown(self.entry_grid_frame,1)
+            # self.root.geometry("400x400")
+            window_thread = WindowResizeThread(self.root, 'expand', 400)
+            window_thread.run()
+        else:
+            messagebox.showinfo("Login Failed","Your username/email and/or password was incorrect.")
 
     def sign_out(self):
         self.search_screen.grid_remove()
@@ -77,6 +97,7 @@ class GUI:
         webbrowser.open_new(r"http://www.panoramic.global")
 
     def search_button_method(self, passed_fields_list, passed_status_label):
+        selected_county = self.variable.get()
         passed_status_label.configure(text="Getting prepped...")
         search_thread = SearchThread(self, passed_fields_list, passed_status_label)
         search_thread.start()
@@ -86,7 +107,8 @@ class GUI:
         for field_reference in fields_list:
             input_list.append(field_reference.get())
         pinellas_instance = Pinellas(
-            search_query=SearchQuery(inputs=input_list),
+            #search_query=SearchQuery(inputs=input_list),
+            search_query=SearchQuery(lower_bound="250000",upper_bound="300000",start_date="05/01/2018",end_date="05/02/2018"),
             exports_path=FileStorage.get_full_path(Folders.EXPORTS),
             status_label=status_label
         )
@@ -99,6 +121,7 @@ class GUI:
         self.search_button_greyscale_source_image = Image.open(self.images_path + "search_button_greyscale.png")
         self.search_button_greyscale_image = ImageTk.PhotoImage(self.search_button_greyscale_source_image)
         self.search_button.configure(image=self.search_button_greyscale_image)
+        self.search_button.config(command=lambda: self.do_nothing)
 
     def open_reports_folder(self):
         print('activated')
@@ -143,11 +166,13 @@ class GUI:
         self.username_label.grid(row=0)
         self.username_field = tk.Entry(self.login_elements_frame, width=22)
         self.username_field.grid(row=0, column=1)
+        self.username_field.bind('<Return>',self.enter_login)
 
         # PW label and field
         self.password_label = tk.Label(self.login_elements_frame, bg="white", text="Password", font=("Constantia", 12))
         self.password_label.grid(row=1)
         self.password_field = tk.Entry(self.login_elements_frame, width=22, show="*")
+        self.password_field.bind('<Return>',self.enter_login)
         self.password_field.grid(row=1, column=1)
         # login button
         self.login_button_source_image = Image.open(self.images_path + "login_button.png")
@@ -198,7 +223,7 @@ class GUI:
         self.lower_bound_label = tk.Label(grid_target, bg="white", text="Min Mortgage Amount", font=("Constantia", 12))
         self.lower_bound_label.grid(row=row_placement, column=0, sticky=tc.E, pady=5)
         self.lower_bound_input = tk.Entry(grid_target, width=15, font="Calibri 13")
-        self.lower_bound_input.bind("<Key>", self.colorize_search_button)
+        self.lower_bound_input.bind("<Key>", self.activate_search_button)
         self.lower_bound_input.grid(row=row_placement, column=1)
         self.entry_fields_list.append(self.lower_bound_input)
 
@@ -207,7 +232,7 @@ class GUI:
         self.upper_bound_label.grid(row=row_placement, column=0, sticky=tc.E, pady=5)
         self.upper_bound_input = tk.Entry(grid_target, width=15, font="Calibri 13")
         self.upper_bound_input.grid(row=row_placement, column=1)
-        self.upper_bound_input.bind("<Key>", self.colorize_search_button)
+        self.upper_bound_input.bind("<Key>", self.activate_search_button)
         self.entry_fields_list.append(self.upper_bound_input)
 
     def inject_start_date_elements(self, grid_target, row_placement):
@@ -215,7 +240,7 @@ class GUI:
         self.start_date_label.grid(row=row_placement, column=0, sticky=tc.E, pady=5)
         self.start_date_input = tk.Entry(grid_target, width=15, font="Calibri 13")
         self.start_date_input.grid(row=row_placement, column=1)
-        self.start_date_input.bind("<Key>", self.colorize_search_button)
+        self.start_date_input.bind("<Key>", self.activate_search_button)
         self.entry_fields_list.append(self.start_date_input)
 
     def inject_end_date_elements(self, grid_target, row_placement):
@@ -223,7 +248,8 @@ class GUI:
         self.end_date_label.grid(row=row_placement, column=0, sticky=tc.E, pady=5)
         self.end_date_input = tk.Entry(grid_target, width=15, font="Calibri 13")
         self.end_date_input.grid(row=row_placement, column=1)
-        self.end_date_input.bind("<Key>", self.colorize_search_button)
+        self.end_date_input.bind("<Key>", self.activate_search_button)
+        self.end_date_input.bind("<Return>",self.enter_search)
         self.entry_fields_list.append(self.end_date_input)
 
     def inject_search_button(self, grid_target, row_placement):
@@ -233,23 +259,23 @@ class GUI:
                                        text="Search",
                                        image=self.search_button_greyscale_image,
                                        highlightthickness=0,
-                                       borderwidth=0,
-                                       command=lambda: self.search_button_method(self.entry_fields_list,
-                                                                                 self.status))  # TODO: Check if we dont need lambda anymore
+                                       borderwidth=0
+                                       )
         self.search_button.grid(row=row_placement, column=0, columnspan=2, pady=10)
 
     def inject_county_dropdown(self, grid_target, row_placement):
         self.county_dropdown_label = tk.Label(grid_target, bg="white", text="County to Search", font=("Constantia", 12))
         self.county_dropdown_label.grid(row=row_placement, column=0, sticky=tc.E)
-        self.county_options = [
-            "Pinellas",
-            "Hillsborough"
-        ]
+        counties = self.user.keychain.get_connected_items()
+        counties_list = []
+        for county in counties:
+            counties_list.append(county.county_name)
+        self.county_options = counties_list
         self.variable = tk.StringVar(grid_target)
         self.variable.set(self.county_options[0])
         self.county_dropdown = tk.OptionMenu(grid_target, self.variable, *self.county_options)
         self.county_dropdown.grid(row=row_placement, column=1)
-        self.county_dropdown.configure(state="disabled")
+        #self.county_dropdown.configure(state="disabled")
 
     def inject_guerillo_header(self, grid_target, row_placement):
         self.guerillo_header = tk.Label(grid_target, bg="white", text="Guerillo", font=("Constantia", 40))
@@ -259,13 +285,15 @@ class GUI:
         self.inject_search_button(grid_target, row_count - 1)  # has to be first b/c it needs to exist before creating
         # the upcoming textfields
         self.inject_guerillo_header(grid_target, row_count - 7)
-        self.inject_county_dropdown(grid_target, row_count - 6)
+        #self.inject_county_dropdown(grid_target, row_count - 6)
         self.inject_lower_bound_elements(grid_target, row_count - 5)
         self.inject_upper_bound_elements(grid_target, row_count - 4)
         self.inject_start_date_elements(grid_target, row_count - 3)
         self.inject_end_date_elements(grid_target, row_count - 2)
 
     def __init__(self):
+        self.user = None
+
         self.root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
         self.reports_path = self.root_path + "\\bin\\reports\\"
         self.images_path = self.root_path + "\\res\\img\\"
