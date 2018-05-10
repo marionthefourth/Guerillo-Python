@@ -187,6 +187,7 @@ class DriverUtils:
         repeat_ends = []
         loop_count = 1
         for sub_action_key in dictionary:
+            sub_action_dict=dictionary[sub_action_key]
             if sub_action_key == Action.FIND_TAGS_BY_NAME:
                 elements = self.driver.find_elements_by_tag_name(dictionary[sub_action_key])
             elif sub_action_key == Action.FIND_TAG_NAME:
@@ -211,18 +212,23 @@ class DriverUtils:
             elif sub_action_key == Action.SEND_KEYS:
                 selected_element.send_keys(dictionary[sub_action_key])
             elif sub_action_key == Action.RETURN_PREP:
-                for action in sub_action_key:
-                    return_values.append(action)
-                    for micro_action in action:
-                        action_checks[action] = micro_action
+                for return_value in sub_action_dict:
+                    return_values.append(return_value)
+                    action_check_dict = sub_action_dict[return_value]
+                    if isinstance(action_check_dict,dict):
+                        for action_check in sub_action_dict[return_value]:
+                            action_checks[return_value] = action_check
+                    else:
+                        for action_check in sub_action_dict:
+                            action_checks[return_value] = action_check
+
             elif sub_action_key == Action.REPEAT_PREP:
-                for repeat_index in sub_action_key:
-                    for action in repeat_index:
-                        repeat_starts.append(action)
-                        repeat_ends.append(repeat_index[action])
+                for repeat_index in sub_action_dict:
+                    for loop_key in sub_action_dict[repeat_index]:
+                        repeat_starts.append(loop_key)
+                        repeat_ends.append(sub_action_dict[repeat_index][loop_key])
             elif sub_action_key == Action.RETURN:
                 return self.action_return(dictionary[sub_action_key])
-
             if repeat_ends:
                 for repeat_start in repeat_starts:
                     if repeat_start == sub_action_key:

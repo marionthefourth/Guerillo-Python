@@ -24,6 +24,7 @@ from guerillo.config import Folders
 from guerillo.threads.search_thread import SearchThread
 from guerillo.threads.window_resize_thread import WindowResizeThread
 from guerillo.utils.file_storage import FileStorage
+from guerillo.threads.login_thread import LoginThread
 
 
 class GUI:
@@ -32,6 +33,24 @@ class GUI:
     signed_in = False
     search_button_image = None
     search_button_greyscale_image = None
+
+    def expand_window(self,size):
+        self.window_width = int(self.root.geometry().split("+")[0].split("x")[0])
+        self.window_height = int(self.root.geometry().split("+")[0].split("x")[1])
+        while self.window_width < size:
+            self.root.geometry(str(self.window_width + 6) + "x" + str(self.window_height + 10))
+            self.root.update()
+            self.window_width = int(self.root.geometry().split("+")[0].split("x")[0])
+            self.window_height = int(self.root.geometry().split("+")[0].split("x")[1])
+
+    def contract_window(self,size):
+        self.window_width = int(self.root.geometry().split("+")[0].split("x")[0])
+        self.window_height = int(self.root.geometry().split("+")[0].split("x")[1])
+        while self.window_width > size:
+            self.root.geometry(str(self.window_width - 6) + "x" + str(self.window_height - 10))
+            self.root.update()
+            self.window_width = int(self.root.geometry().split("+")[0].split("x")[0])
+            self.window_height = int(self.root.geometry().split("+")[0].split("x")[1])
 
     def activate_search_button(self, event):
         colorize = True
@@ -61,23 +80,25 @@ class GUI:
         self.search_button_method(self.entry_fields_list,self.status)
 
     def login(self):
-
+        self.login_status_label.configure(text="")
+        self.root.update()
         self.user = Backend.sign_in(User(email=self.username_field.get(),password=self.password_field.get()))
         if self.user:
+            self.login_status_label.configure(text="Login successful! Loading search functions.",fg="green")
+            self.expand_window(400)
+            self.inject_county_dropdown(self.entry_grid_frame, 1)
             self.login_screen.grid_remove()
             self.search_screen.grid()
-            self.status_frame.pack(side=tc.BOTTOM, fill=tc.X)
             self.signed_in = True
             self.create_account_menu()
             self.file_menu.entryconfig(0, state=tc.NORMAL)
-            self.inject_county_dropdown(self.entry_grid_frame,1)
+            self.status_frame.pack(side=tc.BOTTOM, fill=tc.X)
             # self.root.geometry("400x400")
-            window_thread = WindowResizeThread(self.root, 'expand', 400)
-            window_thread.run()
         else:
-            messagebox.showinfo("Login Failed","Your username/email and/or password was incorrect.")
+            self.login_status_label.configure(text="Your login information was incorrect.",fg="red")
 
     def sign_out(self):
+        self.login_status_label.configure(text="")
         self.search_screen.grid_remove()
         self.login_screen.grid()
         self.status_frame.forget()
@@ -87,8 +108,7 @@ class GUI:
         self.top_menu.delete("Account")
         self.file_menu.entryconfig(0, state=tc.DISABLED)
         # self.root.geometry('300x250')
-        window_thread = WindowResizeThread(self.root, 'contract', 300)
-        window_thread.run()
+        self.contract_window(300)
 
     def do_nothing(self):
         print("would have done something")
@@ -115,13 +135,14 @@ class GUI:
         pinellas_instance.run()
         status_label.configure(text="Ready to search.")
 
-    def clear_inputs(self, fields_list):
-        for field_reference in fields_list:
+    def clear_inputs(self):
+        for field_reference in self.entry_fields_list:
             field_reference.delete(0, 'end')
         self.search_button_greyscale_source_image = Image.open(self.images_path + "search_button_greyscale.png")
         self.search_button_greyscale_image = ImageTk.PhotoImage(self.search_button_greyscale_source_image)
         self.search_button.configure(image=self.search_button_greyscale_image)
         self.search_button.config(command=lambda: self.do_nothing)
+        self.status.configure(text="Ready to search.")
 
     def open_reports_folder(self):
         print('activated')
@@ -144,7 +165,7 @@ class GUI:
         self.status.pack(side=tc.BOTTOM, fill=tc.X)
 
     def create_main_frame(self):
-        self.main_frame = tk.Frame(self.root, bg="yellow")
+        self.main_frame = tk.Frame(self.root, bg="white")
         self.main_frame.pack(fill=tc.BOTH, expand=1)
         self.main_frame.grid_rowconfigure(0, weight=1)
         self.main_frame.grid_columnconfigure(0, weight=1)
@@ -163,17 +184,17 @@ class GUI:
         # U/N label and field
         self.username_label = tk.Label(self.login_elements_frame, bg="white", text="Email or Username",
                                        font=("Constantia", 12))
-        self.username_label.grid(row=0)
+        self.username_label.grid(row=0, column=0)
         self.username_field = tk.Entry(self.login_elements_frame, width=22)
-        self.username_field.grid(row=0, column=1)
+        self.username_field.grid(row=1, column=0)
         self.username_field.bind('<Return>',self.enter_login)
 
         # PW label and field
         self.password_label = tk.Label(self.login_elements_frame, bg="white", text="Password", font=("Constantia", 12))
-        self.password_label.grid(row=1)
+        self.password_label.grid(row=2, column=0 )
         self.password_field = tk.Entry(self.login_elements_frame, width=22, show="*")
         self.password_field.bind('<Return>',self.enter_login)
-        self.password_field.grid(row=1, column=1)
+        self.password_field.grid(row=3, column=0)
         # login button
         self.login_button_source_image = Image.open(self.images_path + "login_button.png")
         self.login_button_image = ImageTk.PhotoImage(self.login_button_source_image)
@@ -183,7 +204,19 @@ class GUI:
                                       image=self.login_button_image,
                                       text="     Login     ",
                                       command=lambda: self.login())
-        self.login_button.grid(row=2, columnspan=2)
+        self.login_button.grid(row=4, columnspan=2)
+        #spacer TODO: get a canvas line in here or something
+        # self.spacer_label = tk.Label(self.login_elements_frame,bg="white",text="  ")
+        # self.spacer_label.grid(row=,column=0)
+        #sign up option TODO: replace with button??
+        self.sign_up_label = tk.Label(self.login_elements_frame,bg="white",text="Sign up")
+        self.sign_up_label.grid(row=5,column=0)
+        #TODO: give signup functionality
+
+
+        #login status label
+        self.login_status_label = tk.Label(self.login_elements_frame,bg="white",font=("Constantia",12))
+        self.login_status_label.grid(row=6,column=0,pady=5)
 
     def create_logo(self):
         self.logo = ImageTk.PhotoImage(Image.open(self.images_path + "pano.png"))
@@ -201,8 +234,7 @@ class GUI:
         # add a file dropdown menu
         self.file_menu = tk.Menu(self.top_menu, tearoff=False)
         self.top_menu.add_cascade(label="File", menu=self.file_menu)
-        self.file_menu.add_command(label="New Search / Clear Page", command=lambda: self.clear_inputs(
-            self.entry_fields_list))  # TODO: check if we dont need lamba anymore
+        self.file_menu.add_command(label="New Search / Clear Page", command=lambda: self.clear_inputs())  # TODO: check if we dont need lamba anymore
         self.file_menu.entryconfig(0, state=tc.DISABLED)
         self.file_menu.add_command(label="Open Reports Folder", command=lambda: self.open_reports_folder())
         self.file_menu.add_separator()
