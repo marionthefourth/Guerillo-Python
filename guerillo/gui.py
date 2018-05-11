@@ -102,7 +102,7 @@ class GUI:
         self.search_screen.grid_remove()
         self.login_screen.grid()
         self.status_frame.forget()
-        self.clear_inputs(self.entry_fields_list)
+        self.clear_inputs()
         self.signed_in = False
         self.account_menu.destroy()
         self.top_menu.delete("Account")
@@ -174,6 +174,42 @@ class GUI:
         self.search_screen = tk.Frame(self.main_frame, bg="white")
         self.search_screen.grid(row=0, column=0, sticky="nsew")
 
+    def create_signup_screen(self):
+        #create core ouline - remove to be called later
+        self.signup_screen = tk.Frame(self.main_frame,bg="white")
+        self.signup_screen.grid(row=0,column=0,sticky="nsew")
+        self.signup_screen.grid_remove()
+        #inject the elements frame
+        self.signup_elements_frame = tk.Frame(self.signup_screen,bg='white')
+        self.signup_elements_frame.place(in_=self.signup_screen,anchor='c',relx=.50,rely=.40)
+        #labels and fields
+        self.full_name_label = tk.Label(self.signup_elements_frame, text="Full name", bg="white")
+        self.full_name_label.grid(row=0,column=0)
+        self.full_name_entry = tk.Entry(self.signup_elements_frame)
+        self.full_name_entry.grid(row=1,column=0)
+
+        #signup button
+        self.signup_button_source_image = Image.open(self.images_path + "signup_button.png")
+        self.signup_button_image = ImageTk.PhotoImage(self.signup_button_source_image)
+        self.signup_button = tk.Button(self.signup_elements_frame,
+                                      borderwidth=0,
+                                      highlightthickness=0,
+                                      image=self.signup_button_image,
+                                      text="     Login     ") #,
+                                      #command=lambda: self.login())
+        self.signup_button.grid(row=4,column=0)
+
+        #cancel text with function
+        self.cancel_label = tk.Label(self.signup_elements_frame,text="Cancel",bg='white',cursor="hand2")
+        self.cancel_label.grid(row=5,column=0)
+        self.cancel_label.bind("<Button-1>",self.signup_cancel)
+
+    def signup_cancel(self,event):
+        #TODO: clear the signup fields first
+        self.signup_screen.grid_remove()
+        self.login_screen.grid()
+        self.contract_window(300)
+
     def create_login_screen(self):
         self.login_screen = tk.Frame(self.main_frame, bg="white")
         self.login_screen.grid(row=0, column=0, sticky="nsew")
@@ -209,14 +245,21 @@ class GUI:
         # self.spacer_label = tk.Label(self.login_elements_frame,bg="white",text="  ")
         # self.spacer_label.grid(row=,column=0)
         #sign up option TODO: replace with button??
-        self.sign_up_label = tk.Label(self.login_elements_frame,bg="white",text="Sign up")
+        self.sign_up_label = tk.Label(self.login_elements_frame,bg="white",
+                                      text="Don't have an account? Click to sign up",cursor="hand2")
         self.sign_up_label.grid(row=5,column=0)
+        self.sign_up_label.bind("<Button-1>",self.show_signup)
         #TODO: give signup functionality
 
 
         #login status label
         self.login_status_label = tk.Label(self.login_elements_frame,bg="white",font=("Constantia",12))
         self.login_status_label.grid(row=6,column=0,pady=5)
+
+    def show_signup(self,event):
+        self.login_screen.grid_remove()
+        self.signup_screen.grid()
+        self.expand_window(350)
 
     def create_logo(self):
         self.logo = ImageTk.PhotoImage(Image.open(self.images_path + "pano.png"))
@@ -333,6 +376,7 @@ class GUI:
         self.create_core_window()
         self.create_main_frame()
         self.create_search_screen()
+        self.create_signup_screen()
         self.create_logo()
         self.create_status_bar()
         self.create_top_menu()
