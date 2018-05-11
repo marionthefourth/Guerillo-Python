@@ -183,7 +183,7 @@ class GUI:
         self.signup_elements_frame = tk.Frame(self.signup_screen,bg='white')
         self.signup_elements_frame.place(in_=self.signup_screen,anchor='c',relx=.50,rely=.40)
         #labels and fields
-        self.full_name_label = tk.Label(self.signup_elements_frame, text="Full name", bg="white")
+        self.full_name_label = tk.Label(self.signup_elements_frame, text="Full name", bg="white", font=("Constantia", 12))
         self.full_name_label.grid(row=0,column=0)
         self.full_name_entry = tk.Entry(self.signup_elements_frame)
         self.full_name_entry.grid(row=1,column=0)
