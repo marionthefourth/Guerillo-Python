@@ -8,10 +8,14 @@ class Backend:
 
     @staticmethod
     def create_account(user):
-        new_account = Backend.get().auth().create_user_with_email_and_password(user.email, user.password)
-        user.uid = new_account['localId']  # Store Account UID into User
-        user.keychain.container_uid = user.uid
-        Backend.save(user)
+        try:
+            new_account = Backend.get().auth().create_user_with_email_and_password(user.email, user.password)
+            user.uid = new_account['localId']  # Store Account UID into User
+            user.keychain.container_uid = user.uid
+            Backend.save(user)
+            return user
+        except HTTPError:
+            return None
 
     @staticmethod
     def sign_in(user):
@@ -108,9 +112,13 @@ class Backend:
                     or (state_name is None and county_name is None):
                 county.lock = Backend.read(type=BackendType.LOCK, uid=county.lock.uid)
                 county.request_queue = Backend.read(type=BackendType.REQUEST_QUEUE, uid=county.request_queue.uid)
-                if county_name is not None:
-                    return county
-                counties.append(county)
+                if county_name and county_name==county.county_name:
+                    if state_name==county.state_name:
+                        return county
+                elif state_name==county.state_name:
+                    counties.append(county)
+                elif not state_name and not county_name:
+                    counties.append(county)
         return counties
 
     @staticmethod
