@@ -38,9 +38,21 @@ class URLs:
 
     class MyPinellasClerk:
         SEARCH_TYPE_CONSIDERATION = 'https://officialrecords.mypinellasclerk.org/search/SearchTypeConsideration'
+    class HCPAFL:
+        HOME = "http://gis.hcpafl.org/"
+        PROPERTY_SEARCH = HOME + "propertysearch/#/"
+        OWNER = PROPERTY_SEARCH + "search/basic/owner="
+        BASIC_SEARCH = PROPERTY_SEARCH + "/nav/Basic%20Search"
 
+    class HillsboroughClerk:
+        HOME = "https://pubrec3.hillsclerk.com/"
+        SEARCH = HOME + "oncore/search.aspx"
+        BEGIN_DATE = "?bd="
+        END_DATE = "&ed="
+        LOWER_BOUND = "&bt=O&lb="
+        UPPER_BOUND = "&ub="
+        CONSIDERATION = "&pt=-1&dt=MTG&st=consideration"
     PUBREC = "https://pubrec3.hillsclerk.com/oncore/search.aspx"
-    HCPAFL = "http://gis.hcpafl.org/propertysearch/#/nav/Basic%20Search"
     CENSUS_COUNTY_CODES = "https://www.census.gov/geo/reference/codes/cousub.html"
 
 
@@ -126,6 +138,10 @@ class General:
         TAX_EST = "taxEst"
         NO_RECORDS = "Your search returned no records"
 
+    class HCPAFL:
+        TABLE_RESULTS = "table-basic-results"
+        HL_SETTINGS = "PageHeader1_hlSettings"
+
     class WebDriver:
         DEFAULT_DOWNLOAD_DIRECTORY = "download.default_directory"
 
@@ -161,7 +177,11 @@ class HTML:
     NAME = "Text1"
     SP = "&sp="
     TH = "th"
+    TR = "tr"
+    T_BODY = "tbody"
+    DATA_BIND = "data-bind"
     NUM_RESULTS_1000 = "&nR=1000"
+    PAGE_SIZE_80 = "&pagesize=80"
     HTTP = "http"
     WWW = "www"
     Q = "&q="

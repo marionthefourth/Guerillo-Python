@@ -24,12 +24,12 @@ class DriverUtils:
     def process(self, action=None, actions=None):
         if actions:
             for action in actions:
-                if action.type == ActionType.RETURN:
+                if action.a_type == ActionType.RETURN:
                     return action.process(self.driver)
                 else:
                     action.process(self.driver)
         elif action:
-            if action.type == ActionType.RETURN or action.type == ActionType.COMPLEX:
+            if action.a_type == ActionType.RETURN or action.a_type == ActionType.COMPLEX:
                 return action.process(self.driver)
             else:
                 action.process(self.driver)
