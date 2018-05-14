@@ -435,6 +435,14 @@ class GUI:
         self.signup_password_entry.delete(0,tc.END)
         self.signup_password_check_entry.delete(0,tc.END)
 
+    def check_for_updates(self):
+        update_available = True #filler, remove
+        #if update_available:
+            #messagebox.askquestion("Out of date","Update available; would you like to update Guerillo?")
+        #else:
+        messagebox.showinfo("No update required","You're all up to date!")
+
+
     def create_logo(self):
         self.logo = ImageTk.PhotoImage(Image.open(self.images_path + "pano.png"))
         # get logo embedded at bottom right corner
@@ -453,6 +461,7 @@ class GUI:
         self.top_menu.add_cascade(label="File", menu=self.file_menu)
         self.file_menu.add_command(label="New Search / Clear Page", command=lambda: self.clear_inputs())  # TODO: check if we dont need lamba anymore
         self.file_menu.entryconfig(0, state=tc.DISABLED)
+        self.file_menu.add_command(label="Check for Updates",command=lambda:self.check_for_updates())
         self.file_menu.add_command(label="Open Reports Folder", command=lambda: self.open_reports_folder())
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Quit", command=self.root.destroy)
