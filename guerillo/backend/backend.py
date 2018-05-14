@@ -91,14 +91,23 @@ class Backend:
             return AuxiliaryObject(type=type, pyres=backend_obj)
 
     @staticmethod
+    def get_users(self, email_or_username):
+        users = list()
+        from guerillo.classes.backend_objects.backend_object import BackendType
+        user_objs = Backend.get().database().child(Backend.get_type_folder(BackendType.USER)).get()
+
+        for user_obj in user_objs.each():
+            pass
+
+    @staticmethod
     def get_counties(state_name=None, county_name=None):
         counties = list()
         from guerillo.classes.backend_objects.backend_object import BackendType
         counties_by_state = Backend.get().database().child(Backend.get_type_folder(BackendType.COUNTY)).get()
 
-        for backend_obj in counties_by_state.each():
+        for county_obj in counties_by_state.each():
             from guerillo.classes.backend_objects.county import County
-            county = County(pyre=backend_obj, uid="")
+            county = County(pyre=county_obj, uid="")
             if (county.state_name == state_name or county.county_name == county_name) \
                     or (state_name is None and county_name is None):
                 county.lock = Backend.read(type=BackendType.LOCK, uid=county.lock.uid)
