@@ -36,7 +36,7 @@ class GUI:
     search_button_greyscale_image = None
 
     def expand_window(self,width_target,height_target):
-        base_speed = 2.0
+        base_speed = 4.0
         window_width = int(self.root.geometry().split("+")[0].split("x")[0])
         window_height = int(self.root.geometry().split("+")[0].split("x")[1])
 
@@ -80,7 +80,7 @@ class GUI:
                 window_height = int(self.root.geometry().split("+")[0].split("x")[1])
 
     def contract_window(self,width_target,height_target):
-        base_speed = 2.0
+        base_speed = 4.0
         window_width = int(self.root.geometry().split("+")[0].split("x")[0])
         window_height = int(self.root.geometry().split("+")[0].split("x")[1])
 
@@ -208,7 +208,7 @@ class GUI:
             input_list.append(field_reference.get())
         pinellas_instance = Pinellas(
             #search_query=SearchQuery(inputs=input_list),
-            search_query=SearchQuery(lower_bound="250000",upper_bound="300000",start_date="05/01/2018",end_date="05/02/2018"),
+            search_query=SearchQuery(inputs=input_list),
             exports_path=FileStorage.get_full_path(Folders.EXPORTS),
             status_label=status_label
         )
