@@ -22,6 +22,8 @@ class HomeownerSearchResult(BackendObject):
         for index in reversed(indices_to_remove):
             self.homeowners.pop(index)
 
+        return len(indices_to_remove)
+
     def clean_final_list(self, main_list):
         bad_eggs = []
         for i, entry in enumerate(main_list):

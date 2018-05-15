@@ -12,16 +12,107 @@ from selenium.webdriver.common.keys import Keys
 from guerillo.classes.backend_objects.homeowner import Homeowner
 from guerillo.classes.scrapers.scraper import Scraper
 from guerillo.config import URLs, General, HTML, Folders, KeyFiles
+from guerillo.utils.driver_utils.actions.action import Operation, ActionType
+from guerillo.utils.driver_utils.actions.action_clear import ActionClear
+from guerillo.utils.driver_utils.actions.action_click import ActionClick
+from guerillo.utils.driver_utils.actions.action_complex import ActionComplex
+from guerillo.utils.driver_utils.actions.action_find import ActionFind
+from guerillo.utils.driver_utils.actions.action_get import ActionGet
+from guerillo.utils.driver_utils.actions.action_match_text import ActionMatchText
+from guerillo.utils.driver_utils.actions.action_repeat import ActionRepeat, Loop
+from guerillo.utils.driver_utils.actions.action_return import ActionReturn, Condition
+from guerillo.utils.driver_utils.actions.action_send_keys import ActionSendKeys
+from guerillo.utils.driver_utils.actions.action_wait import ActionWait
 from guerillo.utils.sanitizer import Sanitizer
-from guerillo.utils.driver_utils import Action
 from guerillo.utils.file_storage import FileStorage
 
 
 class Pinellas(Scraper):
-
     def __init__(self, search_query=None, exports_path=None, status_label=None):
         super().__init__(search_query, exports_path)
         self.status_label = status_label
+
+    def search_by_bookpage(self, bookpage):
+        self.driver_utils.process(actions=[
+            ActionGet(target=URLs.PCPAO.SEARCH_BY_OR),
+            ActionSendKeys(ActionType.SEND_KEYS_BY_TAG, Operation(General.BUTTON, Keys.SPACE)),  # Accept Disclaimer
+            ActionWait(ActionType.WAIT_FOR_ID, target=General.TEXT_1),
+            ActionSendKeys(ActionType.SEND_KEYS_BY_ID, Operation(General.TEXT_1, bookpage)),
+            ActionSendKeys(ActionType.SEND_KEYS_BY_NAME, Operation(General.PCPAO.BUTTON_SUBMIT, Keys.SPACE)),
+            ActionWait(ActionType.WAIT_FOR_ID, target=General.LINK_BAR),
+        ])
+
+    def get_site_address(self, url):
+        return self.driver_utils.process(actions=[
+            ActionGet(target=url),
+            ActionComplex([  # Should be @ Tax Accessor
+                ActionFind(ActionType.FIND_TAGS_BY_NAME, target=General.BUTTON),
+                ActionMatchText(value=General.I_AGREE),
+                ActionSendKeys(value=Keys.SPACE)
+            ]),
+            ActionWait(ActionType.WAIT_FOR_ID, target=General.PCPAO.ADDR_NS),
+            ActionReturn(operations=[
+                Operation(sub_action=ActionType.FIND_ID, target=General.PCPAO.ADDR_NS),
+                Operation(sub_action=ActionType.GET_ATTRIBUTE, target=General.VALUE)
+            ])
+        ])
+
+    def should_continue_search(self, name):
+        return self.driver_utils.process(
+            ActionComplex(actions=[
+                ActionFind(ActionType.FIND_ID, target=General.PCPAO.ITB),
+                ActionFind(ActionType.FIND_TAGS_BY_NAME, target=HTML.TD),
+                ActionMatchText(target=General.PCPAO.NO_RECORDS),
+                ActionGet(target=URLs.PCPAO.TEXT_1 + Sanitizer.general_name(name) + HTML.NUM_RESULTS_1000),
+                ActionRepeat(loops=[
+                    Loop(ActionType.FIND_ID, ActionType.GET),
+                    Loop(ActionType.FIND_ID, ActionType.MATCH_TEXT)
+                ]),
+                ActionReturn(operations=[
+                    Operation(target=Condition.MATCH_FAIL, value=True),
+                    Operation(target=Condition.REPEAT_COMPLETION, value=False),
+                ])
+            ])
+        )
+
+    def fill_search_query_fields(self):
+        self.driver_utils.process(
+            ActionClear(ActionType.CLEAR_THEN_SEND, operations=[
+                Operation(General.PCPAO.RECORD_FROM, self.search_query.start_date),
+                Operation(General.PCPAO.RECORD_TO, self.search_query.end_date),
+                Operation(General.PCPAO.LOWER_BOUND, self.search_query.lower_bound),
+                Operation(General.PCPAO.UPPER_BOUND, self.search_query.upper_bound)
+            ])
+        )
+
+    def accept_terms_and_conditions(self):
+        self.driver_utils.process(actions=[
+            ActionGet(target=URLs.MyPinellasClerk.SEARCH_TYPE_CONSIDERATION),
+            ActionClick(target=General.PCPAO.BUTTON)  # Hit Accept Terms Button
+        ])
+
+    def get_search_result_count_by_name(self, name):
+        try:
+            header = self.driver_utils.process(actions=[
+                ActionGet(target=URLs.PCPAO.TEXT_1 + name + HTML.NUM_RESULTS_1000),
+                ActionReturn(operation=Operation(value=ActionType.FIND_TAG_NAME, target=HTML.TH))
+            ])
+        except AttributeError:
+            return 0
+
+        return int(header.text.split("through ")[1].split(" of")[0])
+
+    def download_csv_file(self):
+        self.driver_utils.process(actions=[
+            ActionClick(target=General.PCPAO.BUTTON_SEARCH),
+            ActionWait(ActionType.WAIT_FOR_CLASS, target=HTML.T_GRID_CONTENT),
+            ActionWait(ActionType.WAIT_FOR_CLASS_EXCEPTION, target=HTML.T_NO_DATA),
+            ActionClick(target=General.PCPAO.BUTTON_CSV)
+        ])
+
+        downloaded_file_name = FileStorage.get_full_path(Folders.EXPORTS) + KeyFiles.SEARCH_RESULTS
+        FileStorage.handle_timeout(self.driver_utils.driver, downloaded_file_name)  # Wait For Download
+        return self.rename_downloaded_csv_file(downloaded_file_name)
 
     def create_deeds_and_mortgages_list(self, file_name):
         data_lists = FileStorage.read(file_name, county_filter="Pinellas")
@@ -35,20 +126,10 @@ class Pinellas(Scraper):
                     mortgages.append(item)
         return deeds, mortgages
 
-    def search_by_bookpage(self, bookpage):
-        self.driver_utils.action_multi({
-            0: {Action.GET: URLs.PCPAO.SEARCH_BY_OR},
-            1: {Action.SEND_KEYS_BY_TAG: {General.BUTTON: Keys.SPACE}},  # Accept Disclaimer
-            2: {Action.WAIT_FOR_ID: {General.TEXT_1: 8}},
-            3: {Action.SEND_KEYS_BY_ID: {General.TEXT_1: bookpage}},
-            4: {Action.SEND_KEYS_BY_NAME: {General.PCPAO.BUTTON_SUBMIT: Keys.SPACE}},
-            5: {Action.WAIT_FOR_ID: {General.LINK_BAR: 8}}
-        })
-
     def pull_address_by_bookpage(self):
         for (i, homeowner) in enumerate(self.search_result.homeowners):
             self.status_label.configure(
-                text="Handling item " + str(i + 1 - 1) + " of " + str(len(self.search_result.homeowners) - 1))
+                text="Handling item " + str(i + 1) + " of " + str(len(self.search_result.homeowners)))
 
             self.search_by_bookpage(homeowner.bookpage)
             # Get the link (hardcoded because always one result)
@@ -57,18 +138,6 @@ class Pinellas(Scraper):
                 address = self.get_site_address(
                     addresses[1].get_attribute(HTML.HREF).replace("general", General.PCPAO.TAX_EST))
                 homeowner.address = address
-
-    def get_site_address(self, url):
-        return self.driver_utils.action_multi({
-            0: {Action.GET: url},
-            1: {Action.COMPLEX: {  # Should be @ Tax Accessor
-                Action.FIND_TAGS_BY_NAME: General.BUTTON,
-                Action.MATCH_TEXT: General.I_AGREE,
-                Action.SEND_KEYS: Keys.SPACE
-            }},
-            2: {Action.WAIT_FOR_ID: {General.PCPAO.ADDR_NS: 8}},
-            3: {Action.RETURN: {Action.FIND_ID: General.PCPAO.ADDR_NS, Action.GET_ATTRIBUTE: General.VALUE}}
-        })
 
     def create_bookpage_list(self, deeds_list, mortgages_list):
         #  Check Mortgages for Leads
@@ -94,29 +163,7 @@ class Pinellas(Scraper):
         self.search_result.clean()
         print(self.search_result.to_list())
 
-    def get_search_result_count_by_name(self, name):
-        header = self.driver_utils.action_multi({
-            0: {Action.GET: URLs.PCPAO.TEXT_1 + name + HTML.NUM_RESULTS_1000},
-            1: {Action.RETURN: {Action.FIND_TAGS_BY_NAME: HTML.TH}}
-        })
-        if not hasattr(header, 'text'):
-            return 1000
-        return int(header.text.split("through ")[1].split(" of")[0])
-
-    def should_continue_search(self, name):
-        return self.driver_utils.action_multi({
-            0: {Action.COMPLEX: {
-                Action.RETURN_PREP: {False: {Action.MATCH_TEXT: 2}},
-                Action.REPEAT_PREP: {0: {Action.FIND_ID: Action.GET}, 1: {Action.FIND_ID: Action.MATCH_TEXT}},
-                Action.FIND_ID: General.PCPAO.ITB,
-                Action.FIND_TAGS_BY_NAME: HTML.TD,
-                Action.MATCH_TEXT: General.PCPAO.NO_RECORDS,
-                Action.GET: URLs.PCPAO.TEXT_1 + Sanitizer.general_name(name) + HTML.NUM_RESULTS_1000,
-                Action.RETURN: {}
-            }},
-        })
-
-    def find_subdivision_match(self, supplementary_list_item):
+    def find_subdivision_match(self, homeowner):
         # Check for Results Again
         itb = self.driver_utils.driver.find_element_by_id(General.PCPAO.ITB)  # main table with data
 
@@ -132,20 +179,19 @@ class Pinellas(Scraper):
                 sub_and_link.append([row_list[5].text, row_list[1].a[HTML.HREF]])
         # Use list to traverse legal description vs subdivision name
         for line in sub_and_link:
-            match_found = False
             match_count = 0  # Count number of word matches (order unimportant)
             # 2 or more matches should signify a hit
             subdivision_searchable = line[0].split(" ")  # line[0] = subdivision name
-            for word in supplementary_list_item[1]:  # Input List w/ space delimited legal description.
+            for word in homeowner.legal_description.split(" "):  # Input List w/ space delimited legal description.
                 for other_word in subdivision_searchable:
                     if word == other_word:
-                        match_count = match_count + 1
+                        match_count += 1
                 if match_count >= 2:
                     break
             if match_count >= 2:
                 return True, line
 
-        return False
+        return False, None
 
     def scrape_without_bookpage(self):
         for (i, homeowner) in enumerate(self.search_result.homeowners):
@@ -158,49 +204,6 @@ class Pinellas(Scraper):
                         if match_with_line[0]:
                             url = URLs.PCPAO.HOME + match_with_line[1][1].replace("general", General.PCPAO.TAX_EST)
                             homeowner.address = self.get_site_address(url)
-                            return
-
-    def accept_terms_and_conditions(self):
-        #has_error =
-            try:
-                self.driver_utils.action_multi({
-                0: {Action.GET: URLs.MyPinellasClerk.SEARCH_TYPE_CONSIDERATION},
-                #1: {Action.COMPLEX: {Action.FIND_TAG_NAME: 'h1', Action.MATCH_TEXT: "Server Error in '/' Application.",
-                                     #Action.CHECK: None
-                                     #}}
-                #,
-                2: {Action.CLICK: General.PCPAO.BUTTON}  # Hit Accept Button
-            })
-            except NoSuchElementException:
-                self.status_label.configure(text="County records unavailable, likely due to their servers. Please try again later.")
-                self.driver_utils.quit()
-                quit()
-
-
-        #if has_error:
-            #self.status_label.configure(text="County records servers unavailable. Please try again later.")
-
-    def fill_search_query_fields(self):
-        self.driver_utils.action_multi({
-            0: {Action.CLEAR_THEN_SEND: {
-                General.PCPAO.RECORD_FROM: self.search_query.start_date,
-                General.PCPAO.RECORD_TO: self.search_query.end_date,
-                General.PCPAO.LOWER_BOUND: self.search_query.lower_bound,
-                General.PCPAO.UPPER_BOUND: self.search_query.upper_bound
-            }}
-        })
-
-    def download_csv_file(self):
-        self.driver_utils.action_multi({
-            0: {Action.CLICK: General.PCPAO.BUTTON_SEARCH},
-            1: {Action.WAIT_FOR_CLASS: {HTML.T_GRID_CONTENT: 20}},
-            2: {Action.WAIT_FOR_CLASS_EXCEPTION: {HTML.T_NO_DATA: 20}},
-            3: {Action.CLICK: General.PCPAO.BUTTON_CSV}
-        })
-
-        downloaded_file_name = FileStorage.get_full_path(Folders.EXPORTS) + KeyFiles.SEARCH_RESULTS
-        FileStorage.handle_timeout(self.driver_utils.driver, downloaded_file_name)  # Wait For Download
-        return self.rename_downloaded_csv_file(downloaded_file_name)
 
     def rename_downloaded_csv_file(self, file_name):
         export_path = FileStorage.get_full_path(Folders.EXPORTS)
@@ -229,7 +232,7 @@ class Pinellas(Scraper):
         self.create_report_list("C:\\Users\\Kenneth\\Documents\\GitHub\\GuerilloPython\\bin\\exports\\05012018-05022018 2018-05-09 211654-762405.csv")   #downloaded_file_name)
         # Update Report Data
 
-        self.status_label.configure(text="Almost done. Wrapping up.")
+        self.status_label.configure(text="Successfully found " + str(len(self.search_result.homeowners)) + " results. Wrapping up.")
         report_file_name = FileStorage.get_full_path(Folders.REPORTS) + datetime.now().strftime("%Y-%m-%d %H-%M.csv")
         FileStorage.save_data_to_csv(report_file_name, self.search_result.to_list())
 

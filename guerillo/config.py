@@ -124,7 +124,7 @@ class General:
         ITB = "ITB"
         ADDR_NS = "addr_ns"
         TAX_EST = "taxEst"
-        NO_RECORDS = "Your search returned no records."
+        NO_RECORDS = "Your search returned no records"
 
     class WebDriver:
         DEFAULT_DOWNLOAD_DIRECTORY = "download.default_directory"
