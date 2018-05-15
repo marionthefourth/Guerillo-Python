@@ -33,8 +33,8 @@ class GUI:
     search_button_image = None
     search_button_greyscale_image = None
 
-    def expand_window(self, width_target, height_target):
-        base_speed = 2.0
+    def expand_window(self,width_target, height_target):
+        base_speed = 4.0
         window_width = int(self.root.geometry().split("+")[0].split("x")[0])
         window_height = int(self.root.geometry().split("+")[0].split("x")[1])
 
@@ -79,8 +79,8 @@ class GUI:
                 window_width = int(self.root.geometry().split("+")[0].split("x")[0])
                 window_height = int(self.root.geometry().split("+")[0].split("x")[1])
 
-    def contract_window(self, width_target, height_target):
-        base_speed = 2.0
+    def contract_window(self,width_target, height_target):
+        base_speed = 4.0
         window_width = int(self.root.geometry().split("+")[0].split("x")[0])
         window_height = int(self.root.geometry().split("+")[0].split("x")[1])
 
@@ -226,7 +226,7 @@ class GUI:
         self.start_date_input.insert(0, search_query.start_date)
         self.end_date_input.delete(0, tk.END)
         self.end_date_input.insert(0, search_query.end_date)
-
+   
     def clear_inputs(self):
         for field_reference in self.entry_fields_list:
             field_reference.delete(0, 'end')
