@@ -3,10 +3,14 @@ from guerillo.classes.backend_objects.backend_object import BackendObject
 
 class HomeownerSearchResult(BackendObject):
 
-    def __init__(self, uid=None, query=None, homeowners=None):
+    def __init__(self, uid=None, query=None, homeowners=None, pyres=None, pyre=None):
         super().__init__(uid)
-        self.homeowners = homeowners
-        self.query = query
+        if pyres is None and pyre is None:
+            self.homeowners = homeowners
+            self.num_results = len(self.homeowners)
+            self.query = query
+        else:
+            self.from_dictionary(pyres=pyres, pyre=pyre)
 
     def clean(self):
         indices_to_remove = list()
@@ -21,6 +25,8 @@ class HomeownerSearchResult(BackendObject):
 
         for index in reversed(indices_to_remove):
             self.homeowners.pop(index)
+
+        self.num_results = len(self.homeowners)
 
         return len(indices_to_remove)
 
@@ -39,6 +45,10 @@ class HomeownerSearchResult(BackendObject):
         header_row = main_list.pop(0)
         main_list.sort(key=lambda x: float(x[3]), reverse=True)
         main_list.insert(0, header_row)
+
+    def from_dictionary(self, pyres=None, pyre=None):
+        dictionary = super().from_dictionary(pyres=pyres, pyre=pyre)
+        self.num_results = dictionary["num_results"]
 
     def to_dictionary(self):
         return {

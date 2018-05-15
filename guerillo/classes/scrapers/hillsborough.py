@@ -9,6 +9,7 @@ from datetime import datetime
 from selenium import webdriver as wd
 import os
 
+from guerillo.classes.backend_objects.county import County
 from guerillo.classes.scrapers.scraper import Scraper
 from guerillo.config import HTML, URLs, General
 from guerillo.utils.driver_utils.actions.action import ActionType, Target
@@ -30,6 +31,9 @@ so "A"+folio_string.replace("-","")
 
 
 class Hillsborough(Scraper):
+
+    county = County(state_name="FL", county_name="Hillsborough County")
+
     """Property Appraiser Traverse & Scrape Logic"""
     def property_appraiser_scrape_r(self, name):
         self.driver_utils.process(actions=[

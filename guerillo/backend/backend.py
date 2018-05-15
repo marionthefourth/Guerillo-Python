@@ -14,10 +14,13 @@ class Backend:
 
     @staticmethod
     def sign_in(user):
-        # TODO - Allow User to Sign In With Username & Password or Email & Password
-        account = Backend.get().auth().sign_in_with_email_and_password(user.email, user.password)
-        from guerillo.classes.backend_objects.backend_object import BackendType
-        return Backend.read(type=BackendType.USER, uid=account['localId'])
+        database_user = Backend.get_users(user.email)
+        if database_user:
+            account = Backend.get().auth().sign_in_with_email_and_password(database_user.email, user.password)
+            from guerillo.classes.backend_objects.backend_object import BackendType
+            return Backend.read(type=BackendType.USER, uid=account['localId'])
+        else:
+            return None
 
     @staticmethod
     def get_account_info(id_token):
@@ -40,7 +43,8 @@ class Backend:
     def update(data):
         from guerillo.classes.backend_objects.backend_object import BackendType
         db = Backend.get().database().child(Backend.get_type_folder(data.type)).child(data.uid)
-        if data.type == BackendType.REQUEST_QUEUE or data.type == BackendType.LOCK or data.type == BackendType.KEYCHAIN:
+
+        if data.type.is_auxiliary():
             db.set(data.to_dictionary())
         else:
             db.update(data.to_dictionary())
@@ -85,19 +89,43 @@ class Backend:
             user = User(pyres=backend_obj)
             user.keychain = Backend.read(type=BackendType.KEYCHAIN, uid=user.keychain.uid)
             return user
-        else:
+        elif type.is_auxiliary():
             # Read User Keychain, County Lock or Request Queue
             from guerillo.classes.backend_objects.auxiliary_object import AuxiliaryObject
             return AuxiliaryObject(type=type, pyres=backend_obj)
+        elif type == BackendType.SEARCH_QUERY:
+            # Read Search Query
+            from guerillo.classes.backend_objects.search_query import SearchQuery
+            return SearchQuery(pyres=backend_obj)
+        elif type == BackendType.HOMEOWNER_SEARCH_RESULT:
+            # Read Homeowner Search Result
+            from guerillo.classes.backend_objects.homeowner_search_result import HomeownerSearchResult
+            from guerillo.classes.backend_objects.search_query import SearchQuery
+            homeowner_search_result = HomeownerSearchResult(pyres=backend_obj)
+            homeowner_search_result.query = SearchQuery(pyres=backend_obj)
+            return
 
     @staticmethod
-    def get_users(self, email_or_username):
+    def get_users(email_or_username=None):
         users = list()
         from guerillo.classes.backend_objects.backend_object import BackendType
         user_objs = Backend.get().database().child(Backend.get_type_folder(BackendType.USER)).get()
 
         for user_obj in user_objs.each():
-            pass
+            from guerillo.classes.backend_objects.user import User
+            user = User(pyre=user_obj, uid="")
+            if email_or_username:
+                if user.email == email_or_username or user.username == email_or_username:
+                    user.keychain = Backend.read(type=BackendType.KEYCHAIN, uid=user.keychain.uid)
+                    return user
+            else:
+                user.keychain = Backend.read(type=BackendType.KEYCHAIN, uid=user.keychain.uid)
+                users.append(user)
+        if email_or_username:
+            return None
+        else:
+            return users
+
 
     @staticmethod
     def get_counties(state_name=None, county_name=None):

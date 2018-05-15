@@ -1,13 +1,10 @@
 # AutoUpdater.run()
 from guerillo.gui import GUI
-
-gui = GUI()
-
-
+from guerillo.__tests__ import user_tests
+# gui = GUI()
 
 
-
-
+user_tests()
 
 
 

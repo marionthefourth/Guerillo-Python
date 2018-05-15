@@ -19,7 +19,6 @@ class User(BackendObject):
             self.full_name = full_name
             if keychain is not None:
                 self.keychain = keychain
-
         else:
             self.from_dictionary(pyres=pyres, pyre=pyre)
 

@@ -5,16 +5,21 @@ from guerillo.config import Folders
 from guerillo.classes.scrapers.pinellas import Pinellas
 from guerillo.utils.file_storage import FileStorage
 
-test_user = User(username="test", password="222222", email="me@test.com", full_name="Test Account")
 
-test_user = Backend.sign_in(test_user)
-orange_county = Backend.get_counties(county_name="Orange County")
-pinellas_county = Backend.get_counties(county_name="Pinellas County")
-marion_county = Backend.get_counties(county_name="Marion County")
-# Backend.get_counties(county_name="Pinellas County").register_to_user(test_user)
+def user_tests():
+    # print(Backend.get_users(email_or_username="me@marionrucker.com"))
+    print(Backend.sign_in(User(email="marionthefourth", password="254theFOURTH452")))
 
 
 def access_tests():
+    test_user = User(username="test", password="222222", email="me@test.com", full_name="Test Account")
+
+    test_user = Backend.sign_in(test_user)
+    orange_county = Backend.get_counties(county_name="Orange County")
+    pinellas_county = Backend.get_counties(county_name="Pinellas County")
+    marion_county = Backend.get_counties(county_name="Marion County")
+    # Backend.get_counties(county_name="Pinellas County").register_to_user(test_user)
+
     print("Users that have access to " + orange_county.__str__() + ": ")
     print(orange_county.lock.get_connected_items())
     print("- - - - ")

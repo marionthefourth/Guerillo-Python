@@ -14,6 +14,10 @@ class BackendType(Enum):
     REQUEST_QUEUE = "RequestQueue"
     HOMEOWNER_SEARCH_RESULT = "HomeownerSearchResult"
 
+    def is_auxiliary(self):
+        return self == BackendType.AUX or self == BackendType.KEYCHAIN or\
+            self == BackendType.REQUEST_QUEUE or self == BackendType.LOCK
+
 
 class BackendObject:
 
