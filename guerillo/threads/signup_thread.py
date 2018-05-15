@@ -1,7 +1,6 @@
 from threading import Thread
 from guerillo.backend.backend import Backend
 import tkinter.constants as tc
-import time
 
 
 class SignupThread(Thread):
@@ -15,7 +14,8 @@ class SignupThread(Thread):
     def run(self):
         self.login_button.configure(state=tc.DISABLED)
         self.login_status_label.configure(
-            text="New account registered!\nWe're wrapping up a few items on our end\nThis may take a minute. Please wait..",
+            text="New account registered!\nWe're wrapping up a few items on our end\nThis may take a minute. Please "
+                 "wait..",
             fg="green"
         )
         Backend.get_counties(county_name="Pinellas County", state_name="FL").register_to_user(self.new_user)

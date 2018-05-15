@@ -82,7 +82,7 @@ class AuxiliaryObject(BackendObject):
             self.connected_items_type = BackendType.USER
 
     def get_connected_items(self):
-        return [Backend.read(type=self.connected_items_type, uid=connected_item_uid)
+        return [Backend.read(b_type=self.connected_items_type, uid=connected_item_uid)
                 for connected_item_uid in self.connected_uids_list]
 
     def from_dictionary(self, pyres=None, pyre=None):
