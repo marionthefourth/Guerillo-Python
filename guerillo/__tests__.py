@@ -11,6 +11,24 @@ def user_tests():
     print(Backend.sign_in(User(email="marionthefourth", password="254theFOURTH452")))
 
 
+def query_validation_tests():
+    lower_bound = "124,0124.80906"
+    upper_bound = "$2400021,0"
+    start_date = "5\\3-2018"
+    end_date = "05/24/2018"
+
+    search_query = SearchQuery(start_date, end_date, lower_bound, upper_bound)
+
+    print(search_query)
+    print(" - - - ")
+
+    print("Query is valid: " + str(search_query.is_valid()))
+    print(search_query.invalid_message())
+    print(" - - - ")
+
+    print(search_query)
+
+
 def access_tests():
     test_user = User(username="test", password="222222", email="me@test.com", full_name="Test Account")
 
