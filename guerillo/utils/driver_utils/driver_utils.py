@@ -1,7 +1,8 @@
+from selenium import webdriver
+
 from guerillo.config import General
 from guerillo.utils.driver_utils.actions.action import ActionType
 from guerillo.utils.file_storage import FileStorage
-from selenium import webdriver
 
 
 class DriverUtils:
@@ -13,9 +14,9 @@ class DriverUtils:
 
     def create_driver(self, exports_path):
         chrome_options = webdriver.ChromeOptions()
-        prefs = {General.WebDriver.DEFAULT_DOWNLOAD_DIRECTORY: exports_path}
-        chrome_options.add_experimental_option(General.PREFS, prefs)
-        # chrome_options.add_argument("window-position=-10000,0")
+        preferences = {General.WebDriver.DEFAULT_DOWNLOAD_DIRECTORY: exports_path}
+        chrome_options.add_experimental_option(General.PREFS, preferences)
+        chrome_options.add_argument("window-position=-10000,0")
         self.driver = webdriver.Chrome(FileStorage.get_webdriver(), chrome_options=chrome_options)
 
     def quit(self):

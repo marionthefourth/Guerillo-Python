@@ -1,6 +1,6 @@
 from guerillo.classes.backend_objects.county import County
-from guerillo.utils.sanitizer import Sanitizer
 from guerillo.utils.file_storage import FileStorage
+from guerillo.utils.sanitizer import Sanitizer
 
 
 class CensusCountyAPI:

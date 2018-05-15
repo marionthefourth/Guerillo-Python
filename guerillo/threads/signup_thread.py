@@ -1,6 +1,7 @@
-from threading import Thread
-from guerillo.backend.backend import Backend
 import tkinter.constants as tc
+from threading import Thread
+
+from guerillo.backend.backend import Backend
 
 
 class SignupThread(Thread):

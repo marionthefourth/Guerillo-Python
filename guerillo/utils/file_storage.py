@@ -1,7 +1,9 @@
 import csv
 import os
 from sys import platform
+
 from jedi.evaluate.utils import ignored
+
 from guerillo.config import FileExtensions, Folders, FileHeaders, Storage, General, OperatingSystems, KeyFiles
 
 
@@ -18,12 +20,12 @@ class FileStorage:
                     [FileStorage.root_to_special_file(file_name)]
                 ) + file_name
         else:
-            if county_filter == "Pinellas":
+            if county_filter == "Pinellas County":
                 file_path = file_name
 
         if os.path.isfile(file_path):
             if FileStorage.get_file_extension(file_path) == FileExtensions.CSV:
-                with open(file_path,'r') as file:
+                with open(file_path, 'r') as file:
                     reader = csv.reader(file)
                     return list(reader)
             else:
@@ -38,9 +40,9 @@ class FileStorage:
     @staticmethod
     def get_webdriver():
         return FileStorage.direct_to_folder(
-                    FileStorage.get_root_path(),
-                    [FileStorage.root_to_special_file(KeyFiles.WEBDRIVER)]
-                ) + KeyFiles.WEBDRIVER
+            FileStorage.get_root_path(),
+            [FileStorage.root_to_special_file(KeyFiles.WEBDRIVER)]
+        ) + KeyFiles.WEBDRIVER
 
     @staticmethod
     def save_data_to_csv(file_name, data):
@@ -96,9 +98,9 @@ class FileStorage:
         return FileStorage.direct_to_folder(FileStorage.get_root_path(), file_path)
 
     @staticmethod
-    def get_file_name_with_path(file_extension, index=0, secondary_file_extension=None):
+    def get_file_name_with_path(file_extension, index=0):
         file_name_with_path = FileStorage.get_full_file_path(file_extension)
-        file_name_with_path += FileStorage.get_file_base_name(file_extension, secondary_file_extension)
+        file_name_with_path += FileStorage.get_file_base_name(file_extension)
         return file_name_with_path + index + file_extension if index != 0 else file_extension
 
     @staticmethod
@@ -111,14 +113,14 @@ class FileStorage:
 
     @staticmethod
     def get_file_index(file_name):
-        file_name = file_name.replace(FileStorage.get_file_base_name(FileStorage.get_file_extension(file_name), ""), "")
+        file_name = file_name.replace(FileStorage.get_file_base_name(FileStorage.get_file_extension(file_name)), "")
         return file_name.replace(FileStorage.get_file_extension(file_name), "")
 
     @staticmethod
-    def get_file_base_name(file_extension, secondary_extension):
+    def get_file_base_name(file_extension):
         return {
             FileExtensions.TXT: FileHeaders.LINKS_RESULT
-        }.get(file_extension, FileHeaders.MCAT if secondary_extension is FileExtensions.MP3 else FileHeaders.LCAT)
+        }.get(file_extension, None)
 
     @staticmethod
     def get_csv_file_header(file_extension):
