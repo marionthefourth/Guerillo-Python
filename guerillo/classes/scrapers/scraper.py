@@ -1,6 +1,6 @@
 from guerillo.classes.backend_objects.homeowner_search_result import HomeownerSearchResult
-from guerillo.classes.scrapers.hillsborough import Hillsborough
-from guerillo.classes.scrapers.pinellas import Pinellas
+
+
 
 
 class Scraper:
@@ -16,6 +16,8 @@ class Scraper:
 
     @staticmethod
     def get_all_counties():
+        from guerillo.classes.scrapers.hillsborough import Hillsborough
+        from guerillo.classes.scrapers.pinellas import Pinellas
         return [Pinellas(), Hillsborough()]
 
     def __init__(self, search_query=None, exports_path=None, status_label=None):
