@@ -179,7 +179,7 @@ class HTML:
 
 class PACKAGES:
     ALL = ['os', 'sys', 'ctypes', 'win32con', 'pyrebase', 'selenium', 'bs4', 'esky', 'time', 'enum', 'csv', 'jedi',
-           'tkinter', 'PIL', 'webbrowser', 'cryptography']
+           'tkinter', 'PIL', 'webbrowser', 'cryptography','socks','gcloud']
 
 
 class SCRIPTS:

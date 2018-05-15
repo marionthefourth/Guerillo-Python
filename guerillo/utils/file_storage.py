@@ -9,7 +9,7 @@ class FileStorage:
 
     @staticmethod
     def read(file_name, county_filter=None):
-        """ Get's Directory of File Based on Name/Extension """
+        """ Gets Directory of File Based on Name/Extension """
         file_path = None
         if not county_filter:
             if FileStorage.is_special_file(file_name):
