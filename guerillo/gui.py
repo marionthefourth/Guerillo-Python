@@ -7,15 +7,14 @@ Created on Sun Apr 15 13:57:50 2018
 Table of Contents:
 
 """
-import tkinter.constants as tc
-import tkinter as tk
-from PIL import Image, ImageTk
-import webbrowser
 import os
-from threading import Thread
 import subprocess
+import tkinter as tk
+import tkinter.constants as tc
+import webbrowser
 from tkinter import messagebox
 
+from PIL import Image, ImageTk
 
 from guerillo.backend.backend import Backend
 from guerillo.classes.backend_objects.search_query import SearchQuery
@@ -23,9 +22,8 @@ from guerillo.classes.backend_objects.user import User
 from guerillo.classes.scrapers.pinellas import Pinellas
 from guerillo.config import Folders
 from guerillo.threads.search_thread import SearchThread
-from guerillo.threads.window_resize_thread import WindowResizeThread
-from guerillo.utils.file_storage import FileStorage
 from guerillo.threads.signup_thread import SignupThread
+from guerillo.utils.file_storage import FileStorage
 
 
 class GUI:

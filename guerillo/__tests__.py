@@ -1,8 +1,8 @@
 from guerillo.backend.backend import Backend
 from guerillo.classes.backend_objects.search_query import SearchQuery
 from guerillo.classes.backend_objects.user import User
-from guerillo.config import Folders
 from guerillo.classes.scrapers.pinellas import Pinellas
+from guerillo.config import Folders
 from guerillo.utils.file_storage import FileStorage
 
 test_user = User(username="test", password="222222", email="me@test.com", full_name="Test Account")
