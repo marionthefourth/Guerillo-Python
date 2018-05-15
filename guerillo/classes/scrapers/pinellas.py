@@ -223,13 +223,13 @@ class Pinellas(Scraper):
         # UI After Tapping Search Data Button
         # store target URL as variable - this will be dynamic from user input (hills or pinellas)
 
-        # self.accept_terms_and_conditions()  # Pinellas Starts Here
-        # self.status_label.configure(text="Searching...")
-        # self.fill_search_query_fields()  # Data Ranges Entry
-        # downloaded_file_name = self.download_csv_file()  # Download CSV file provided and rename it
+        self.accept_terms_and_conditions()  # Pinellas Starts Here
+        self.status_label.configure(text="Searching...")
+        self.fill_search_query_fields()  # Data Ranges Entry
+        downloaded_file_name = self.download_csv_file()  # Download CSV file provided and rename it
 
         # Assign New Data (Deeds & Mortgages)
-        self.create_report_list("C:\\Users\\Kenneth\\Documents\\GitHub\\GuerilloPython\\bin\\exports\\05012018-05022018 2018-05-09 211654-762405.csv")   #downloaded_file_name)
+        self.create_report_list(downloaded_file_name)
         # Update Report Data
 
         self.status_label.configure(text="Successfully found " + str(len(self.search_result.homeowners)) + " results. Wrapping up.")
