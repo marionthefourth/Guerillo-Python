@@ -7,7 +7,8 @@ class HomeownerSearchResult(BackendObject):
         super().__init__(uid)
         if pyres is None and pyre is None:
             self.homeowners = homeowners
-            self.num_results = len(self.homeowners)
+            if self.homeowners:
+                self.num_results = len(self.homeowners)
             self.query = query
         else:
             self.from_dictionary(pyres=pyres, pyre=pyre)

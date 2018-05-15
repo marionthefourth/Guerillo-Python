@@ -21,7 +21,7 @@ class BackendType(Enum):
 
 class BackendObject:
 
-    type = BackendType.DEFAULT
+    b_type = BackendType.DEFAULT
 
     def __init__(self, uid=None):
         if uid is not None:
@@ -30,10 +30,10 @@ class BackendObject:
             self.generate_uid()
 
     def __repr__(self):
-        return self.type.__str__() + ": "
+        return self.b_type.__str__() + ": "
 
     def __str__(self):
-        return self.type.__str__() + ": "
+        return self.b_type.__str__() + ": "
 
     def generate_uid(self):
         self.uid = Backend.get().database().generate_key()
