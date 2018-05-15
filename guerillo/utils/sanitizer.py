@@ -1,3 +1,6 @@
+import locale
+from datetime import datetime
+
 from guerillo.utils.state_codifier.state_codifier import StateCodifier
 
 
@@ -28,6 +31,35 @@ class Sanitizer:
             return county_name
         else:
             return None
+
+    @staticmethod
+    def numeric_bound(amount, full=False):
+        contains_dollar_sign = "$" in str(amount)
+        contains_commas = "," in str(amount)
+
+        if not full:
+            if contains_dollar_sign:
+                amount = str(amount).replace("$", "")
+
+            if contains_commas:
+                amount = str(amount).replace(",", "")
+        else:
+            amount = Sanitizer.numeric_bound(amount, full=False)
+            locale.setlocale(locale.LC_ALL, '')
+            amount = "${:,.2f}".format(float(amount))
+        return amount
+
+    @staticmethod
+    def date_bound(date, full=False):
+        contains_back_slashes = "\\" in date
+        contains_dashes = "-" in date
+
+        if contains_back_slashes:
+            date = date.replace("\\", "/")
+        if contains_dashes:
+            date = date.replace("-", "/")
+
+        return date
 
     @staticmethod
     def general_name(name, comma=True):
