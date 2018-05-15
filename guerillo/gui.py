@@ -33,35 +33,36 @@ class GUI:
     search_button_image = None
     search_button_greyscale_image = None
 
-    def expand_window(self,width_target,height_target):
+    def expand_window(self, width_target, height_target):
         base_speed = 2.0
         window_width = int(self.root.geometry().split("+")[0].split("x")[0])
         window_height = int(self.root.geometry().split("+")[0].split("x")[1])
 
         width_delta = width_target - window_width
-        if int(width_delta) == 0: #width doesn't need to be changed
+        if int(width_delta) == 0:  # width doesn't need to be changed
             while window_height < height_target:
-                self.root.geometry(str(window_width) + "x" + str(window_height+int(base_speed)))
+                self.root.geometry(str(window_width) + "x" + str(window_height + int(base_speed)))
                 self.root.update()
                 window_height = int(self.root.geometry().split("+")[0].split("x")[1])
-            return #now we're done
+            return  # now we're done
 
         height_delta = height_target - window_height
-        if int(height_delta) == 0: #height doesn't need to be changed
+        if int(height_delta) == 0:  # height doesn't need to be changed
             while window_width < width_target:
-                self.root.geometry(str(window_width+int(base_speed)) + "x" + str(window_height))
+                self.root.geometry(str(window_width + int(base_speed)) + "x" + str(window_height))
                 self.root.update()
                 window_width = int(self.root.geometry().split("+")[0].split("x")[0])
-            return #now we're done
-        
-        #return statements used as a 'break'. if we haven't returned yet, both width and height need to be changed
+            return  # now we're done
+
+        # return statements used as a 'break'. if we haven't returned yet, both width and height need to be changed
         if width_delta > height_delta:
-            delta_ratio = (width_delta / height_delta)*1.0
+            delta_ratio = (width_delta / height_delta) * 1.0
             while not (base_speed * delta_ratio).is_integer():
-                base_speed = base_speed+1.0
+                base_speed = base_speed + 1.0
             base_speed = int(base_speed)
-            while window_width < width_target: #dimension used is arbitrary but just used to keep with the if statement
-                self.root.geometry(str(window_width+int(base_speed*delta_ratio)) + "x" + str(window_height+base_speed))
+            while window_width < width_target:  # dimension used is arbitrary but just used to keep with the if statement
+                self.root.geometry(
+                    str(window_width + int(base_speed * delta_ratio)) + "x" + str(window_height + base_speed))
                 self.root.update()
                 window_width = int(self.root.geometry().split("+")[0].split("x")[0])
                 window_height = int(self.root.geometry().split("+")[0].split("x")[1])
@@ -71,13 +72,14 @@ class GUI:
             while not (base_speed * delta_ratio).is_integer():
                 base_speed = base_speed + 1.0
             base_speed = int(base_speed)
-            while window_height < height_target: #dimension used is arbitrary but just used to keep with the if statement
-                self.root.geometry(str(window_width+base_speed) + "x" + str(window_height+int(base_speed*delta_ratio)))
+            while window_height < height_target:  # dimension used is arbitrary but just used to keep with the if statement
+                self.root.geometry(
+                    str(window_width + base_speed) + "x" + str(window_height + int(base_speed * delta_ratio)))
                 self.root.update()
                 window_width = int(self.root.geometry().split("+")[0].split("x")[0])
                 window_height = int(self.root.geometry().split("+")[0].split("x")[1])
 
-    def contract_window(self,width_target,height_target):
+    def contract_window(self, width_target, height_target):
         base_speed = 2.0
         window_width = int(self.root.geometry().split("+")[0].split("x")[0])
         window_height = int(self.root.geometry().split("+")[0].split("x")[1])
@@ -145,35 +147,30 @@ class GUI:
             self.search_button.configure(image=self.search_button_greyscale_image)
             self.search_button.config(command=lambda: self.do_nothing)
 
-    def enter_login(self,event):
+    def enter_login(self, event):
         self.login()
 
-    def enter_search(self,event):
-        self.search_button_method(self.entry_fields_list,self.status)
+    def enter_search(self, event):
+        self.search_button_method(self.entry_fields_list, self.status)
 
     def login(self):
-        self.sign_up_label.bind("<Button-1>",self.show_signup)
-        try:
-            self.login_status_label.configure(text="")
-            self.root.update()
-            self.user = Backend.sign_in(User(email=self.username_field.get(),password=self.password_field.get()))
-            if self.user:
-                self.login_status_label.configure(text="Login successful! Loading search functions.",fg="green")
-                self.expand_window(400,400)
-                self.inject_county_dropdown(self.entry_grid_frame, 1)
-                self.login_screen.grid_remove()
-                self.search_screen.grid()
-                self.signed_in = True
-                self.create_account_menu()
-                self.file_menu.entryconfig(0, state=tc.NORMAL)
-                self.status_frame.pack(side=tc.BOTTOM, fill=tc.X)
-                # self.root.geometry("400x400")
-            else:
-                self.login_status_label.configure(text="Your login information was incorrect.",fg="red")
-        except:
-            self.login_status_label.configure(
-                text="An unidentified error occurred.\nFor help, email support@panoramic.email"
-            )
+        self.sign_up_label.bind("<Button-1>", self.show_signup)
+        self.login_status_label.configure(text="")
+        self.root.update()
+        self.user = Backend.sign_in(User(email=self.username_field.get(), password=self.password_field.get()))
+        if self.user:
+            self.login_status_label.configure(text="Login successful! Loading search functions.", fg="green")
+            self.expand_window(400, 400)
+            self.add_county_dropdown(self.entry_grid_frame, 1)
+            self.login_screen.grid_remove()
+            self.search_screen.grid()
+            self.signed_in = True
+            self.create_account_menu()
+            self.file_menu.entryconfig(0, state=tc.NORMAL)
+            self.status_frame.pack(side=tc.BOTTOM, fill=tc.X)
+            # self.root.geometry("400x400")
+        else:
+            self.login_status_label.configure(text="Your login information was incorrect.", fg="red")
 
     def sign_out(self):
         self.login_status_label.configure(text="")
@@ -186,7 +183,7 @@ class GUI:
         self.top_menu.delete("Account")
         self.file_menu.entryconfig(0, state=tc.DISABLED)
         # self.root.geometry('300x250')
-        self.contract_window(300,250)
+        self.contract_window(300, 250)
 
     def do_nothing(self):
         print("would have done something")
@@ -204,14 +201,31 @@ class GUI:
         input_list = []
         for field_reference in fields_list:
             input_list.append(field_reference.get())
-        pinellas_instance = Pinellas(
-            #search_query=SearchQuery(inputs=input_list),
-            search_query=SearchQuery(lower_bound="250000",upper_bound="300000",start_date="05/01/2018",end_date="05/02/2018"),
-            exports_path=FileStorage.get_full_path(Folders.EXPORTS),
-            status_label=status_label
-        )
-        pinellas_instance.run()
-        status_label.configure(text="Ready to search.")
+
+        query = SearchQuery(inputs=input_list)
+
+        if query.is_valid():
+            self.sanitize_input_fields(query)
+
+            pinellas_instance = Pinellas(
+                search_query=query,
+                exports_path=FileStorage.get_full_path(Folders.EXPORTS),
+                status_label=status_label
+            )
+            pinellas_instance.run()
+            status_label.configure(text="Ready to search.")
+        else:
+            print(query.invalid_message())
+
+    def sanitize_input_fields(self, search_query):
+        self.lower_bound_input.delete(0, tk.END)
+        self.lower_bound_input.insert(0, search_query.lower_bound)
+        self.upper_bound_input.delete(0, tk.END)
+        self.upper_bound_input.insert(0, search_query.upper_bound)
+        self.start_date_input.delete(0, tk.END)
+        self.start_date_input.insert(0, search_query.start_date)
+        self.end_date_input.delete(0, tk.END)
+        self.end_date_input.insert(0, search_query.end_date)
 
     def clear_inputs(self):
         for field_reference in self.entry_fields_list:
@@ -250,76 +264,81 @@ class GUI:
         self.search_screen.grid(row=0, column=0, sticky="nsew")
 
     def create_signup_screen(self):
-        #create core ouline - remove to be called later
-        self.signup_screen = tk.Frame(self.main_frame,bg="white")
-        self.signup_screen.grid(row=0,column=0,sticky="nsew")
+        # create core ouline - remove to be called later
+        self.signup_screen = tk.Frame(self.main_frame, bg="white")
+        self.signup_screen.grid(row=0, column=0, sticky="nsew")
         self.signup_screen.grid_remove()
 
-        #inject the elements frame
-        self.signup_elements_frame = tk.Frame(self.signup_screen,bg='white')
-        self.signup_elements_frame.place(in_=self.signup_screen,anchor='c',relx=.50,rely=.40)
+        # inject the elements frame
+        self.signup_elements_frame = tk.Frame(self.signup_screen, bg='white')
+        self.signup_elements_frame.place(in_=self.signup_screen, anchor='c', relx=.50, rely=.40)
 
-        #labels and fields
-        self.signup_full_name_label = tk.Label(self.signup_elements_frame, text="Full name", bg="white", font=("Constantia", 12))
+        # labels and fields
+        self.signup_full_name_label = tk.Label(self.signup_elements_frame, text="Full name", bg="white",
+                                               font=("Constantia", 12))
         self.signup_full_name_label.grid(row=0, column=0)
-        self.signup_full_name_entry = tk.Entry(self.signup_elements_frame,width=25)
+        self.signup_full_name_entry = tk.Entry(self.signup_elements_frame, width=25)
         self.signup_full_name_entry.grid(row=1, column=0)
-        self.signup_full_name_entry.bind("<Return>",self.enter_signup)
+        self.signup_full_name_entry.bind("<Return>", self.enter_signup)
 
-        self.signup_username_label = tk.Label(self.signup_elements_frame,text="Username",bg="white", font=("Constantia", 12))
-        self.signup_username_label.grid(row=2,column=0)
-        self.signup_username_entry = tk.Entry(self.signup_elements_frame,width=25)
-        self.signup_username_entry.grid(row=3,column=0)
+        self.signup_username_label = tk.Label(self.signup_elements_frame, text="Username", bg="white",
+                                              font=("Constantia", 12))
+        self.signup_username_label.grid(row=2, column=0)
+        self.signup_username_entry = tk.Entry(self.signup_elements_frame, width=25)
+        self.signup_username_entry.grid(row=3, column=0)
         self.signup_username_entry.bind("<Return>", self.enter_signup)
 
-        self.signup_email_label = tk.Label(self.signup_elements_frame, text="Email", bg="white", font=("Constantia", 12))
+        self.signup_email_label = tk.Label(self.signup_elements_frame, text="Email", bg="white",
+                                           font=("Constantia", 12))
         self.signup_email_label.grid(row=4, column=0)
-        self.signup_email_entry = tk.Entry(self.signup_elements_frame,width=25)
+        self.signup_email_entry = tk.Entry(self.signup_elements_frame, width=25)
         self.signup_email_entry.grid(row=5, column=0)
         self.signup_email_entry.bind("<Return>", self.enter_signup)
 
-        self.signup_password_label = tk.Label(self.signup_elements_frame, text="Password", bg="white", font=("Constantia", 12))
+        self.signup_password_label = tk.Label(self.signup_elements_frame, text="Password", bg="white",
+                                              font=("Constantia", 12))
         self.signup_password_label.grid(row=6, column=0)
-        self.signup_password_entry = tk.Entry(self.signup_elements_frame,width=25, show="*")
+        self.signup_password_entry = tk.Entry(self.signup_elements_frame, width=25, show="*")
         self.signup_password_entry.grid(row=7, column=0)
         self.signup_password_entry.bind("<Return>", self.enter_signup)
 
-        self.signup_password_check_label = tk.Label(self.signup_elements_frame, text="Re-enter Password", bg="white", font=("Constantia", 12))
+        self.signup_password_check_label = tk.Label(self.signup_elements_frame, text="Re-enter Password", bg="white",
+                                                    font=("Constantia", 12))
         self.signup_password_check_label.grid(row=8, column=0)
-        self.signup_password_check_entry = tk.Entry(self.signup_elements_frame,width=25, show="*")
+        self.signup_password_check_entry = tk.Entry(self.signup_elements_frame, width=25, show="*")
         self.signup_password_check_entry.grid(row=9, column=0)
         self.signup_password_check_entry.bind("<Return>", self.enter_signup)
 
-        #signup button
+        # signup button
         self.signup_button_source_image = Image.open(self.images_path + "signup_button.png")
         self.signup_button_image = ImageTk.PhotoImage(self.signup_button_source_image)
         self.signup_button = tk.Button(self.signup_elements_frame,
-                                      bg = "white",
-                                      borderwidth=0,
-                                      highlightthickness=0,
-                                      image=self.signup_button_image,
-                                      text="     Login     ",
-                                      command=lambda: self.sign_up()
-                                      )
-        self.signup_button.grid(row=10,column=0)
+                                       bg="white",
+                                       borderwidth=0,
+                                       highlightthickness=0,
+                                       image=self.signup_button_image,
+                                       text="     Login     ",
+                                       command=lambda: self.sign_up()
+                                       )
+        self.signup_button.grid(row=10, column=0)
 
-        #cancel text with function
-        self.cancel_label = tk.Label(self.signup_elements_frame,text="Cancel",bg='white',cursor="hand2")
-        self.cancel_label.grid(row=11,column=0)
+        # cancel text with function
+        self.cancel_label = tk.Label(self.signup_elements_frame, text="Cancel", bg='white', cursor="hand2")
+        self.cancel_label.grid(row=11, column=0)
         self.cancel_label.bind("<Button-1>", self.hide_signup)
 
-        #signup screen status label
-        self.signup_status_label = tk.Label(self.signup_elements_frame,text="",bg="white")
-        self.signup_status_label.grid(row=12,column=0)
+        # signup screen status label
+        self.signup_status_label = tk.Label(self.signup_elements_frame, text="", bg="white")
+        self.signup_status_label.grid(row=12, column=0)
 
     def hide_signup(self, event):
-        #TODO: clear the signup fields first
+        # TODO: clear the signup fields first
         self.clear_signup_inputs()
         self.signup_status_label.configure(text="")
         self.signup_status_label.update()
         self.signup_screen.grid_remove()
         self.login_screen.grid()
-        self.contract_window(300,250)
+        self.contract_window(300, 250)
 
     def create_login_screen(self):
         self.login_screen = tk.Frame(self.main_frame, bg="white")
@@ -334,13 +353,13 @@ class GUI:
         self.username_label.grid(row=0, column=0)
         self.username_field = tk.Entry(self.login_elements_frame, width=22)
         self.username_field.grid(row=1, column=0)
-        self.username_field.bind('<Return>',self.enter_login)
+        self.username_field.bind('<Return>', self.enter_login)
 
         # PW label and field
         self.password_label = tk.Label(self.login_elements_frame, bg="white", text="Password", font=("Constantia", 12))
-        self.password_label.grid(row=2, column=0 )
+        self.password_label.grid(row=2, column=0)
         self.password_field = tk.Entry(self.login_elements_frame, width=22, show="*")
-        self.password_field.bind('<Return>',self.enter_login)
+        self.password_field.bind('<Return>', self.enter_login)
         self.password_field.grid(row=3, column=0)
         # login button
         self.login_button_source_image = Image.open(self.images_path + "login_button.png")
@@ -352,94 +371,92 @@ class GUI:
                                       text="     Login     ",
                                       command=lambda: self.login())
         self.login_button.grid(row=4, columnspan=2)
-        #spacer TODO: get a canvas line in here or something
+        # spacer TODO: get a canvas line in here or something
         # self.spacer_label = tk.Label(self.login_elements_frame,bg="white",text="  ")
         # self.spacer_label.grid(row=,column=0)
-        #sign up option TODO: replace with button??
-        self.sign_up_label = tk.Label(self.login_elements_frame,bg="white",
-                                      text="Don't have an account? Click to sign up",cursor="hand2")
-        self.sign_up_label.grid(row=5,column=0)
-        self.sign_up_label.bind("<Button-1>",self.show_signup)
-        #TODO: give signup functionality
+        # sign up option TODO: replace with button??
+        self.sign_up_label = tk.Label(self.login_elements_frame, bg="white",
+                                      text="Don't have an account? Click to sign up", cursor="hand2")
+        self.sign_up_label.grid(row=5, column=0)
+        self.sign_up_label.bind("<Button-1>", self.show_signup)
+        # TODO: give signup functionality
 
+        # login status label
+        self.login_status_label = tk.Label(self.login_elements_frame, bg="white", font=("Constantia", 12))
+        self.login_status_label.grid(row=6, column=0, pady=5)
 
-        #login status label
-        self.login_status_label = tk.Label(self.login_elements_frame,bg="white",font=("Constantia",12))
-        self.login_status_label.grid(row=6,column=0,pady=5)
-
-    def show_signup(self,event):
+    def show_signup(self, event):
         self.login_screen.grid_remove()
         self.signup_screen.grid()
-        self.expand_window(325,400)
+        self.expand_window(325, 400)
 
-    def enter_signup(self,event):
+    def enter_signup(self, event):
         self.sign_up()
 
     def sign_up(self):
         self.signup_status_label.configure(text="")
         self.signup_status_label.update()
 
-        if self.signup_full_name_entry.get()=="":
-            self.signup_status_label.configure(text="Please input your full name",fg="red")
+        if self.signup_full_name_entry.get() == "":
+            self.signup_status_label.configure(text="Please input your full name", fg="red")
             self.signup_status_label.update()
             return
 
-        if self.signup_username_entry.get()=="":
-            self.signup_status_label.configure(text="Please input a username",fg="red")
+        if self.signup_username_entry.get() == "":
+            self.signup_status_label.configure(text="Please input a username", fg="red")
             self.signup_status_label.update()
             return
 
-        if self.signup_email_entry.get()=="":
-            self.signup_status_label.configure(text="Please input your email",fg="red")
+        if self.signup_email_entry.get() == "":
+            self.signup_status_label.configure(text="Please input your email", fg="red")
             self.signup_status_label.update()
             return
 
         # validate password
-        if len(self.signup_password_entry.get())>=6:
+        if len(self.signup_password_entry.get()) >= 6:
             if self.signup_password_entry.get() == self.signup_password_check_entry.get():
-                #TODO: validate email with regex
-                #now that we're validated, move to backend signup
+                # TODO: validate email with regex
+                # now that we're validated, move to backend signup
                 self.signup_button.configure(state=tc.DISABLED)
                 new_user = Backend.create_account(
-                            User(username=self.signup_username_entry.get(),
-                                 email=self.signup_email_entry.get(),
-                                 full_name=self.signup_full_name_entry.get(),
-                                 password=self.signup_password_entry.get()
-                            )
+                    User(username=self.signup_username_entry.get(),
+                         email=self.signup_email_entry.get(),
+                         full_name=self.signup_full_name_entry.get(),
+                         password=self.signup_password_entry.get()
+                         )
                 )
                 if new_user:
                     self.sign_up_label.unbind("<Button-1>")
-                    signup = SignupThread(new_user,self.login_status_label,self.login_button)
+                    signup = SignupThread(new_user, self.login_status_label, self.login_button)
                     signup.start()
                     self.hide_signup("filler because event required")
-                    self.username_field.delete(0,tc.END)
-                    self.password_field.delete(0,tc.END)
-                    self.expand_window(300,350)
+                    self.username_field.delete(0, tc.END)
+                    self.password_field.delete(0, tc.END)
+                    self.expand_window(300, 350)
                 else:
-                    self.signup_status_label.configure(text="Invalid email",fg="red")
+                    self.signup_status_label.configure(text="Invalid email", fg="red")
                     self.signup_status_label.update()
                 self.signup_button.configure(state=tc.NORMAL)
-            else:#this is the password validation fail
-                self.signup_status_label.configure(text="Both password fields don't match",fg="red")
+            else:  # this is the password validation fail
+                self.signup_status_label.configure(text="Both password fields don't match", fg="red")
                 self.signup_status_label.update()
-        else:#this is password length fail
-            self.signup_status_label.configure(text="Passwords need to be at least 6 characters",fg="red")
+        else:  # this is password length fail
+            self.signup_status_label.configure(text="Passwords need to be at least 6 characters", fg="red")
             self.signup_status_label.update()
 
     def clear_signup_inputs(self):
-        self.signup_full_name_entry.delete(0,tc.END)
-        self.signup_username_entry.delete(0,tc.END)
-        self.signup_email_entry.delete(0,tc.END)
-        self.signup_password_entry.delete(0,tc.END)
-        self.signup_password_check_entry.delete(0,tc.END)
+        self.signup_full_name_entry.delete(0, tc.END)
+        self.signup_username_entry.delete(0, tc.END)
+        self.signup_email_entry.delete(0, tc.END)
+        self.signup_password_entry.delete(0, tc.END)
+        self.signup_password_check_entry.delete(0, tc.END)
 
     def check_for_updates(self):
-        update_available = True #filler, remove
-        #if update_available:
-            #messagebox.askquestion("Out of date","Update available; would you like to update Guerillo?")
-        #else:
-        messagebox.showinfo("No update required","You're all up to date!")
-
+        update_available = True  # filler, remove
+        # if update_available:
+        # messagebox.askquestion("Out of date","Update available; would you like to update Guerillo?")
+        # else:
+        messagebox.showinfo("No update required", "You're all up to date!")
 
     def create_logo(self):
         self.logo = ImageTk.PhotoImage(Image.open(self.images_path + "pano.png"))
@@ -457,9 +474,10 @@ class GUI:
         # add a file dropdown menu
         self.file_menu = tk.Menu(self.top_menu, tearoff=False)
         self.top_menu.add_cascade(label="File", menu=self.file_menu)
-        self.file_menu.add_command(label="New Search / Clear Page", command=lambda: self.clear_inputs())  # TODO: check if we dont need lamba anymore
+        self.file_menu.add_command(label="New Search / Clear Page",
+                                   command=lambda: self.clear_inputs())  # TODO: check if we dont need lamba anymore
         self.file_menu.entryconfig(0, state=tc.DISABLED)
-        self.file_menu.add_command(label="Check for Updates",command=lambda:self.check_for_updates())
+        self.file_menu.add_command(label="Check for Updates", command=lambda: self.check_for_updates())
         self.file_menu.add_command(label="Open Reports Folder", command=lambda: self.open_reports_folder())
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Quit", command=self.root.destroy)
@@ -467,7 +485,7 @@ class GUI:
     def create_account_menu(self):
         self.account_menu = tk.Menu(self.top_menu, tearoff=False)
         self.top_menu.add_cascade(label="Account", menu=self.account_menu)
-        #self.account_menu.add_command(label="Account Options", command=lambda: self.do_nothing())
+        # self.account_menu.add_command(label="Account Options", command=lambda: self.do_nothing())
         self.account_menu.add_command(label="Sign Out", command=lambda: self.sign_out())
 
     def create_entry_grid(self):
@@ -475,7 +493,7 @@ class GUI:
         self.entry_grid_frame = tk.Frame(self.search_screen, bg="white")
         self.entry_grid_frame.place(in_=self.search_screen, anchor="c", relx=.50, rely=.45)
 
-    def inject_lower_bound_elements(self, grid_target, row_placement):
+    def add_lower_bound_elements(self, grid_target, row_placement):
         self.lower_bound_label = tk.Label(grid_target, bg="white", text="Min Mortgage Amount", font=("Constantia", 12))
         self.lower_bound_label.grid(row=row_placement, column=0, sticky=tc.E, pady=5)
         self.lower_bound_input = tk.Entry(grid_target, width=15, font="Calibri 13")
@@ -483,7 +501,7 @@ class GUI:
         self.lower_bound_input.grid(row=row_placement, column=1)
         self.entry_fields_list.append(self.lower_bound_input)
 
-    def inject_upper_bound_elements(self, grid_target, row_placement):
+    def add_upper_bound_elements(self, grid_target, row_placement):
         self.upper_bound_label = tk.Label(grid_target, bg="white", text="Max Mortgage Amount", font=("Constantia", 12))
         self.upper_bound_label.grid(row=row_placement, column=0, sticky=tc.E, pady=5)
         self.upper_bound_input = tk.Entry(grid_target, width=15, font="Calibri 13")
@@ -491,7 +509,7 @@ class GUI:
         self.upper_bound_input.bind("<Key>", self.activate_search_button)
         self.entry_fields_list.append(self.upper_bound_input)
 
-    def inject_start_date_elements(self, grid_target, row_placement):
+    def add_start_date_elements(self, grid_target, row_placement):
         self.start_date_label = tk.Label(grid_target, bg="white", text="Start Date", font=("Constantia", 12))
         self.start_date_label.grid(row=row_placement, column=0, sticky=tc.E, pady=5)
         self.start_date_input = tk.Entry(grid_target, width=15, font="Calibri 13")
@@ -499,16 +517,16 @@ class GUI:
         self.start_date_input.bind("<Key>", self.activate_search_button)
         self.entry_fields_list.append(self.start_date_input)
 
-    def inject_end_date_elements(self, grid_target, row_placement):
+    def add_end_date_elements(self, grid_target, row_placement):
         self.end_date_label = tk.Label(grid_target, bg="white", text="End Date", font=("Constantia", 12))
         self.end_date_label.grid(row=row_placement, column=0, sticky=tc.E, pady=5)
         self.end_date_input = tk.Entry(grid_target, width=15, font="Calibri 13")
         self.end_date_input.grid(row=row_placement, column=1)
         self.end_date_input.bind("<Key>", self.activate_search_button)
-        self.end_date_input.bind("<Return>",self.enter_search)
+        self.end_date_input.bind("<Return>", self.enter_search)
         self.entry_fields_list.append(self.end_date_input)
 
-    def inject_search_button(self, grid_target, row_placement):
+    def add_search_button(self, grid_target, row_placement):
         self.search_button_greyscale_image = ImageTk.PhotoImage(
             Image.open(self.images_path + "search_button_greyscale.png"))
         self.search_button = tk.Button(grid_target,
@@ -519,8 +537,8 @@ class GUI:
                                        )
         self.search_button.grid(row=row_placement, column=0, columnspan=2, pady=10)
 
-    def inject_county_dropdown(self, grid_target, row_placement):
-        self.arrow_image = ImageTk.PhotoImage(Image.open(self.images_path+"down_arrow.png"))
+    def add_county_dropdown(self, grid_target, row_placement):
+        self.arrow_image = ImageTk.PhotoImage(Image.open(self.images_path + "down_arrow.png"))
         self.county_dropdown_label = tk.Label(grid_target, bg="white", text="County to Search", font=("Constantia", 12))
         self.county_dropdown_label.grid(row=row_placement, column=0, sticky=tc.E)
         counties = self.user.keychain.get_connected_items()
@@ -528,35 +546,37 @@ class GUI:
         for county in counties:
             counties_list.append(county.county_name)
         self.county_options = counties_list
-        self.variable = tk.StringVar(grid_target)
-        #self.variable.set(self.county_options[0])
-        self.county_dropdown = tk.OptionMenu(grid_target, self.variable, *self.county_options,command=self.update_county_label)
+        self.variable = tk.StringVar("")
+        # self.variable.set(self.county_options[0])
+        self.county_dropdown = tk.OptionMenu(grid_target, self.variable, *self.county_options,
+                                             command=self.update_county_label)
         self.county_dropdown.grid(row=row_placement, column=1)
-        self.county_dropdown.config(indicatoron=0,image = self.arrow_image,bg="silver",activebackground="silver",cursor="hand2")
-        self.current_county_label = tk.Label(grid_target,bg="silver",text=self.variable.get())
-        self.current_county_label.grid(row=row_placement,column=1,sticky="w",padx=8)
-        #self.county_dropdown.configure(state="disabled")
+        self.county_dropdown.config(indicatoron=0, image=self.arrow_image, bg="silver", activebackground="silver",
+                                    cursor="hand2")
+        self.current_county_label = tk.Label(grid_target, bg="silver", text=self.variable.get())
+        self.current_county_label.grid(row=row_placement, column=1, sticky="w", padx=8)
+        # self.county_dropdown.configure(state="disabled")
 
     def update_county_label(self, value):
         county_dict = {}
-        for i,county_option in enumerate(self.county_options):
-            county_dict[self.county_options[i]]= i
+        for i, county_option in enumerate(self.county_options):
+            county_dict[self.county_options[i]] = i
         self.variable.set(self.county_options[county_dict[value]])
         self.current_county_label.configure(text=self.variable.get())
 
-    def inject_guerillo_header(self, grid_target, row_placement):
+    def add_guerillo_header(self, grid_target, row_placement):
         self.guerillo_header = tk.Label(grid_target, bg="white", text="Guerillo", font=("Constantia", 40))
         self.guerillo_header.grid(row=row_placement, column=0, columnspan=2, pady=3)
 
-    def inject_search_query_elements(self, grid_target, row_count):
-        self.inject_search_button(grid_target, row_count - 1)  # has to be first b/c it needs to exist before creating
+    def add_search_query_elements(self, grid_target, row_count):
+        self.add_search_button(grid_target, row_count - 1)  # has to be first b/c it needs to exist before creating
         # the upcoming textfields
-        self.inject_guerillo_header(grid_target, row_count - 7)
-        #self.inject_county_dropdown(grid_target, row_count - 6)
-        self.inject_lower_bound_elements(grid_target, row_count - 5)
-        self.inject_upper_bound_elements(grid_target, row_count - 4)
-        self.inject_start_date_elements(grid_target, row_count - 3)
-        self.inject_end_date_elements(grid_target, row_count - 2)
+        self.add_guerillo_header(grid_target, row_count - 7)
+        # self.add_county_dropdown(grid_target, row_count - 6)
+        self.add_lower_bound_elements(grid_target, row_count - 5)
+        self.add_upper_bound_elements(grid_target, row_count - 4)
+        self.add_start_date_elements(grid_target, row_count - 3)
+        self.add_end_date_elements(grid_target, row_count - 2)
 
     def __init__(self):
         self.user = None
@@ -573,7 +593,7 @@ class GUI:
         self.create_status_bar()
         self.create_top_menu()
         self.create_entry_grid()
-        self.inject_search_query_elements(self.entry_grid_frame, 7)
+        self.add_search_query_elements(self.entry_grid_frame, 7)
         self.search_screen.grid_remove()
         self.create_login_screen()
 
