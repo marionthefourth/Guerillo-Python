@@ -4,7 +4,7 @@ from guerillo.classes.backend_objects.backend_object import BackendObject, Backe
 
 class User(BackendObject):
 
-    type = BackendType.USER
+    b_type = BackendType.USER
 
     def __init__(self, email=None, username=None, password=None, full_name=None, uid=None, keychain=None,
                  pyres=None, pyre=None):
@@ -19,7 +19,6 @@ class User(BackendObject):
             self.full_name = full_name
             if keychain is not None:
                 self.keychain = keychain
-
         else:
             self.from_dictionary(pyres=pyres, pyre=pyre)
 

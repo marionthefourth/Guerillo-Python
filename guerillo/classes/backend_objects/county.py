@@ -6,7 +6,7 @@ from guerillo.classes.backend_objects.backend_object import BackendObject, Backe
 
 class County(BackendObject):
 
-    type = BackendType.COUNTY
+    b_type = BackendType.COUNTY
 
     def __init__(self, state_fips=None, county_fips=None, key=None, state_name=None, county_name=None,
                  uid=None, lock=None, request_queue=None, pyres=None, pyre=None):

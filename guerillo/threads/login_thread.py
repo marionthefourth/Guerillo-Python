@@ -1,9 +1,10 @@
+import tkinter.constants as tc
 from threading import Thread
+from tkinter import messagebox
+
 from guerillo.backend.backend import Backend
 from guerillo.classes.backend_objects.user import User
-from tkinter import messagebox
 from guerillo.threads.window_resize_thread import WindowResizeThread
-import tkinter.constants as tc
 
 
 class LoginThread(Thread):
@@ -23,7 +24,7 @@ class LoginThread(Thread):
             self.gui_object.signed_in = True
             self.gui_object.create_account_menu()
             self.gui_object.file_menu.entryconfig(0, state=tc.NORMAL)
-            self.gui_object.inject_county_dropdown(self.gui_object.entry_grid_frame, 1)
+            self.gui_object.add_county_dropdown(self.gui_object.entry_grid_frame, 1)
             # self.root.geometry("400x400")
             window_thread = WindowResizeThread(self.gui_object.root, 'expand', 400)
             window_thread.run()

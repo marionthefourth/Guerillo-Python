@@ -1,11 +1,11 @@
 import time
 from enum import IntEnum
 
+from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 
 from guerillo.config import General
 from guerillo.utils.file_storage import FileStorage
-from selenium import webdriver
 
 
 class Action(IntEnum):
@@ -39,7 +39,6 @@ class Action(IntEnum):
     RETURN = 300
     RETURN_PREP = 310
     CHECK = 400
-
 
     @staticmethod
     def is_get(action):  # Any Get Operations are handled in 0 <= x < 1
@@ -187,7 +186,7 @@ class DriverUtils:
         repeat_ends = []
         loop_count = 1
         for sub_action_key in dictionary:
-            sub_action_dict=dictionary[sub_action_key]
+            sub_action_dict = dictionary[sub_action_key]
             if sub_action_key == Action.FIND_TAGS_BY_NAME:
                 elements = self.driver.find_elements_by_tag_name(dictionary[sub_action_key])
             elif sub_action_key == Action.FIND_TAG_NAME:
@@ -215,7 +214,7 @@ class DriverUtils:
                 for return_value in sub_action_dict:
                     return_values.append(return_value)
                     action_check_dict = sub_action_dict[return_value]
-                    if isinstance(action_check_dict,dict):
+                    if isinstance(action_check_dict, dict):
                         for action_check in sub_action_dict[return_value]:
                             action_checks[return_value] = action_check
                     else:

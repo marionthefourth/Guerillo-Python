@@ -4,7 +4,7 @@ from guerillo.classes.backend_objects.backend_object import BackendObject, Backe
 
 class AuxiliaryObject(BackendObject):
 
-    type = BackendType.AUX
+    b_type = BackendType.AUX
     connected_items_type = BackendType.DEFAULT
 
     def __init__(self, uid=None, connected_uids_list=None, container_uid=None, type=None, pyres=None, pyre=None):

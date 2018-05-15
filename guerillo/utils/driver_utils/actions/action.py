@@ -61,6 +61,10 @@ class ActionType(IntEnum):
         return action > ActionType.SEND_KEYS
 
 
+class Target(IntEnum):
+    PREVIOUS_RESULT = 100
+
+
 class Operation:
     def __init__(self, target=None, value=None, sub_action=None):
         self.target = target
@@ -78,10 +82,13 @@ class Operation:
 
 
 class Action:
-    def __init__(self, type=None, operation=None, operations=None, target=None, value=None):
-        self.type = type
+    def __init__(self, a_type=None, operation=None, operations=None, target=None, value=None, uid=None,
+                 primary_target=None):
+        self.a_type = a_type
         self.operation = operation
         self.operations = operations
+        self.uid = uid
+        self.primary_target = primary_target
 
         if target is not None:
             self.operation = Operation(target)

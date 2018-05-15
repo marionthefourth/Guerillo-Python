@@ -1,7 +1,8 @@
+from selenium import webdriver
+
 from guerillo.config import General
 from guerillo.utils.driver_utils.actions.action import ActionType
 from guerillo.utils.file_storage import FileStorage
-from selenium import webdriver
 
 
 class DriverUtils:
@@ -13,9 +14,9 @@ class DriverUtils:
 
     def create_driver(self, exports_path):
         chrome_options = webdriver.ChromeOptions()
-        prefs = {General.WebDriver.DEFAULT_DOWNLOAD_DIRECTORY: exports_path}
-        chrome_options.add_experimental_option(General.PREFS, prefs)
-        # chrome_options.add_argument("window-position=-10000,0")
+        preferences = {General.WebDriver.DEFAULT_DOWNLOAD_DIRECTORY: exports_path}
+        chrome_options.add_experimental_option(General.PREFS, preferences)
+        chrome_options.add_argument("window-position=-10000,0")
         self.driver = webdriver.Chrome(FileStorage.get_webdriver(), chrome_options=chrome_options)
 
     def quit(self):
@@ -24,12 +25,12 @@ class DriverUtils:
     def process(self, action=None, actions=None):
         if actions:
             for action in actions:
-                if action.type == ActionType.RETURN:
+                if action.a_type == ActionType.RETURN:
                     return action.process(self.driver)
                 else:
                     action.process(self.driver)
         elif action:
-            if action.type == ActionType.RETURN or action.type == ActionType.COMPLEX:
+            if action.a_type == ActionType.RETURN or action.a_type == ActionType.COMPLEX:
                 return action.process(self.driver)
             else:
                 action.process(self.driver)

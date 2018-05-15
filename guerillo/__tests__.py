@@ -5,16 +5,39 @@ from guerillo.classes.scrapers.pinellas import Pinellas
 from guerillo.config import Folders
 from guerillo.utils.file_storage import FileStorage
 
-test_user = User(username="test", password="222222", email="me@test.com", full_name="Test Account")
 
-test_user = Backend.sign_in(test_user)
-orange_county = Backend.get_counties(county_name="Orange County")
-pinellas_county = Backend.get_counties(county_name="Pinellas County")
-marion_county = Backend.get_counties(county_name="Marion County")
-# Backend.get_counties(county_name="Pinellas County").register_to_user(test_user)
+def user_tests():
+    # print(Backend.get_users(email_or_username="me@marionrucker.com"))
+    print(Backend.sign_in(User(email="marionthefourth", password="254theFOURTH452")))
+
+
+def query_validation_tests():
+    lower_bound = "124,0124.80906"
+    upper_bound = "$2400021,0"
+    start_date = "5\\3-2018"
+    end_date = "05/24/2018"
+
+    search_query = SearchQuery(start_date, end_date, lower_bound, upper_bound)
+
+    print(search_query)
+    print(" - - - ")
+
+    print("Query is valid: " + str(search_query.is_valid()))
+    print(search_query.invalid_message())
+    print(" - - - ")
+
+    print(search_query)
 
 
 def access_tests():
+    test_user = User(username="test", password="222222", email="me@test.com", full_name="Test Account")
+
+    test_user = Backend.sign_in(test_user)
+    orange_county = Backend.get_counties(county_name="Orange County")
+    pinellas_county = Backend.get_counties(county_name="Pinellas County")
+    marion_county = Backend.get_counties(county_name="Marion County")
+    # Backend.get_counties(county_name="Pinellas County").register_to_user(test_user)
+
     print("Users that have access to " + orange_county.__str__() + ": ")
     print(orange_county.lock.get_connected_items())
     print("- - - - ")

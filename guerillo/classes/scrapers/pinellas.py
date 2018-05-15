@@ -6,9 +6,11 @@ Created on Sun Apr 22 21:14:10 2018
 """
 import os
 from datetime import datetime
+
 import bs4
-from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
+
+from guerillo.classes.backend_objects.county import County
 from guerillo.classes.backend_objects.homeowner import Homeowner
 from guerillo.classes.scrapers.scraper import Scraper
 from guerillo.config import URLs, General, HTML, Folders, KeyFiles
@@ -23,14 +25,12 @@ from guerillo.utils.driver_utils.actions.action_repeat import ActionRepeat, Loop
 from guerillo.utils.driver_utils.actions.action_return import ActionReturn, Condition
 from guerillo.utils.driver_utils.actions.action_send_keys import ActionSendKeys
 from guerillo.utils.driver_utils.actions.action_wait import ActionWait
-from guerillo.utils.sanitizer import Sanitizer
 from guerillo.utils.file_storage import FileStorage
+from guerillo.utils.sanitizer import Sanitizer
 
 
 class Pinellas(Scraper):
-    def __init__(self, search_query=None, exports_path=None, status_label=None):
-        super().__init__(search_query, exports_path)
-        self.status_label = status_label
+    county = County(state_name="FL", county_name="Pinellas County")
 
     def search_by_bookpage(self, bookpage):
         self.driver_utils.process(actions=[
@@ -76,6 +76,7 @@ class Pinellas(Scraper):
         )
 
     def fill_search_query_fields(self):
+        self.search_query.sanitize()
         self.driver_utils.process(
             ActionClear(ActionType.CLEAR_THEN_SEND, operations=[
                 Operation(General.PCPAO.RECORD_FROM, self.search_query.start_date),
@@ -84,6 +85,7 @@ class Pinellas(Scraper):
                 Operation(General.PCPAO.UPPER_BOUND, self.search_query.upper_bound)
             ])
         )
+        self.search_query.desanitize()
 
     def accept_terms_and_conditions(self):
         self.driver_utils.process(actions=[
@@ -115,7 +117,7 @@ class Pinellas(Scraper):
         return self.rename_downloaded_csv_file(downloaded_file_name)
 
     def create_deeds_and_mortgages_list(self, file_name):
-        data_lists = FileStorage.read(file_name, county_filter="Pinellas")
+        data_lists = FileStorage.read(file_name, county_filter=self.county.county_name)
         deeds = list()
         mortgages = list()
         for item in data_lists:
@@ -232,7 +234,8 @@ class Pinellas(Scraper):
         self.create_report_list(downloaded_file_name)
         # Update Report Data
 
-        self.status_label.configure(text="Successfully found " + str(len(self.search_result.homeowners)) + " results. Wrapping up.")
+        self.status_label.configure(
+            text="Successfully found " + str(len(self.search_result.homeowners)) + " results. Wrapping up.")
         report_file_name = FileStorage.get_full_path(Folders.REPORTS) + datetime.now().strftime("%Y-%m-%d %H-%M.csv")
         FileStorage.save_data_to_csv(report_file_name, self.search_result.to_list())
 
