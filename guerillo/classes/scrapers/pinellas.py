@@ -7,6 +7,7 @@ Created on Sun Apr 22 21:14:10 2018
 import os
 from datetime import datetime
 import bs4
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 
 from guerillo.classes.backend_objects.county import County
@@ -114,10 +115,7 @@ class Pinellas(Scraper):
         return self.rename_downloaded_csv_file(downloaded_file_name)
 
     def create_deeds_and_mortgages_list(self, file_name):
-        data_lists = list()
-        for item in FileStorage.read(file_name, county_filter="Pinellas"):
-            data_lists.append(item.replace('"', "").replace("\n", "").split(","))
-
+        data_lists = FileStorage.read(file_name, county_filter="Pinellas")
         deeds = list()
         mortgages = list()
         for item in data_lists:
@@ -206,7 +204,6 @@ class Pinellas(Scraper):
                         if match_with_line[0]:
                             url = URLs.PCPAO.HOME + match_with_line[1][1].replace("general", General.PCPAO.TAX_EST)
                             homeowner.address = self.get_site_address(url)
-                            # break
 
     def rename_downloaded_csv_file(self, file_name):
         export_path = FileStorage.get_full_path(Folders.EXPORTS)

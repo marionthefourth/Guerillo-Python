@@ -1,4 +1,5 @@
 import pyrebase as pyrebase
+from requests import HTTPError
 
 from guerillo.config import API
 
@@ -7,19 +8,31 @@ class Backend:
 
     @staticmethod
     def create_account(user):
-        new_account = Backend.get().auth().create_user_with_email_and_password(user.email, user.password)
-        user.uid = new_account['localId']  # Store Account UID into User
-        user.keychain.container_uid = user.uid
-        Backend.save(user)
+        try:
+            new_account = Backend.get().auth().create_user_with_email_and_password(user.email, user.password)
+            user.uid = new_account['localId']  # Store Account UID into User
+            user.keychain.container_uid = user.uid
+            Backend.save(user)
+            return user
+        except HTTPError:
+            return None
 
     @staticmethod
     def sign_in(user):
+<<<<<<< HEAD
         database_user = Backend.get_users(user.email)
         if database_user:
             account = Backend.get().auth().sign_in_with_email_and_password(database_user.email, user.password)
             from guerillo.classes.backend_objects.backend_object import BackendType
             return Backend.read(type=BackendType.USER, uid=account['localId'])
         else:
+=======
+        try:
+            account = Backend.get().auth().sign_in_with_email_and_password(user.email, user.password)
+            from guerillo.classes.backend_objects.backend_object import BackendType
+            return Backend.read(b_type=BackendType.USER, uid=account['localId'])
+        except HTTPError:
+>>>>>>> master
             return None
 
     @staticmethod
@@ -73,25 +86,26 @@ class Backend:
             # TODO - Remove User Lock References
 
     @staticmethod
-    def read(type=None, uid=None):
-        backend_obj = Backend.get().database().child(Backend.get_type_folder(type)).child(uid).get()
+    def read(b_type=None, uid=None):
+        backend_obj = Backend.get().database().child(Backend.get_type_folder(b_type)).child(uid).get()
         from guerillo.classes.backend_objects.backend_object import BackendType
-        if type == BackendType.COUNTY:
+        if b_type == BackendType.COUNTY:
             # Read County Data
             from guerillo.classes.backend_objects.county import County
             county = County(pyres=backend_obj, uid="")
-            county.lock = Backend.read(type=BackendType.LOCK, uid=county.lock.uid)
-            county.request_queue = Backend.read(type=BackendType.REQUEST_QUEUE, uid=county.request_queue.uid)
+            county.lock = Backend.read(b_type=BackendType.LOCK, uid=county.lock.uid)
+            county.request_queue = Backend.read(b_type=BackendType.REQUEST_QUEUE, uid=county.request_queue.uid)
             return county
-        elif type == BackendType.USER:
+        elif b_type == BackendType.USER:
             # Read User Data
             from guerillo.classes.backend_objects.user import User
             user = User(pyres=backend_obj)
-            user.keychain = Backend.read(type=BackendType.KEYCHAIN, uid=user.keychain.uid)
+            user.keychain = Backend.read(b_type=BackendType.KEYCHAIN, uid=user.keychain.uid)
             return user
         elif type.is_auxiliary():
             # Read User Keychain, County Lock or Request Queue
             from guerillo.classes.backend_objects.auxiliary_object import AuxiliaryObject
+<<<<<<< HEAD
             return AuxiliaryObject(type=type, pyres=backend_obj)
         elif type == BackendType.SEARCH_QUERY:
             # Read Search Query
@@ -126,6 +140,9 @@ class Backend:
         else:
             return users
 
+=======
+            return AuxiliaryObject(type=b_type, pyres=backend_obj)
+>>>>>>> master
 
     @staticmethod
     def get_counties(state_name=None, county_name=None):
@@ -138,11 +155,15 @@ class Backend:
             county = County(pyre=county_obj, uid="")
             if (county.state_name == state_name or county.county_name == county_name) \
                     or (state_name is None and county_name is None):
-                county.lock = Backend.read(type=BackendType.LOCK, uid=county.lock.uid)
-                county.request_queue = Backend.read(type=BackendType.REQUEST_QUEUE, uid=county.request_queue.uid)
-                if county_name is not None:
-                    return county
-                counties.append(county)
+                county.lock = Backend.read(b_type=BackendType.LOCK, uid=county.lock.uid)
+                county.request_queue = Backend.read(b_type=BackendType.REQUEST_QUEUE, uid=county.request_queue.uid)
+                if county_name and county_name == county.county_name:
+                    if state_name == county.state_name:
+                        return county
+                elif state_name == county.state_name:
+                    counties.append(county)
+                elif not state_name and not county_name:
+                    counties.append(county)
         return counties
 
     @staticmethod
@@ -155,10 +176,11 @@ class Backend:
         }
 
     @staticmethod
-    def get(): return pyrebase.initialize_app(Backend.get_configuration())
+    def get():
+        return pyrebase.initialize_app(Backend.get_configuration())
 
     @staticmethod
-    def get_type_folder(type):
+    def get_type_folder(b_type):
         from guerillo.classes.backend_objects.backend_object import BackendType
         return {
             BackendType.COUNTY: "counties",
@@ -166,4 +188,4 @@ class Backend:
             BackendType.REQUEST_QUEUE: "requests",
             BackendType.USER: "users",
             BackendType.LOCK: "locks"
-        }.get(type, None)
+        }.get(b_type, None)
