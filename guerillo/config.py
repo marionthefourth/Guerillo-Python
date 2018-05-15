@@ -22,11 +22,11 @@ class API:
 
 
 class Directories:
-    GENERAL = "/general/"
+    GENERAL = "\\general\\"
 
 
 class Queries:
-    GENERAL = "/general/"
+    GENERAL = "\\general\\"
 
 
 class URLs:
@@ -59,24 +59,24 @@ class FileHeaders:
 
 
 class Folders:
-    SCRIPTS = "/guerillo"
-    BACKEND = SCRIPTS + "/backend"
+    SCRIPTS = "\\guerillo"
+    BACKEND = SCRIPTS + "\\backend"
 
-    UTILS = SCRIPTS + "/utils"
-    FILE_STORAGE = UTILS + "/file_storage"
-    COUNTY_KEYGEN = UTILS + "/county_keygen"
-    DATA_SANITIZERS = UTILS + "/data_sanitizers"
-    STATE_AND_COUNTY_DATA = UTILS + "/state_and_county_data"
-    STATE_CODIFIER = UTILS + "/state_codifier"
+    UTILS = SCRIPTS + "\\utils"
+    FILE_STORAGE = UTILS + "\\file_storage"
+    COUNTY_KEYGEN = UTILS + "\\county_keygen"
+    DATA_SANITIZERS = UTILS + "\\data_sanitizers"
+    STATE_AND_COUNTY_DATA = UTILS + "\\state_and_county_data"
+    STATE_CODIFIER = UTILS + "\\state_codifier"
 
-    BIN = "/bin"
-    PYTHON = BIN + "/python"
-    EXPORTS = BIN + "/exports/"
-    REPORTS = BIN + "/reports/"
-    ANSI_DATA = BIN + "/ansi_data/"
-    WEB_DRIVERS = BIN + "/web_drivers/"
+    BIN = "\\bin"
+    PYTHON = BIN + "\\python"
+    EXPORTS = BIN + "\\exports\\"
+    REPORTS = BIN + "\\reports\\"
+    ANSI_DATA = BIN + "\\ansi_data\\"
+    WEB_DRIVERS = BIN + "\\web_drivers\\"
 
-    CSVx = EXPORTS + "/csvs/"
+    CSVx = EXPORTS + "\\csvs\\"
 
 
 class KeyFiles:
@@ -179,18 +179,18 @@ class HTML:
 
 class PACKAGES:
     ALL = ['os', 'sys', 'ctypes', 'win32con', 'pyrebase', 'selenium', 'bs4', 'esky', 'time', 'enum', 'csv', 'jedi',
-           'tkinter', 'PIL', 'webbrowser', 'cryptography']
+           'tkinter', 'PIL', 'webbrowser', 'cryptography','socks','gcloud']
 
 
 class SCRIPTS:
     class FOLDERS:
-        GUERILLO = "guerillo/"
-        CLASSES = GUERILLO + "classes/"
-        BACKEND_OBJECTS = CLASSES + "backend_objects/"
-        SCRAPERS = CLASSES + "scrapers/"
-        UTILS = GUERILLO + "utils/"
-        STATE_CODIFIER = UTILS + "state_codifier/"
-        BACKEND = GUERILLO + "backend/"
+        GUERILLO = "guerillo\\"
+        CLASSES = GUERILLO + "classes\\"
+        BACKEND_OBJECTS = CLASSES + "backend_objects\\"
+        SCRAPERS = CLASSES + "scrapers\\"
+        UTILS = GUERILLO + "utils\\"
+        STATE_CODIFIER = UTILS + "state_codifier\\"
+        BACKEND = GUERILLO + "backend\\"
 
     # Backend
     BACKEND = FOLDERS.BACKEND + "backend.py"
@@ -227,9 +227,34 @@ class SCRIPTS:
     MAIN = FOLDERS.GUERILLO + "__main__.py"
     TESTS = FOLDERS.GUERILLO + "__tests__.py"
     CONFIG = FOLDERS.GUERILLO + "config.py"
-    GUI = FOLDERS.GUERILLO + "GuerilloGUI - commit & print textbox.py"
+    GUI = FOLDERS.GUERILLO + "gui.py"
     MENU = FOLDERS.GUERILLO + "menu.py"
 
     GENERAL_ALL = [MAIN, TESTS, CONFIG, GUI, MENU]
 
     ALL = BACKENDS_ALL + BACKEND_OBJECTS_ALL + UTILS_ALL + GENERAL_ALL
+
+class RESOURCES:
+    class Folders:
+        RES = "res\\"
+        IMG = RES+"img\\"
+
+    DOWNARROW = Folders.IMG+"down_arrow.png"
+    LOGINBUTTON = Folders.IMG+"login_button.png"
+    PANO = Folders.IMG+"pano.png"
+    ICON = Folders.IMG+"phone.ico"
+    SEARCHBUTTON = Folders.IMG+"search_button.png"
+    SBGREYSCALE = Folders.IMG+"search_button_greyscale.png"
+    SIGNUPBUTTON = Folders.IMG+"signup_button.png"
+
+    ALL = [
+        DOWNARROW,
+        LOGINBUTTON,
+        PANO,
+        ICON,
+        SEARCHBUTTON,
+        SBGREYSCALE,
+        SIGNUPBUTTON
+    ]
+
+

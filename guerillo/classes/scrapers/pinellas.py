@@ -7,6 +7,7 @@ Created on Sun Apr 22 21:14:10 2018
 import os
 from datetime import datetime
 import bs4
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 from guerillo.classes.backend_objects.homeowner import Homeowner
 from guerillo.classes.scrapers.scraper import Scraper
@@ -114,10 +115,7 @@ class Pinellas(Scraper):
         return self.rename_downloaded_csv_file(downloaded_file_name)
 
     def create_deeds_and_mortgages_list(self, file_name):
-        data_lists = list()
-        for item in FileStorage.read(file_name, county_filter="Pinellas"):
-            data_lists.append(item.replace('"', "").replace("\n", "").split(","))
-
+        data_lists = FileStorage.read(file_name, county_filter="Pinellas")
         deeds = list()
         mortgages = list()
         for item in data_lists:
@@ -206,7 +204,6 @@ class Pinellas(Scraper):
                         if match_with_line[0]:
                             url = URLs.PCPAO.HOME + match_with_line[1][1].replace("general", General.PCPAO.TAX_EST)
                             homeowner.address = self.get_site_address(url)
-                            # break
 
     def rename_downloaded_csv_file(self, file_name):
         export_path = FileStorage.get_full_path(Folders.EXPORTS)
@@ -226,13 +223,13 @@ class Pinellas(Scraper):
         # UI After Tapping Search Data Button
         # store target URL as variable - this will be dynamic from user input (hills or pinellas)
 
-        self.accept_terms_and_conditions()  # Pinellas Starts Here
-        self.status_label.configure(text="Searching...")
-        self.fill_search_query_fields()  # Data Ranges Entry
-        downloaded_file_name = self.download_csv_file()  # Download CSV file provided and rename it
+        # self.accept_terms_and_conditions()  # Pinellas Starts Here
+        # self.status_label.configure(text="Searching...")
+        # self.fill_search_query_fields()  # Data Ranges Entry
+        # downloaded_file_name = self.download_csv_file()  # Download CSV file provided and rename it
 
         # Assign New Data (Deeds & Mortgages)
-        self.create_report_list(downloaded_file_name)
+        self.create_report_list("C:\\Users\\Kenneth\\Documents\\GitHub\\GuerilloPython\\bin\\exports\\05012018-05022018 2018-05-09 211654-762405.csv")   #downloaded_file_name)
         # Update Report Data
 
         self.status_label.configure(text="Successfully found " + str(len(self.search_result.homeowners)) + " results. Wrapping up.")
