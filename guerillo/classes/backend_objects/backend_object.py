@@ -41,18 +41,23 @@ class BackendObject:
     @staticmethod
     def pyres_to_dictionary(pyres=None, pyre=None):
         dictionary = dict()
-        if pyres is not None:
+        if pyres and pyres.pyres:
             for item in pyres.pyres:
                 dictionary[item.item[0]] = item.item[1]
         elif pyre is not None:
             dictionary = pyre.item[1]
+        else:
+            return None
 
         return dictionary
 
     def from_dictionary(self, pyres=None, pyre=None):
         dictionary = BackendObject.pyres_to_dictionary(pyres=pyres, pyre=pyre)
-        self.uid = dictionary["uid"]
-        return dictionary
+        if dictionary:
+            self.uid = dictionary["uid"]
+            return dictionary
+        else:
+            return None
 
     def to_dictionary(self):
         return {

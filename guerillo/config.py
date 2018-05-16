@@ -244,7 +244,7 @@ class SCRIPTS:
     UTILS_ALL = [SANITIZER, DRIVER_UTILS, FILE_STORAGE, CENSUS_COUNTY_API, ABBREV_TO_NAME, NAME_TO_ABBREV,
                  STATE_CODIFIER, AUTO_UPDATER]
     # General Files
-    MAIN = FOLDERS.GUERILLO + "__main__.py"
+    MAIN = FOLDERS.GUERILLO + "Guerillo.py"
     TESTS = FOLDERS.GUERILLO + "__tests__.py"
     CONFIG = FOLDERS.GUERILLO + "config.py"
     GUI = FOLDERS.GUERILLO + "gui.py"
@@ -276,5 +276,14 @@ class RESOURCES:
         SBGREYSCALE,
         SIGNUPBUTTON
     ]
+
+class BIN:
+    class Folders:
+        BIN = "bin\\"
+        WEB_DRIVERS = BIN+"web_drivers\\"
+        REPORTS = BIN+"reports\\"
+        EXPORTS = BIN+"exports\\"
+
+    CHROMEDRIVER = Folders.WEB_DRIVERS+"chromedriver.exe"
 
 

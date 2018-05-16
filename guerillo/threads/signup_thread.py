@@ -15,11 +15,10 @@ class SignupThread(Thread):
     def run(self):
         self.login_button.configure(state=tc.DISABLED)
         self.login_status_label.configure(
-            text="New account registered!\nWe're wrapping up a few items on our end\nThis may take a minute. Please "
-                 "wait..",
+            text="Registering new account..",
             fg="green"
         )
-        Backend.get_counties(county_name="Pinellas County", state_name="FL").register_to_user(self.new_user)
+        #Backend.get_counties(county_name="Pinellas County", state_name="FL").register_to_user(self.new_user)
         self.login_status_label.configure(text="Everything's been finalized.\nYou can now log in.",fg="green")
         self.login_button.configure(state=tc.NORMAL)
 

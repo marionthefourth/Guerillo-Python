@@ -9,16 +9,19 @@ class Scraper:
 
     @staticmethod
     def get_county_scraper(county, search_query=None, exports_path=None, status_label=None):
-        for county_scraper in Scraper.get_all_counties():
+        for county_scraper in Scraper.get_all_counties(search_query, exports_path, status_label):
             if county_scraper.county.state_name == county.state_name and \
                     county_scraper.county.county_name == county.county_name:
-                return county_scraper.__init__(search_query, exports_path, status_label)
+                return county_scraper
 
     @staticmethod
-    def get_all_counties():
+    def get_all_counties(search_query, exports_path, status_label):
         from guerillo.classes.scrapers.hillsborough import Hillsborough
         from guerillo.classes.scrapers.pinellas import Pinellas
-        return [Pinellas(), Hillsborough()]
+        return [
+            Pinellas(search_query, exports_path, status_label),
+            Hillsborough(search_query, exports_path, status_label)
+        ]
 
     def __init__(self, search_query=None, exports_path=None, status_label=None):
         from guerillo.utils.driver_utils.driver_utils import DriverUtils

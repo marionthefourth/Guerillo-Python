@@ -17,12 +17,15 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 
 from guerillo.backend.backend import Backend
+from guerillo.classes.backend_objects.county import County
 from guerillo.classes.backend_objects.search_query import SearchQuery
 from guerillo.classes.backend_objects.user import User
 from guerillo.classes.scrapers.pinellas import Pinellas
+from guerillo.classes.scrapers.scraper import Scraper
 from guerillo.config import Folders
 from guerillo.threads.search_thread import SearchThread
 from guerillo.threads.signup_thread import SignupThread
+from guerillo.utils.auto_updater import AutoUpdater
 from guerillo.utils.file_storage import FileStorage
 
 
@@ -159,6 +162,12 @@ class GUI:
         self.root.update()
         self.user = Backend.sign_in(User(email=self.username_field.get(), password=self.password_field.get()))
         if self.user:
+            counties = self.user.keychain.get_connected_items()
+            if counties is None:
+                self.login_status_label.configure(text="No counties available.\nEmail support@panoramic.email.",
+                                                  fg="red")
+                self.expand_window(300,260)
+                return
             self.login_status_label.configure(text="Login successful! Loading search functions.", fg="green")
             self.expand_window(400, 400)
             self.add_county_dropdown(self.entry_grid_frame, 1)
@@ -206,16 +215,24 @@ class GUI:
 
         if query.is_valid():
             self.sanitize_input_fields(query)
-
-            pinellas_instance = Pinellas(
-                search_query=query,
-                exports_path=FileStorage.get_full_path(Folders.EXPORTS),
-                status_label=status_label
+            scraper = Scraper.get_county_scraper(
+                self.pull_spinner_data(),
+                query,FileStorage.get_full_path(Folders.EXPORTS),
+                status_label
             )
-            pinellas_instance.run()
+            scraper.run()
+            # pinellas_instance = Pinellas(
+            #     search_query=query,
+            #     exports_path=FileStorage.get_full_path(Folders.EXPORTS),
+            #     status_label=status_label
+            # )
+            # pinellas_instance.run()
             status_label.configure(text="Ready to search.")
         else:
-            print(query.invalid_message())
+            self.status.configure(text=query.invalid_message())
+
+    def pull_spinner_data(self):
+        return County(state_name="FL",county_name=self.variable.get())
 
     def sanitize_input_fields(self, search_query):
         self.lower_bound_input.delete(0, tk.END)
@@ -242,7 +259,7 @@ class GUI:
 
     def create_core_window(self):
         self.root = tk.Tk()
-        self.root.title("Guerillo")
+        self.root.title("Ken & Marion's House of Horrors")
         self.root.iconbitmap(self.images_path + 'phone.ico')
         self.root.geometry('300x250')  # syntax is 'WidthxHeight'
         self.root.resizable(width=False, height=False)
@@ -432,7 +449,6 @@ class GUI:
                     self.hide_signup("filler because event required")
                     self.username_field.delete(0, tc.END)
                     self.password_field.delete(0, tc.END)
-                    self.expand_window(300, 350)
                 else:
                     self.signup_status_label.configure(text="Invalid email", fg="red")
                     self.signup_status_label.update()
@@ -452,11 +468,7 @@ class GUI:
         self.signup_password_check_entry.delete(0, tc.END)
 
     def check_for_updates(self):
-        update_available = True  # filler, remove
-        # if update_available:
-        # messagebox.askquestion("Out of date","Update available; would you like to update Guerillo?")
-        # else:
-        messagebox.showinfo("No update required", "You're all up to date!")
+        AutoUpdater.run()
 
     def create_logo(self):
         self.logo = ImageTk.PhotoImage(Image.open(self.images_path + "pano.png"))
@@ -542,12 +554,15 @@ class GUI:
         self.county_dropdown_label = tk.Label(grid_target, bg="white", text="County to Search", font=("Constantia", 12))
         self.county_dropdown_label.grid(row=row_placement, column=0, sticky=tc.E)
         counties = self.user.keychain.get_connected_items()
+        # if counties is None:
+        #     self.login_status_label.configure(text="No counties available. Email support@panoramic.email.",fg="red")
+        #     return
         counties_list = []
         for county in counties:
             counties_list.append(county.county_name)
         self.county_options = counties_list
         self.variable = tk.StringVar("")
-        # self.variable.set(self.county_options[0])
+        self.variable.set(self.county_options[0])
         self.county_dropdown = tk.OptionMenu(grid_target, self.variable, *self.county_options,
                                              command=self.update_county_label)
         self.county_dropdown.grid(row=row_placement, column=1)
@@ -565,7 +580,7 @@ class GUI:
         self.current_county_label.configure(text=self.variable.get())
 
     def add_guerillo_header(self, grid_target, row_placement):
-        self.guerillo_header = tk.Label(grid_target, bg="white", text="Guerillo", font=("Constantia", 40))
+        self.guerillo_header = tk.Label(grid_target, bg="white", text="Wanna play a game?", font=("Constantia", 20)) #40
         self.guerillo_header.grid(row=row_placement, column=0, columnspan=2, pady=3)
 
     def add_search_query_elements(self, grid_target, row_count):
