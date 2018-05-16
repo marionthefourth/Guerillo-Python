@@ -82,17 +82,22 @@ class AuxiliaryObject(BackendObject):
             self.connected_items_type = BackendType.USER
 
     def get_connected_items(self):
-        return [Backend.read(b_type=self.connected_items_type, uid=connected_item_uid)
-                for connected_item_uid in self.connected_uids_list]
+        try:
+            return [Backend.read(b_type=self.connected_items_type, uid=connected_item_uid)
+                    for connected_item_uid in self.connected_uids_list]
+        except AttributeError:
+            return None
 
     def from_dictionary(self, pyres=None, pyre=None):
         dictionary = super().from_dictionary(pyres=pyres, pyre=pyre)
-        self.connected_uids_list = list()
-        for key in dictionary:
-            if self.get_connected_uid_key() in key:
-                self.connected_uids_list.append(dictionary[key])
+        if dictionary:
+            self.connected_uids_list = list()
+            for key in dictionary:
+                if self.get_connected_uid_key() in key:
+                    self.connected_uids_list.append(dictionary[key])
 
-        self.container_uid = dictionary[AuxiliaryObject.get_container_key(self.type)]
+            self.container_uid = dictionary[AuxiliaryObject.get_container_key(self.type)]
+
 
     def to_dictionary(self):
         if self.connected_uids_list is not None and len(self.connected_uids_list) != 0:

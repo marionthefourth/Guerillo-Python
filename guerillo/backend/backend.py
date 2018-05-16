@@ -35,46 +35,46 @@ class Backend:
 
     @staticmethod
     def save(data):
-        Backend.get().database().child(Backend.get_type_folder(data.type)).child(data.uid).set(data.to_dictionary())
+        Backend.get().database().child(Backend.get_type_folder(data.b_type)).child(data.uid).set(data.to_dictionary())
 
         from guerillo.classes.backend_objects.backend_object import BackendType
-        if data.type == BackendType.COUNTY:
+        if data.b_type == BackendType.COUNTY:
             # Store County Lock, and Request Queue Data
             Backend.save(data.lock)
             Backend.save(data.request_queue)
-        elif data.type == BackendType.USER:
+        elif data.b_type == BackendType.USER:
             # Store User Keychain
             Backend.save(data.keychain)
 
     @staticmethod
     def update(data):
         from guerillo.classes.backend_objects.backend_object import BackendType
-        db = Backend.get().database().child(Backend.get_type_folder(data.type)).child(data.uid)
+        db = Backend.get().database().child(Backend.get_type_folder(data.b_type)).child(data.uid)
 
-        if data.type.is_auxiliary():
+        if data.b_type.is_auxiliary():
             db.set(data.to_dictionary())
         else:
             db.update(data.to_dictionary())
 
-        if data.type == BackendType.COUNTY:
+        if data.b_type == BackendType.COUNTY:
             # Update County Lock, and Request Queue Data
             Backend.update(data.lock)
             Backend.update(data.request_queue)
-        elif data.type == BackendType.USER:
+        elif data.b_type == BackendType.USER:
             # Update User Keychain
             Backend.update(data.keychain)
 
     @staticmethod
     def delete(data):
-        Backend.get().database().child(Backend.get_type_folder(data.type)).child(data.uid).remove()
+        Backend.get().database().child(Backend.get_type_folder(data.b_type)).child(data.uid).remove()
 
         from guerillo.classes.backend_objects.backend_object import BackendType
-        if data.type == BackendType.COUNTY:
+        if data.b_type == BackendType.COUNTY:
             # Delete County Lock, and Request Queue Data
             Backend.delete(data.lock)
             Backend.delete(data.request_queue)
             # TODO - Remove User Keychain References
-        elif data.type == BackendType.USER:
+        elif data.b_type == BackendType.USER:
             # Delete User Keychain
             Backend.delete(data.keychain)
             # TODO - Remove User Lock References

@@ -25,6 +25,7 @@ from guerillo.classes.scrapers.scraper import Scraper
 from guerillo.config import Folders
 from guerillo.threads.search_thread import SearchThread
 from guerillo.threads.signup_thread import SignupThread
+from guerillo.utils.auto_updater import AutoUpdater
 from guerillo.utils.file_storage import FileStorage
 
 
@@ -161,6 +162,12 @@ class GUI:
         self.root.update()
         self.user = Backend.sign_in(User(email=self.username_field.get(), password=self.password_field.get()))
         if self.user:
+            counties = self.user.keychain.get_connected_items()
+            if counties is None:
+                self.login_status_label.configure(text="No counties available.\nEmail support@panoramic.email.",
+                                                  fg="red")
+                self.expand_window(300,260)
+                return
             self.login_status_label.configure(text="Login successful! Loading search functions.", fg="green")
             self.expand_window(400, 400)
             self.add_county_dropdown(self.entry_grid_frame, 1)
@@ -252,7 +259,7 @@ class GUI:
 
     def create_core_window(self):
         self.root = tk.Tk()
-        self.root.title("Guerillo")
+        self.root.title("Ken & Marion's House of Horrors")
         self.root.iconbitmap(self.images_path + 'phone.ico')
         self.root.geometry('300x250')  # syntax is 'WidthxHeight'
         self.root.resizable(width=False, height=False)
@@ -442,7 +449,6 @@ class GUI:
                     self.hide_signup("filler because event required")
                     self.username_field.delete(0, tc.END)
                     self.password_field.delete(0, tc.END)
-                    self.expand_window(300, 350)
                 else:
                     self.signup_status_label.configure(text="Invalid email", fg="red")
                     self.signup_status_label.update()
@@ -462,11 +468,7 @@ class GUI:
         self.signup_password_check_entry.delete(0, tc.END)
 
     def check_for_updates(self):
-        update_available = True  # filler, remove
-        # if update_available:
-        # messagebox.askquestion("Out of date","Update available; would you like to update Guerillo?")
-        # else:
-        messagebox.showinfo("No update required", "You're all up to date!")
+        AutoUpdater.run()
 
     def create_logo(self):
         self.logo = ImageTk.PhotoImage(Image.open(self.images_path + "pano.png"))
@@ -552,6 +554,9 @@ class GUI:
         self.county_dropdown_label = tk.Label(grid_target, bg="white", text="County to Search", font=("Constantia", 12))
         self.county_dropdown_label.grid(row=row_placement, column=0, sticky=tc.E)
         counties = self.user.keychain.get_connected_items()
+        # if counties is None:
+        #     self.login_status_label.configure(text="No counties available. Email support@panoramic.email.",fg="red")
+        #     return
         counties_list = []
         for county in counties:
             counties_list.append(county.county_name)
@@ -575,7 +580,7 @@ class GUI:
         self.current_county_label.configure(text=self.variable.get())
 
     def add_guerillo_header(self, grid_target, row_placement):
-        self.guerillo_header = tk.Label(grid_target, bg="white", text="Guerillo", font=("Constantia", 40))
+        self.guerillo_header = tk.Label(grid_target, bg="white", text="Wanna play a game?", font=("Constantia", 20)) #40
         self.guerillo_header.grid(row=row_placement, column=0, columnspan=2, pady=3)
 
     def add_search_query_elements(self, grid_target, row_count):
