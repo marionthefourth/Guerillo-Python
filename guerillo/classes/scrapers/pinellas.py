@@ -212,9 +212,13 @@ class Pinellas(Scraper):
 
         end_date = Sanitizer.date(self.search_query.end_date)
         start_date = Sanitizer.date(self.search_query.start_date)
+        self.search_query.sanitize()
+        lower_bound = self.search_query.lower_bound
+        upper_bound = self.search_query.upper_bound
+        self.search_query.desanitize()
         current_date_time = Sanitizer.date_time(str(datetime.now()))
 
-        renamed_downloaded_file_name = export_path + start_date + "-" + end_date + " " + current_date_time + ".csv"
+        renamed_downloaded_file_name = export_path + start_date + "-" + end_date + " " + lower_bound + " " + upper_bound + " " + current_date_time + ".csv"
 
         FileStorage.rename(file_name, renamed_downloaded_file_name)
         return renamed_downloaded_file_name

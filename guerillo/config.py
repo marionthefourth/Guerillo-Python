@@ -277,4 +277,13 @@ class RESOURCES:
         SIGNUPBUTTON
     ]
 
+class BIN:
+    class Folders:
+        BIN = "bin\\"
+        WEB_DRIVERS = BIN+"web_drivers\\"
+        REPORTS = BIN+"reports\\"
+        EXPORTS = BIN+"exports\\"
+
+    CHROMEDRIVER = Folders.WEB_DRIVERS+"chromedriver.exe"
+
 

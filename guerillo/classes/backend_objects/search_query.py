@@ -36,12 +36,12 @@ class SearchQuery(BackendObject):
         try:
             float(sanitized_lower_bound)
         except ValueError:
-            return False, "Lower Bound must be a non-zero whole number"
+            return False, "Minimum mortgage amount must be a positive whole number"
 
         try:
             float(sanitized_upper_bound)
         except ValueError:
-            return False, "Upper Bound must be a non-zero whole number"
+            return False, "Maximum mortgage amount must be a non-zero whole number"
 
         sanitized_upper_bound = float(sanitized_upper_bound)
         sanitized_lower_bound = float(sanitized_lower_bound)
@@ -49,13 +49,13 @@ class SearchQuery(BackendObject):
         self.upper_bound = Sanitizer.numeric_bound(sanitized_upper_bound, full=True)
 
         if sanitized_lower_bound <= 0:
-            return False, "Lower Bound must be a positive non-zero whole number"
+            return False, "Minimum mortgage amount must be a positive whole number"
 
         if sanitized_upper_bound <= 0:
-            return False, "Upper Bound must be a positive non-zero whole number"
+            return False, "Maximum mortgage amount must be a positive non-zero whole number"
 
         if sanitized_lower_bound >= sanitized_upper_bound:
-            return False, "Upper Bound value must be greater than Lower Bound"
+            return False, "Maximum mortgage must be greater than minimum amount"
 
         return True, "All number bounds are valid"
 
@@ -76,8 +76,9 @@ class SearchQuery(BackendObject):
         except ValueError:
             return False, "End Date must be in the format MM/DD/YYYY"
 
-        if self.start_date > self.end_date:
-            return False, "Start Date must be on or before the End Date"
+        for i, date in enumerate(self.end_date.split("/")):
+            if self.start_date.split("/")[i] > date:
+                return False, "Start Date must be on or before the End Date"
 
         return True, "All date bounds are valid"
 

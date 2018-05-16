@@ -17,9 +17,11 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 
 from guerillo.backend.backend import Backend
+from guerillo.classes.backend_objects.county import County
 from guerillo.classes.backend_objects.search_query import SearchQuery
 from guerillo.classes.backend_objects.user import User
 from guerillo.classes.scrapers.pinellas import Pinellas
+from guerillo.classes.scrapers.scraper import Scraper
 from guerillo.config import Folders
 from guerillo.threads.search_thread import SearchThread
 from guerillo.threads.signup_thread import SignupThread
@@ -206,16 +208,24 @@ class GUI:
 
         if query.is_valid():
             self.sanitize_input_fields(query)
-
-            pinellas_instance = Pinellas(
-                search_query=query,
-                exports_path=FileStorage.get_full_path(Folders.EXPORTS),
-                status_label=status_label
+            scraper = Scraper.get_county_scraper(
+                self.pull_spinner_data(),
+                query,FileStorage.get_full_path(Folders.EXPORTS),
+                status_label
             )
-            pinellas_instance.run()
+            scraper.run()
+            # pinellas_instance = Pinellas(
+            #     search_query=query,
+            #     exports_path=FileStorage.get_full_path(Folders.EXPORTS),
+            #     status_label=status_label
+            # )
+            # pinellas_instance.run()
             status_label.configure(text="Ready to search.")
         else:
-            print(query.invalid_message())
+            self.status.configure(text=query.invalid_message())
+
+    def pull_spinner_data(self):
+        return County(state_name="FL",county_name=self.variable.get())
 
     def sanitize_input_fields(self, search_query):
         self.lower_bound_input.delete(0, tk.END)
@@ -547,7 +557,7 @@ class GUI:
             counties_list.append(county.county_name)
         self.county_options = counties_list
         self.variable = tk.StringVar("")
-        # self.variable.set(self.county_options[0])
+        self.variable.set(self.county_options[0])
         self.county_dropdown = tk.OptionMenu(grid_target, self.variable, *self.county_options,
                                              command=self.update_county_label)
         self.county_dropdown.grid(row=row_placement, column=1)
