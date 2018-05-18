@@ -10,7 +10,7 @@ class User(BackendObject):
                  pyres=None, pyre=None):
         super().__init__(uid=uid)
         # Create New User Keychain
-        self.keychain = AuxiliaryObject(container_uid=self.uid, type=BackendType.KEYCHAIN)
+        self.keychain = AuxiliaryObject(container_uid=self.uid, b_type=BackendType.KEYCHAIN)
 
         if pyres is None and pyre is None:
             self.email = email

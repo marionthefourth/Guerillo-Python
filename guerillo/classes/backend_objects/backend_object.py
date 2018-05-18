@@ -40,7 +40,7 @@ class BackendObject:
         if uid:
             self.uid = uid
         else:
-            self.generate_uid()
+            self.uid = Backend.generate_uid()
 
     def __repr__(self):
         return self.b_type.__repr__() + ": "
@@ -48,8 +48,6 @@ class BackendObject:
     def __str__(self):
         return self.b_type.__str__() + ": "
 
-    def generate_uid(self):
-        self.uid = Backend.get().database().generate_key()
     def from_backend(self, pyres, pyre, message_data):
         return pyres or pyre or message_data
 
