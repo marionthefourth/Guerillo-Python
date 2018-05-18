@@ -10,7 +10,7 @@ def to_dictionary():
         'CT': 'Connecticut',
         'DE': 'Delaware',
         'DC': 'District of Columbia',
-        'FL': 'Florida',
+        'FL': 'florida',
         'GA': 'Georgia',
         'HI': 'Hawaii',
         'ID': 'Idaho',

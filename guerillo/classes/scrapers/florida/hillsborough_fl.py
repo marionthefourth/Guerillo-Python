@@ -27,10 +27,9 @@ so "A"+folio_string.replace("-","")
 """
 
 
-class Hillsborough(Scraper):
-    county = County(state_name="FL", county_name="Hillsborough County")
-
+class HillsboroughFL(Scraper):
     """Property Appraiser Traverse & Scrape Logic"""
+    county = County(state_name="FL", county_name="Hillsborough County")
 
     def property_appraiser_scrape_r(self, name):
         self.driver_utils.process(actions=[
@@ -173,3 +172,6 @@ class Hillsborough(Scraper):
         # TODO: if over 3 weeks old, start by just looking for full name in HCAPFL first
         # TODO: if that can' find it, then scour the counterparty and search that way
         # TODO: for anything newer than 3 weeks, same process but vice-versa
+
+    def run(self):
+        pass
