@@ -5,18 +5,31 @@ from guerillo.backend.backend import Backend
 
 class BackendType(Enum):
     USER = "User"
-    LOCK = "Lock"
-    AUX = "Auxiliary"
     COUNTY = "County"
-    DEFAULT = "Default"
+
+    SEARCH = "Search"
+    QUERY = "Query"
+    RESULT = "Result"
+
+    AUX = "Auxiliary"
+    LOCK = "Lock"
     KEYCHAIN = "Keychain"
-    SEARCH_QUERY = "SearchQuery"
     REQUEST_QUEUE = "RequestQueue"
-    HOMEOWNER_SEARCH_RESULT = "HomeownerSearchResult"
+
+    RESULT_ITEM = "ResultItem"
+    PARCEL = "Parcel"
+    DOCUMENT = "Document"
+    HOMEOWNER = "Homeowner"
+
+    DEFAULT = "Default"
 
     def is_auxiliary(self):
         return self == BackendType.AUX or self == BackendType.KEYCHAIN or\
             self == BackendType.REQUEST_QUEUE or self == BackendType.LOCK
+
+    def is_result(self):
+        return self == BackendType.RESULT_ITEM or self == BackendType.HOMEOWNER or \
+               self == BackendType.PARCEL or self == BackendType.DOCUMENT
 
 
 class BackendObject:
@@ -24,42 +37,43 @@ class BackendObject:
     b_type = BackendType.DEFAULT
 
     def __init__(self, uid=None):
-        if uid is not None:
+        if uid:
             self.uid = uid
         else:
             self.generate_uid()
 
     def __repr__(self):
-        return self.b_type.__str__() + ": "
+        return self.b_type.__repr__() + ": "
 
     def __str__(self):
         return self.b_type.__str__() + ": "
 
     def generate_uid(self):
         self.uid = Backend.get().database().generate_key()
+    def from_backend(self, pyres, pyre, message_data):
+        return pyres or pyre or message_data
 
     @staticmethod
-    def pyres_to_dictionary(pyres=None, pyre=None):
+    def pyres_to_dictionary(pyres=None, pyre=None, message_data=None):
         dictionary = dict()
         if pyres and pyres.pyres:
             for item in pyres.pyres:
                 dictionary[item.item[0]] = item.item[1]
-        elif pyre is not None:
+        elif pyre:
             dictionary = pyre.item[1]
+        elif message_data:
+            return message_data
         else:
-            return None
+            raise ValueError
 
         return dictionary
 
-    def from_dictionary(self, pyres=None, pyre=None):
-        dictionary = BackendObject.pyres_to_dictionary(pyres=pyres, pyre=pyre)
+    def from_dictionary(self, pyres=None, pyre=None, message_data=None):
+        dictionary = BackendObject.pyres_to_dictionary(pyres=pyres, pyre=pyre, message_data=message_data)
         if dictionary:
             self.uid = dictionary["uid"]
             return dictionary
-        else:
-            return None
+        raise ValueError
 
     def to_dictionary(self):
-        return {
-            "uid": self.uid
-        }
+        return {"uid": self.uid}
