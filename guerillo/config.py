@@ -38,6 +38,7 @@ class URLs:
 
     class MyPinellasClerk:
         SEARCH_TYPE_CONSIDERATION = 'https://officialrecords.mypinellasclerk.org/search/SearchTypeConsideration'
+
     class HCPAFL:
         HOME = "http://gis.hcpafl.org/"
         PROPERTY_SEARCH = HOME + "propertysearch/#/"
@@ -52,6 +53,7 @@ class URLs:
         LOWER_BOUND = "&bt=O&lb="
         UPPER_BOUND = "&ub="
         CONSIDERATION = "&pt=-1&dt=MTG&st=consideration"
+
     PUBREC = "https://pubrec3.hillsclerk.com/oncore/search.aspx"
     CENSUS_COUNTY_CODES = "https://www.census.gov/geo/reference/codes/cousub.html"
 
@@ -59,11 +61,6 @@ class URLs:
 class Parsers:
     LXML = "lxml"
     HTML = "html.parser"
-
-
-class Scripts:
-    GET_SCROLL_HEIGHT = "return document.body.scrollHeight"
-    SCROLL_TO_BOTTOM = "window.scrollTo(0, document.body.scrollHeight);"
 
 
 class FileHeaders:
@@ -88,7 +85,11 @@ class Folders:
     ANSI_DATA = BIN + "\\ansi_data\\"
     WEB_DRIVERS = BIN + "\\web_drivers\\"
 
-    CSVx = EXPORTS + "\\csvs\\"
+    CSVs = EXPORTS + "\\csvs\\"
+
+    RESOURCES = "\\res"
+    IMG = "\\img"
+
 
 
 class KeyFiles:
@@ -197,13 +198,13 @@ class HTML:
     PARSER = "html.parser"
 
 
-class PACKAGES:
+class Packages:
     ALL = ['os', 'sys', 'ctypes', 'win32con', 'pyrebase', 'selenium', 'bs4', 'esky', 'time', 'enum', 'csv', 'jedi',
-           'tkinter', 'PIL', 'webbrowser', 'cryptography','socks','gcloud']
+           'tkinter', 'PIL', 'webbrowser', 'cryptography', 'socks', 'gcloud']
 
 
-class SCRIPTS:
-    class FOLDERS:
+class Scripts:
+    class Folders:
         GUERILLO = "guerillo\\"
         CLASSES = GUERILLO + "classes\\"
         BACKEND_OBJECTS = CLASSES + "backend_objects\\"
@@ -213,77 +214,78 @@ class SCRIPTS:
         BACKEND = GUERILLO + "backend\\"
 
     # Backend
-    BACKEND = FOLDERS.BACKEND + "backend.py"
+    BACKEND = Folders.BACKEND + "backend.py"
 
     BACKENDS_ALL = [BACKEND]
     # Backend Objects
-    AUXILARY = FOLDERS.BACKEND_OBJECTS + "auxiliary_object.py"
-    BACKEND_OBJECT = FOLDERS.BACKEND_OBJECTS + "backend_object.py"
-    COUNTY = FOLDERS.BACKEND_OBJECTS + "county.py"
-    HOMEOWNER = FOLDERS.BACKEND_OBJECTS + "homeowner.py"
-    HOMEOWNER_SEARCH_RESULT = FOLDERS.BACKEND_OBJECTS + "homeowner_search_result.py"
-    SEARCH_QUERY = FOLDERS.BACKEND_OBJECTS + "search_query.py"
-    USER = FOLDERS.BACKEND_OBJECTS + "user.py"
+    AUXILARY = Folders.BACKEND_OBJECTS + "auxiliary_object.py"
+    BACKEND_OBJECT = Folders.BACKEND_OBJECTS + "backend_object.py"
+    COUNTY = Folders.BACKEND_OBJECTS + "county.py"
+    HOMEOWNER = Folders.BACKEND_OBJECTS + "homeowner.py"
+    HOMEOWNER_SEARCH_RESULT = Folders.BACKEND_OBJECTS + "result.py"
+    SEARCH_QUERY = Folders.BACKEND_OBJECTS + "query.py"
+    USER = Folders.BACKEND_OBJECTS + "user.py"
 
     BACKEND_OBJECTS_ALL = [AUXILARY, BACKEND_OBJECT, COUNTY, HOMEOWNER, HOMEOWNER_SEARCH_RESULT, SEARCH_QUERY, USER]
     # Scrapers
-    SCRAPER = FOLDERS.SCRAPERS + "scraper.py"
-    PINELLAS = FOLDERS.SCRAPERS + "pinellas.py"
+    SCRAPER = Folders.SCRAPERS + "scraper.py"
+    PINELLAS = Folders.SCRAPERS + "pinellas.py"
+    HILLSBOROUGH = Folders.SCRAPERS + "hillsborough_fl.py"
 
     SCRAPERS_ALL = [SCRAPER, PINELLAS]
     # Utils
-    SANITIZER = FOLDERS.UTILS + "sanitizer.py"
-    DRIVER_UTILS = FOLDERS.UTILS + "driver_utils.py"
-    FILE_STORAGE = FOLDERS.UTILS + "file_storage.py"
-    CENSUS_COUNTY_API = FOLDERS.UTILS + "census_county_api.py"
-    ABBREV_TO_NAME = FOLDERS.STATE_CODIFIER + "abbreviation_to_name.py"
-    NAME_TO_ABBREV = FOLDERS.STATE_CODIFIER + "name_to_abbreviation.py"
-    STATE_CODIFIER = FOLDERS.STATE_CODIFIER + "state_codifier.py"
-    AUTO_UPDATER = FOLDERS.UTILS + "auto_updater.py"
+    SANITIZER = Folders.UTILS + "sanitizer.py"
+    DRIVER_UTILS = Folders.UTILS + "driver_utils.py"
+    FILE_STORAGE = Folders.UTILS + "file_storage.py"
+    CENSUS_COUNTY_API = Folders.UTILS + "census_county_api.py"
+    ABBREV_TO_NAME = Folders.STATE_CODIFIER + "abbreviation_to_name.py"
+    NAME_TO_ABBREV = Folders.STATE_CODIFIER + "name_to_abbreviation.py"
+    STATE_CODIFIER = Folders.STATE_CODIFIER + "state_codifier.py"
+    AUTO_UPDATER = Folders.UTILS + "auto_updater.py"
 
     UTILS_ALL = [SANITIZER, DRIVER_UTILS, FILE_STORAGE, CENSUS_COUNTY_API, ABBREV_TO_NAME, NAME_TO_ABBREV,
                  STATE_CODIFIER, AUTO_UPDATER]
     # General Files
-    MAIN = FOLDERS.GUERILLO + "Guerillo.py"
-    TESTS = FOLDERS.GUERILLO + "__tests__.py"
-    CONFIG = FOLDERS.GUERILLO + "config.py"
-    GUI = FOLDERS.GUERILLO + "gui.py"
-    MENU = FOLDERS.GUERILLO + "menu.py"
+    MAIN = Folders.GUERILLO + "Guerillo.py"
+    TESTS = Folders.GUERILLO + "__tests__.py"
+    CONFIG = Folders.GUERILLO + "config.py"
+    GUI = Folders.GUERILLO + "gui.py"
+    MENU = Folders.GUERILLO + "menu.py"
 
     GENERAL_ALL = [MAIN, TESTS, CONFIG, GUI, MENU]
 
     ALL = BACKENDS_ALL + BACKEND_OBJECTS_ALL + UTILS_ALL + GENERAL_ALL
 
-class RESOURCES:
+
+class Resources:
     class Folders:
         RES = "res\\"
-        IMG = RES+"img\\"
+        IMG = RES + "img\\"
 
-    DOWNARROW = Folders.IMG+"down_arrow.png"
-    LOGINBUTTON = Folders.IMG+"login_button.png"
-    PANO = Folders.IMG+"pano.png"
-    ICON = Folders.IMG+"phone.ico"
-    SEARCHBUTTON = Folders.IMG+"search_button.png"
-    SBGREYSCALE = Folders.IMG+"search_button_greyscale.png"
-    SIGNUPBUTTON = Folders.IMG+"signup_button.png"
+    DOWN_ARROW = Folders.IMG + "down_arrow.png"
+    LOGIN_BUTTON = Folders.IMG + "login_button.png"
+    PANORAMIC_LOGO = Folders.IMG + "pano.png"
+    ICON = Folders.IMG + "phone.ico"
+    SEARCH_BUTTON = Folders.IMG + "search_button.png"
+    SEARCH_BUTTON_GREYSCALE = Folders.IMG + "search_button_greyscale.png"
+    SIGN_UP_BUTTON = Folders.IMG + "signup_button.png"
 
     ALL = [
-        DOWNARROW,
-        LOGINBUTTON,
-        PANO,
+        DOWN_ARROW,
+        LOGIN_BUTTON,
+        PANORAMIC_LOGO,
         ICON,
-        SEARCHBUTTON,
-        SBGREYSCALE,
-        SIGNUPBUTTON
+        SEARCH_BUTTON,
+        SEARCH_BUTTON_GREYSCALE,
+        SIGN_UP_BUTTON
     ]
+
 
 class BIN:
     class Folders:
         BIN = "bin\\"
-        WEB_DRIVERS = BIN+"web_drivers\\"
-        REPORTS = BIN+"reports\\"
-        EXPORTS = BIN+"exports\\"
+        WEB_DRIVERS = BIN + "web_drivers\\"
+        REPORTS = BIN + "reports\\"
+        EXPORTS = BIN + "exports\\"
 
-    CHROMEDRIVER = Folders.WEB_DRIVERS+"chromedriver.exe"
-
-
+    CHROME_DRIVER = Folders.WEB_DRIVERS + "chromedriver.exe"
