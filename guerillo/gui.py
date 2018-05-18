@@ -259,7 +259,7 @@ class GUI:
 
     def create_core_window(self):
         self.root = tk.Tk()
-        self.root.title("Ken & Marion's House of Horrors")
+        self.root.title("9.161 Guerillo")
         self.root.iconbitmap(self.images_path + 'phone.ico')
         self.root.geometry('300x250')  # syntax is 'WidthxHeight'
         self.root.resizable(width=False, height=False)
@@ -580,7 +580,7 @@ class GUI:
         self.current_county_label.configure(text=self.variable.get())
 
     def add_guerillo_header(self, grid_target, row_placement):
-        self.guerillo_header = tk.Label(grid_target, bg="white", text="Wanna play a game?", font=("Constantia", 20)) #40
+        self.guerillo_header = tk.Label(grid_target, bg="white", text="Guerillo", font=("Constantia", 40))
         self.guerillo_header.grid(row=row_placement, column=0, columnspan=2, pady=3)
 
     def add_search_query_elements(self, grid_target, row_count):

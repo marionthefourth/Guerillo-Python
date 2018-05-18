@@ -29,7 +29,7 @@ ESKY_INCLUDED_FILES = [
 
 setup(
     name="Guerillo",
-    version="0.9.12",
+    version="0.9.161",
     author="Panoramic, Co.",
     options={
         "build_exe": {
@@ -49,5 +49,5 @@ setup(
             icon=RESOURCES.ICON,
         ),
     ],
-    executables=[Executable(SCRIPTS.MAIN, base="Win32GUI", targetName="Guerillo.exe")]
+    #executables=[Executable(SCRIPTS.MAIN, base="Win32GUI", targetName="Guerillo.exe")]
 )
