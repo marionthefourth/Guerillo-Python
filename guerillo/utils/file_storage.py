@@ -38,6 +38,17 @@ class FileStorage:
             return ["", ""]  # Returns Safe Data if File Doesn't Exist
 
     @staticmethod
+    def get_image(image_name):
+        file_path = FileStorage.direct_to_folder(
+            FileStorage.get_root_path(),
+            None
+        ) + "\\" + image_name
+        if os.path.isfile(file_path):
+            return file_path
+        else:
+            raise Exception
+
+    @staticmethod
     def get_webdriver():
         return FileStorage.direct_to_folder(
             FileStorage.get_root_path(),
@@ -150,19 +161,20 @@ class FileStorage:
 
     @staticmethod
     def direct_to_folder(file_path, folder):
-        for folder in folder:
-            if General.BACKWARDS_SLASH in folder:
-                if platform in [OperatingSystems.LINUX, OperatingSystems.LINUX2]:
-                    pass
-                elif platform is OperatingSystems.OSX:
-                    pass
-                else:  # platform is OperatingSystems.WINDOWS
-                    folder = folder.replace(General.BACKWARDS_SLASH, General.DBL_FORWARDS_SLASH)
+        if folder is not None:
+            for folder_indv in folder:
+                if General.BACKWARDS_SLASH in folder_indv:
+                    if platform in [OperatingSystems.LINUX, OperatingSystems.LINUX2]:
+                        pass
+                    elif platform is OperatingSystems.OSX:
+                        pass
+                    else:  # platform is OperatingSystems.WINDOWS
+                        folder_indv = folder_indv.replace(General.BACKWARDS_SLASH, General.DBL_FORWARDS_SLASH)
 
-            file_path += folder
+                file_path += folder_indv
 
-        with ignored(OSError):
-            os.makedirs(file_path)
+            with ignored(OSError):
+                os.makedirs(file_path)
 
         return file_path
 

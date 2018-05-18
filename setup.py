@@ -1,9 +1,9 @@
 import os.path
 
-import esky.bdist_esky
-from esky.bdist_esky import Executable as Executable_Esky
 from cx_Freeze import setup, Executable
-from guerillo.config import SCRIPTS, RESOURCES, BIN
+from esky.bdist_esky import Executable as Executable_Esky
+
+from guerillo.config import Scripts, Resources, BIN
 
 PYTHON_INSTALL_DIR = os.path.dirname(os.path.dirname(os.__file__))
 os.environ['TCL_LIBRARY'] = os.path.join(PYTHON_INSTALL_DIR, 'tcl', 'tcl8.6')
@@ -15,16 +15,16 @@ INCLUDED_FILES.append(os.path.join(PYTHON_INSTALL_DIR, 'DLLs', 'tk86t.dll'))
 INCLUDED_FILES.append(os.path.join(PYTHON_INSTALL_DIR, 'DLLs', 'tcl86t.dll'))
 
 ESKY_INCLUDED_FILES = [
-    ("lib\\res\\img\\", RESOURCES.ALL),
-    ("lib\\bin\\exports\\",[BIN.Folders.EXPORTS+"default.csv"]),
-    ("lib\\bin\\reports\\",[BIN.Folders.REPORTS+"default.csv"]),
-    ("lib\\bin\\web_drivers\\",[BIN.Folders.WEB_DRIVERS+"chromedriver.exe"]),
+    ("lib\\res\\img\\", Resources.ALL),
+    ("lib\\bin\\exports\\", [BIN.Folders.EXPORTS + "default.csv"]),
+    ("lib\\bin\\reports\\", [BIN.Folders.REPORTS + "default.csv"]),
+    ("lib\\bin\\web_drivers\\", [BIN.Folders.WEB_DRIVERS + "chromedriver.exe"]),
     ("",
-     [
-      os.path.join(PYTHON_INSTALL_DIR, 'DLLs', 'tk86t.dll'),
-      os.path.join(PYTHON_INSTALL_DIR, 'DLLs', 'tcl86t.dll')
-      ]
-     )
+        [
+         os.path.join(PYTHON_INSTALL_DIR, 'DLLs', 'tk86t.dll'),
+         os.path.join(PYTHON_INSTALL_DIR, 'DLLs', 'tcl86t.dll')
+        ]
+    )
 ]
 
 setup(
@@ -44,10 +44,10 @@ setup(
     data_files=ESKY_INCLUDED_FILES,
     scripts=[
         Executable_Esky(
-            SCRIPTS.MAIN,
+            Scripts.MAIN,
             gui_only=True,
-            icon=RESOURCES.ICON,
+            icon=Resources.ICON,
         ),
     ],
-    executables=[Executable(SCRIPTS.MAIN, base="Win32GUI", targetName="Guerillo.exe")]
+    executables=[Executable(Scripts.MAIN, base="Win32GUI", targetName="Guerillo.exe")]
 )
