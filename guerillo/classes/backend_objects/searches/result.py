@@ -1,7 +1,7 @@
 from guerillo.backend.backend import Backend
 from guerillo.classes.backend_objects.auxiliary_object import AuxiliaryObject
 from guerillo.classes.backend_objects.backend_object import BackendType
-from guerillo.classes.backend_objects.search.search import Search, SearchState, SearchType, SearchMode
+from guerillo.classes.backend_objects.searches.search import Search, SearchMode
 
 
 class Result(Search):
@@ -83,9 +83,11 @@ class Result(Search):
 
     def from_dictionary(self, pyres=None, pyre=None, message_data=None):
         dictionary = super().from_dictionary(pyres=pyres, pyre=pyre, message_data=message_data)
-        self.num_results = dictionary.get("num_results", 0)
-        self.max_num_results = dictionary.get("max_num_results", 0)
-        self.result_item_uid_list = AuxiliaryObject.get_uid_list_from_dictionary(self, dictionary, v_index=1)
+        if dictionary:
+            self.num_results = dictionary.get("num_results", 0)
+            self.max_num_results = dictionary.get("max_num_results", 0)
+            self.result_item_uid_list = AuxiliaryObject.get_uid_list_from_dictionary(self, dictionary, v_index=1)
+        return dictionary
 
     def to_dictionary(self):
         main_dict = {

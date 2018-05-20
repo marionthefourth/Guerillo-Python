@@ -1,7 +1,7 @@
 from enum import Enum
 
-from guerillo.classes.backend_objects.backend_object import BackendType, BackendObject
-from guerillo.classes.backend_objects.result_item import ResultItem
+from guerillo.classes.backend_objects.backend_object import BackendType
+from guerillo.classes.backend_objects.result_items.result_item import ResultItem
 
 
 class ConfidenceLevel(Enum):

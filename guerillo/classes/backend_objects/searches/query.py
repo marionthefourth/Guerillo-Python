@@ -2,7 +2,7 @@ from datetime import datetime
 
 from guerillo.classes.backend_objects.auxiliary_object import AuxiliaryObject
 from guerillo.classes.backend_objects.backend_object import BackendType
-from guerillo.classes.backend_objects.search.search import Search, SearchType
+from guerillo.classes.backend_objects.searches.search import Search, SearchType
 from guerillo.utils.sanitizer import Sanitizer
 
 
@@ -114,7 +114,7 @@ class Query(Search):
         self.end_date = dictionary["end_date"]
         self.timestamp = dictionary["timestamp"]
         self.start_date = dictionary["start_date"]
-        self.county_uid_list = AuxiliaryObject.get_uid_list_from_dictionary(self, dictionary, v_index=1)
+        self.county_uid_list = AuxiliaryObject.get_uid_list_from_dictionary(self, dictionary, v_index=0)
 
         if self.s_type == SearchType.HOMEOWNER:
             self.lower_bound = dictionary["minimum_mortgage_amount"]
@@ -131,7 +131,7 @@ class Query(Search):
         if self.county_uid_list:
             return {
                 ** main_dict,
-                ** AuxiliaryObject.get_uid_dictionary_from_uid_list(self, self.county_uid_list, v_index=1)
+                ** AuxiliaryObject.get_uid_dictionary_from_uid_list(self, self.county_uid_list, v_index=0)
             }
         else:
             return main_dict
