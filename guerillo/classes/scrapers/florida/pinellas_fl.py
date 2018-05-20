@@ -119,13 +119,15 @@ class PinellasFL(Scraper):
         data_lists = FileStorage.read(file_name, county_filter=self.county.county_name)
         deeds = list()
         mortgages = list()
-        for item in data_lists:
-            if item[0] != "" and item[1] != "" and item[6] != "":
-                if item[3] == General.DEED:
-                    deeds.append(item)
-                elif item[3] == General.MORTGAGE:
-                    mortgages.append(item)
-        return deeds, mortgages
+        if data_lists:
+            for item in data_lists:
+                if item[0] != "" and item[1] != "" and item[6] != "":
+                    if item[3] == General.DEED:
+                        deeds.append(item)
+                    elif item[3] == General.MORTGAGE:
+                        mortgages.append(item)
+            return deeds, mortgages
+        raise FileNotFoundError
 
     def create_bookpage_list(self, deeds_list, mortgages_list):
         #  Check Mortgages for Leads
