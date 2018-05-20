@@ -18,11 +18,10 @@ from PIL import Image, ImageTk
 
 from guerillo.backend.backend import Backend
 from guerillo.classes.backend_objects.backend_object import BackendType
-from guerillo.classes.backend_objects.search.query import Query
-from guerillo.classes.backend_objects.search.result import Result
-from guerillo.classes.backend_objects.search.search import SearchState, SearchMode
+from guerillo.classes.backend_objects.searches.query import Query
+from guerillo.classes.backend_objects.searches.result import Result
+from guerillo.classes.backend_objects.searches.search import SearchState, SearchMode
 from guerillo.classes.backend_objects.user import User
-from guerillo.classes.scrapers.scraper import Scraper
 from guerillo.config import Folders, Resources
 from guerillo.threads.search_thread import SearchThread
 from guerillo.threads.signup_thread import SignupThread
@@ -172,7 +171,7 @@ class GUI:
                                                   fg="red")
                 self.expand_window(300, 260)
                 return
-            self.login_status_label.configure(text="Login successful! Loading search functions.", fg="green")
+            self.login_status_label.configure(text="Login successful! Loading searches functions.", fg="green")
             self.expand_window(400, 400)
             self.add_county_dropdown(self.entry_grid_frame, 1)
             self.login_screen.grid_remove()
@@ -222,20 +221,15 @@ class GUI:
             self.status_label = status_label
             for county in Backend.get_counties(state_name="FL", county_name=self.variable.get()):
                 self.query.county_uid_list.append(county.uid)
-                self.query.start()
+
+            self.query.start()
 
             # Now begin watching after the SearchResult by the UID generated within the SearchQuery
             self.result_stream = Backend.get().database() \
                 .child(Backend.get_type_folder(BackendType.RESULT)) \
                 .child(self.query.twin_uid).stream(self.result_stream_handler)
 
-            # This code will eventually be handled by the server side
-            # It is optionally done on the client-side
-            scraper = Scraper.get_county_scraper(
-                self.query,
-                FileStorage.get_full_path(Folders.EXPORTS),
-            )
-            scraper.run()
+
         else:
             self.status.configure(text=self.query.invalid_message())
 
@@ -541,7 +535,7 @@ class GUI:
         self.account_menu.add_command(label="Sign Out", command=lambda: self.sign_out())
 
     def create_entry_grid(self):
-        # build entry grid frame (grid layout for text entry components and search button)
+        # build entry grid frame (grid layout for text entry components and searches button)
         self.entry_grid_frame = tk.Frame(self.search_screen, bg="white")
         self.entry_grid_frame.place(in_=self.search_screen, anchor="c", relx=.50, rely=.45)
 
