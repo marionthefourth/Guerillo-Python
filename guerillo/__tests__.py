@@ -1,5 +1,5 @@
 from guerillo.backend.backend import Backend
-from guerillo.classes.backend_objects.search.query import Query
+from guerillo.classes.backend_objects.searches.query import Query
 from guerillo.classes.backend_objects.user import User
 from guerillo.classes.scrapers.florida.pinellas_fl import PinellasFL
 from guerillo.config import Folders
