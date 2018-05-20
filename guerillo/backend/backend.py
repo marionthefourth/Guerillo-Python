@@ -53,7 +53,7 @@ class Backend:
             result_objects = Backend.get().database().child(Backend.get_type_folder(data.b_type)).get()
 
             if data.b_type == BackendType.HOMEOWNER:
-                from guerillo.classes.backend_objects.homeowner import Homeowner
+                from guerillo.classes.backend_objects.result_items.homeowner import Homeowner
                 if result_objects.each():
                     for result_object in result_objects.each():
                         homeowner = Homeowner(pyre=result_object)
@@ -112,7 +112,7 @@ class Backend:
             # Delete Result Reference in SearchResult
             search_result_objects = Backend.get().database().child(Backend.get_type_folder(BackendType.RESULT)).get()
             for search_result_obj in search_result_objects.each():
-                from guerillo.classes.backend_objects.search.result import Result
+                from guerillo.classes.backend_objects.searches.result import Result
                 search_result = Result(pyre=search_result_obj, uid="")
                 before_size = len(search_result.result_item_list)
                 search_result.remove(data)
@@ -122,7 +122,11 @@ class Backend:
 
     @staticmethod
     def read(b_type=None, uid=None, full=True):
-        backend_obj = Backend.get().database().child(Backend.get_type_folder(b_type)).child(uid).get()
+        try:
+            backend_obj = Backend.get().database().child(Backend.get_type_folder(b_type)).child(uid).get()
+        except ValueError:
+            return None
+
         from guerillo.classes.backend_objects.backend_object import BackendType
         if b_type == BackendType.COUNTY:
             # Read County Data
@@ -145,12 +149,12 @@ class Backend:
             return AuxiliaryObject(b_type=b_type, pyres=backend_obj)
         elif b_type == BackendType.QUERY:
             # Read Search Query
-            from guerillo.classes.backend_objects.search.query import Query
+            from guerillo.classes.backend_objects.searches.query import Query
             return Query(pyres=backend_obj)
         elif b_type == BackendType.RESULT:
             # Read Search Result
-            from guerillo.classes.backend_objects.search.query import Query
-            from guerillo.classes.backend_objects.search.result import Result
+            from guerillo.classes.backend_objects.searches.query import Query
+            from guerillo.classes.backend_objects.searches.result import Result
             search_result = Result(pyres=backend_obj)
             if full:
                 # Then Read Search Query for that Result
@@ -159,8 +163,8 @@ class Backend:
 
                 # Then Read each Result Item for that Result
                 result_objects = Backend.get().database().child(Backend.get_type_folder(search_result.s_type)).get()
-                from guerillo.classes.backend_objects.homeowner import Homeowner
-                from guerillo.classes.backend_objects.search.result import SearchType
+                from guerillo.classes.backend_objects.result_items.homeowner import Homeowner
+                from guerillo.classes.backend_objects.searches.result import SearchType
                 for result_object in result_objects.each():
                     if search_result.s_type == SearchType.HOMEOWNER:
                         result_item = Homeowner(pyre=result_object, uid="")
@@ -171,7 +175,7 @@ class Backend:
         elif b_type.is_result():
             # Read Homeowner, Parcel, or Document
             if b_type == BackendType.HOMEOWNER:
-                from guerillo.classes.backend_objects.homeowner import Homeowner
+                from guerillo.classes.backend_objects.result_items.homeowner import Homeowner
                 return Homeowner(pyres=backend_obj)
             else:
                 raise RuntimeError("Invalid BackendType: " + b_type)
@@ -182,7 +186,7 @@ class Backend:
         from guerillo.classes.backend_objects.backend_object import BackendType
         search_result_objects = Backend.get().database().child(Backend.get_type_folder(BackendType.RESULT)).get()
         for search_result_obj in search_result_objects.each():
-            from guerillo.classes.backend_objects.search.result import Result
+            from guerillo.classes.backend_objects.searches.result import Result
             search_result = Result(pyre=search_result_obj, uid='')
             if uid:
                 if search_result.uid == uid:
@@ -195,6 +199,45 @@ class Backend:
             return None
         else:
             return search_results
+
+    @staticmethod
+    def get_search_queries(uid=None, with_results=False, all=True):
+        search_queries = list()
+        from guerillo.classes.backend_objects.backend_object import BackendType
+        if all and not (uid and all):
+            search_query_objects = Backend.get().database().child(Backend.get_type_folder(BackendType.QUERY)).get()
+            for search_query_obj in search_query_objects.each():
+                from guerillo.classes.backend_objects.searches.query import Query
+                search_query = Query(pyre=search_query_obj, uid='')
+                if all or uid and not with_results:
+                    if uid:
+                        if search_query.uid == uid:
+                            return search_query
+                    else:
+                        search_queries.append(search_query)
+                else:
+                    search_result = Backend.read(BackendType.RESULT, search_query.twin_uid, False)
+                    if search_result:
+                        if with_results:
+                            search_queries.append(search_query)
+                    else:
+                        if not with_results:
+                            search_queries.append(search_query)
+
+            if uid:
+                return None
+            else:
+                return search_queries
+        else:
+            search_query = Backend.read(BackendType.QUERY, uid)
+            search_result = Backend.read(BackendType.RESULT, search_query.twin_uid, False)
+            if search_result.twin_uid:
+                if with_results:
+                    return search_query
+            else:
+                if not with_results:
+                    return search_query
+            return None
 
     @staticmethod
     def get_users(email_or_username=None):
@@ -272,7 +315,7 @@ class Backend:
         }.get(b_type, None)
 
         if not folder:
-            from guerillo.classes.backend_objects.search.search import SearchType
+            from guerillo.classes.backend_objects.searches.search import SearchType
             folder = {
                 SearchType.HOMEOWNER: "homeowners",
                 SearchType.PARCEL: "parcels",
