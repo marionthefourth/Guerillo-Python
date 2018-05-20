@@ -259,7 +259,7 @@ class GUI:
 
     def create_core_window(self):
         self.root = tk.Tk()
-        self.root.title("9.161 Guerillo")
+        self.root.title("Guerillo")
         self.root.iconbitmap(self.images_path + 'phone.ico')
         self.root.geometry('300x250')  # syntax is 'WidthxHeight'
         self.root.resizable(width=False, height=False)

@@ -29,7 +29,7 @@ ESKY_INCLUDED_FILES = [
 
 setup(
     name="Guerillo",
-    version="0.9.161",
+    version="0.9.188",
     author="Panoramic, Co.",
     options={
         "build_exe": {
