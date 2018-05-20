@@ -162,15 +162,8 @@ class Backend:
                 search_result.result_item_list = list()
 
                 # Then Read each Result Item for that Result
-                result_objects = Backend.get().database().child(Backend.get_type_folder(search_result.s_type)).get()
-                from guerillo.classes.backend_objects.result_items.homeowner import Homeowner
-                from guerillo.classes.backend_objects.searches.result import SearchType
-                for result_object in result_objects.each():
-                    if search_result.s_type == SearchType.HOMEOWNER:
-                        result_item = Homeowner(pyre=result_object, uid="")
-                        for result_item_uid in search_result.result_item_uid_list:
-                            if result_item_uid == result_item.uid:
-                                search_result.result_item_list.append(result_item)
+                for result_item_uid in search_result.result_item_uid_list:
+                    search_result.result_item_list.append(Backend.read(BackendType.HOMEOWNER, result_item_uid))
             return search_result
         elif b_type.is_result():
             # Read Homeowner, Parcel, or Document

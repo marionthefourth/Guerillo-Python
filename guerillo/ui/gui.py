@@ -219,17 +219,20 @@ class GUI:
         if self.query.is_valid():
             self.sanitize_input_fields(self.query)
             self.status_label = status_label
-            for county in Backend.get_counties(state_name="FL", county_name=self.variable.get()):
-                self.query.county_uid_list.append(county.uid)
+            # Search by user's accessible counties first and if it isn't in the list they are doing something wrong
 
-            self.query.start()
+            for county in self.user.keychain.get_connected_items():
+                if county.county_name == self.variable.get():
+                    self.query.county_uid_list.append(county.uid)
+            if len(self.query.county_uid_list) > 0:
+                self.query.start()
 
-            # Now begin watching after the SearchResult by the UID generated within the SearchQuery
-            self.result_stream = Backend.get().database() \
-                .child(Backend.get_type_folder(BackendType.RESULT)) \
-                .child(self.query.twin_uid).stream(self.result_stream_handler)
-
-
+                # Now begin watching after the SearchResult by the UID generated within the SearchQuery
+                self.result_stream = Backend.get().database() \
+                    .child(Backend.get_type_folder(BackendType.RESULT)) \
+                    .child(self.query.twin_uid).stream(self.result_stream_handler)
+            else:
+                print("Search not valid.")
         else:
             self.status.configure(text=self.query.invalid_message())
 
