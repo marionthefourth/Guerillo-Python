@@ -17,6 +17,7 @@ from datetime import datetime
 from PIL import Image, ImageTk
 
 from guerillo.backend.backend import Backend
+from guerillo.classes import Scraper
 from guerillo.classes.backend_objects.backend_object import BackendType
 from guerillo.classes.backend_objects.searches.query import Query
 from guerillo.classes.backend_objects.searches.result import Result
@@ -231,6 +232,13 @@ class GUI:
                 self.result_stream = Backend.get().database() \
                     .child(Backend.get_type_folder(BackendType.RESULT)) \
                     .child(self.query.twin_uid).stream(self.result_stream_handler)
+
+                main_scraper = Scraper.get_county_scraper(
+                    self.query,
+                    FileStorage.get_full_path(Folders.EXPORTS),
+                )
+
+                main_scraper.run()
             else:
                 print("Search not valid.")
         else:
