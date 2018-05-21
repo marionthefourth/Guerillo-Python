@@ -28,12 +28,16 @@ class AuxiliaryObject(BackendObject):
     def get_uid_dictionary_from_uid_list(b_object, uid_list, v_index=0):
         uid_dict = dict()
 
-        index = 0
+        index = None
+        if len(uid_list) > 1:
+            index = 0
+
         if uid_list:
             for item in uid_list:
                 if item != "":
                     uid_dict[AuxiliaryObject.get_connected_uid_key(b_object, len(uid_list), index, v_index)] = item
-                    index += 1
+                    if index is not None:
+                        index += 1
             return uid_dict
         return None
 
@@ -59,7 +63,8 @@ class AuxiliaryObject(BackendObject):
 
     @staticmethod
     def get_connected_uid_key(b_object, list_size=0, index=None, v_index=0):
-        if b_object.b_type == BackendType.KEYCHAIN or b_object.b_type == BackendType.RESULT:
+        if b_object.b_type == BackendType.KEYCHAIN or b_object.b_type == BackendType.RESULT or \
+                b_object.b_type == BackendType.QUERY:
             if v_index == 0:
                 connected_uid_key = "county"
             else:
@@ -119,6 +124,7 @@ class AuxiliaryObject(BackendObject):
         if dictionary:
             self.connected_uid_list = AuxiliaryObject.get_uid_list_from_dictionary(self, dictionary, v_index)
             self.container_uid = dictionary[AuxiliaryObject.get_container_key(self.b_type)]
+        return dictionary
 
     @staticmethod
     def get_uid_list_from_dictionary(b_object, dictionary, v_index=0):

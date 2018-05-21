@@ -1,9 +1,8 @@
+from guerillo.classes.backend_objects import BackendType, BackendObject
 from guerillo.classes.backend_objects.auxiliary_object import AuxiliaryObject
-from guerillo.classes.backend_objects.backend_object import BackendObject, BackendType
 
 
 class User(BackendObject):
-
     b_type = BackendType.USER
 
     def __init__(self, email=None, username=None, password=None, full_name=None, uid=None, keychain=None,
@@ -86,10 +85,12 @@ class User(BackendObject):
 
     def from_dictionary(self, pyres=None, pyre=None):
         dictionary = super().from_dictionary(pyres=pyres, pyre=pyre)
-        self.email = dictionary["email"]
-        self.username = dictionary["username"]
-        self.full_name = dictionary["full_name"]
-        self.keychain.uid = dictionary["keychain_uid"]
+        if dictionary:
+            self.email = dictionary["email"]
+            self.username = dictionary["username"]
+            self.full_name = dictionary["full_name"]
+            self.keychain.uid = dictionary["keychain_uid"]
+        return dictionary
 
     def to_dictionary(self):
         return {

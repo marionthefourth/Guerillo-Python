@@ -62,7 +62,7 @@ class BackendObject:
         elif message_data:
             return message_data
         else:
-            raise ValueError
+            return None
 
         return dictionary
 
@@ -70,8 +70,7 @@ class BackendObject:
         dictionary = BackendObject.pyres_to_dictionary(pyres=pyres, pyre=pyre, message_data=message_data)
         if dictionary:
             self.uid = dictionary["uid"]
-            return dictionary
-        raise ValueError
+        return dictionary
 
     def to_dictionary(self):
         return {"uid": self.uid}

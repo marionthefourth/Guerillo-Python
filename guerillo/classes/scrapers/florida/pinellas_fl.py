@@ -4,16 +4,13 @@ Created on Sun Apr 22 21:14:10 2018
 
 @author: Panoramic, Co.
 """
-import os
 from datetime import datetime
 
 import bs4
 from selenium.webdriver.common.keys import Keys
 
-from guerillo.backend.backend import Backend
 from guerillo.classes.backend_objects.county import County
-from guerillo.classes.backend_objects.homeowner import Homeowner
-from guerillo.classes.backend_objects.search.search import SearchState, SearchMode
+from guerillo.classes.backend_objects.result_items.homeowner import Homeowner
 from guerillo.classes.scrapers.scraper import Scraper
 from guerillo.config import URLs, General, HTML, Folders, KeyFiles
 from guerillo.utils.driver_utils.actions.action import Operation, ActionType
@@ -122,13 +119,15 @@ class PinellasFL(Scraper):
         data_lists = FileStorage.read(file_name, county_filter=self.county.county_name)
         deeds = list()
         mortgages = list()
-        for item in data_lists:
-            if item[0] != "" and item[1] != "" and item[6] != "":
-                if item[3] == General.DEED:
-                    deeds.append(item)
-                elif item[3] == General.MORTGAGE:
-                    mortgages.append(item)
-        return deeds, mortgages
+        if data_lists:
+            for item in data_lists:
+                if item[0] != "" and item[1] != "" and item[6] != "":
+                    if item[3] == General.DEED:
+                        deeds.append(item)
+                    elif item[3] == General.MORTGAGE:
+                        mortgages.append(item)
+            return deeds, mortgages
+        raise FileNotFoundError
 
     def create_bookpage_list(self, deeds_list, mortgages_list):
         #  Check Mortgages for Leads
@@ -245,8 +244,10 @@ class PinellasFL(Scraper):
         return renamed_downloaded_file_name
 
     def run(self):
+        super().run()
         self.create_report_list()  # Assign New Data (Deeds & Mortgages)
         self.driver_utils.quit()
+        self.busy = False
 
     # ---Handy Legend---
     # [0] = Direct Name

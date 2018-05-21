@@ -2,7 +2,7 @@ from datetime import datetime
 
 from guerillo.classes.backend_objects.auxiliary_object import AuxiliaryObject
 from guerillo.classes.backend_objects.backend_object import BackendType
-from guerillo.classes.backend_objects.search.search import Search, SearchType
+from guerillo.classes.backend_objects.searches.search import Search, SearchType
 from guerillo.utils.sanitizer import Sanitizer
 
 
@@ -52,7 +52,7 @@ class Query(Search):
         self.lower_bound = Sanitizer.numeric_bound(sanitized_lower_bound, full=True)
         self.upper_bound = Sanitizer.numeric_bound(sanitized_upper_bound, full=True)
 
-        if sanitized_lower_bound <= 0:
+        if sanitized_lower_bound < 0:
             return False, "Minimum mortgage amount must be a positive whole number"
 
         if sanitized_upper_bound <= 0:
@@ -111,14 +111,16 @@ class Query(Search):
 
     def from_dictionary(self, pyres=None, pyre=None, message_data=None):
         dictionary = super().from_dictionary(pyres, pyre, message_data)
-        self.end_date = dictionary["end_date"]
-        self.timestamp = dictionary["timestamp"]
-        self.start_date = dictionary["start_date"]
-        self.county_uid_list = AuxiliaryObject.get_uid_list_from_dictionary(self, dictionary, v_index=1)
+        if dictionary:
+            self.end_date = dictionary.get("end_date", None)
+            self.timestamp = dictionary.get("timestamp", None)
+            self.start_date = dictionary.get("start_date", None)
+            self.county_uid_list = AuxiliaryObject.get_uid_list_from_dictionary(self, dictionary, v_index=0)
 
-        if self.s_type == SearchType.HOMEOWNER:
-            self.lower_bound = dictionary["minimum_mortgage_amount"]
-            self.upper_bound = dictionary["maximum_mortgage_amount"]
+            if self.s_type == SearchType.HOMEOWNER:
+                self.lower_bound = dictionary.get("minimum_mortgage_amount", None)
+                self.upper_bound = dictionary.get("maximum_mortgage_amount", None)
+        return dictionary
 
     def to_dictionary(self):
         main_dict = {
@@ -131,7 +133,7 @@ class Query(Search):
         if self.county_uid_list:
             return {
                 ** main_dict,
-                ** AuxiliaryObject.get_uid_dictionary_from_uid_list(self, self.county_uid_list, v_index=1)
+                ** AuxiliaryObject.get_uid_dictionary_from_uid_list(self, self.county_uid_list, v_index=0)
             }
         else:
             return main_dict

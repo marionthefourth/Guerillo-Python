@@ -9,7 +9,7 @@ class County(BackendObject):
     b_type = BackendType.COUNTY
 
     def __init__(self, state_fips=None, county_fips=None, key=None, state_name=None, county_name=None,
-                 uid=None, lock=None, request_queue=None, pyres=None, pyre=None):
+                 uid=None, lock=None, request_queue=None, pyres=None, pyre=None, message_data=None):
         super().__init__(uid=uid)
         self.state_fips = state_fips
         self.state_name = state_name
@@ -31,7 +31,7 @@ class County(BackendObject):
                 self.request_queue = request_queue
 
         else:
-            self.from_dictionary(pyres=pyres, pyre=pyre)
+            self.from_dictionary(pyres=pyres, pyre=pyre, message_data=message_data)
 
     def __repr__(self):
         return super().__repr__() + self.get_full_fips_code() + " - " + self.county_name + ", " + self.state_name
@@ -78,7 +78,7 @@ class County(BackendObject):
     def get_state_and_county(self):
         return self.county_name + ", " + self.state_name
 
-    def from_dictionary(self, pyres=None, pyre=None):
+    def from_dictionary(self, pyres=None, pyre=None, message_data=None):
         dictionary = super().from_dictionary(pyres=pyres, pyre=pyre)
         if dictionary:
             self.state_name = dictionary["state_name"]
@@ -88,6 +88,7 @@ class County(BackendObject):
             self.key = dictionary["key"].encode("utf-8")
             self.lock.uid = dictionary["lock_uid"]
             self.request_queue.uid = dictionary["request_queue_uid"]
+        return dictionary
 
     def to_dictionary(self):
         return {

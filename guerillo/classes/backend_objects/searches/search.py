@@ -96,13 +96,14 @@ class Search(BackendObject):
 
     def from_dictionary(self, pyres=None, pyre=None, message_data=None):
         dictionary = super().from_dictionary(pyres=pyres, pyre=pyre, message_data=message_data)
-        self.user_uid = dictionary.get("user_uid", None)
-        self.end_time = dictionary.get("end_time", None)
-        self.start_time = dictionary.get("start_time", None)
-        self.twin_uid = dictionary.get(self.get_twin_key(), None)
-        self.s_type = SearchType.from_string(dictionary.get("search_type", None))
-        self.s_mode = SearchMode.from_string(dictionary.get("search_mode", None))
-        self.s_state = SearchState.from_string(dictionary.get("search_state", None))
+        if dictionary:
+            self.user_uid = dictionary.get("user_uid", None)
+            self.end_time = dictionary.get("end_time", None)
+            self.start_time = dictionary.get("start_time", None)
+            self.twin_uid = dictionary.get(self.get_twin_key(), None)
+            self.s_type = SearchType.from_string(dictionary.get("search_type", None))
+            self.s_mode = SearchMode.from_string(dictionary.get("search_mode", None))
+            self.s_state = SearchState.from_string(dictionary.get("search_state", None))
         return dictionary
 
     def get_twin_key(self):
@@ -145,16 +146,16 @@ class Search(BackendObject):
         Backend.update(self)
 
     def is_done_numbering_results(self):
-        return self.s_state != SearchState.NUMBERING_RESULTS and self.s_state != SearchState.DEFAULT
+        return self.s_state.value > SearchState.NUMBERING_RESULTS.value
 
     def is_done_searching_by_bookpage(self):
-        return self.is_done_numbering_results() and self.s_state != SearchState.SEARCH_BY_BOOKPAGE
+        return self.s_state.value > SearchState.SEARCH_BY_BOOKPAGE.value
 
     def is_done_searching_by_name(self):
-        return self.is_done_searching_by_bookpage() and self.s_state != SearchState.SEARCH_BY_NAME
+        return self.s_state.value > SearchState.SEARCH_BY_NAME.value
 
     def is_done_cleaning_entries(self):
-        return self.is_done_searching_by_name() and self.s_state != SearchState.ENTRY_CLEANING
+        return self.s_state.value > SearchState.ENTRY_CLEANING.value
 
     def start(self):
         self.start_time = datetime.now()

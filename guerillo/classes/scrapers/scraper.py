@@ -1,17 +1,18 @@
 from guerillo.backend.backend import Backend
 from guerillo.classes.backend_objects.backend_object import BackendType
-from guerillo.classes.backend_objects.search.result import Result
+from guerillo.classes.backend_objects.searches.result import Result
 from guerillo.utils.sanitizer import Sanitizer
 
 
 class Scraper(object):
     county = None
+    busy = False
 
     @staticmethod
     def get_county_scraper(search_query=None, exports_path=None):
         for county_scraper in Scraper.get_all_counties():
             for county_uid in search_query.county_uid_list:
-                county = Backend.read(BackendType.COUNTY, uid=county_uid)
+                county = Backend.read(BackendType.COUNTY, uid=county_uid, full=False)
                 if county_scraper.__name__ == Sanitizer.county_name(county.county_name) + county.state_name:
                     return county_scraper(search_query, exports_path)
 
@@ -33,4 +34,5 @@ class Scraper(object):
         self.search_result = Result(self.search_result.query)
 
     def run(self):
+        self.busy = True
         pass
