@@ -1,7 +1,8 @@
 
 import os, subprocess, shutil, sys
+from distutils.dir_util import copy_tree
 
-""" JERRYRIGGED IMPORT TIME"""
+""" These classes inserted here to avoid issues with freezing due to file location requirements"""
 class Version:
     def __init__(self, split_version_name):
         self.major = int(split_version_name[0])
@@ -89,17 +90,27 @@ class VersionFinder:
         for version in my_version_object_list:
             if version.get_full_version_name() != newest_version:
                 shutil.rmtree(os.path.join(path, version.get_full_version_name()), ignore_errors=False)
-"""End of Gh-JERRYrigged import"""
 
-#find newest version, assign it, then clear any old versions
+#find newest version, assign it, clear out any residual old folders (should be a rare occurence)
 newestversion = VersionFinder.get_newest_version()
+path = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])),"appdata")
+newest_version_folder = os.path.join(path, newestversion)
 VersionFinder.clear_old_versions(newestversion)
 #open the main file in the proper version folder
-path = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])),"appdata")
-folder_to_run_from = os.path.join(path,newestversion)
-file_to_run = folder_to_run_from+"\\__main__.exe"
+file_to_run = newest_version_folder + "\\__main__.exe"
 subprocess.call(file_to_run)
+#at this line, that user's session with the program is over
+#we just need to cache all the reports from the program's files to our cache
+#then copy the cache right back
+#with the update=True function, it will only be adding missing/new files (in either direction)
 
+#we just need to re-find newest version in case the user has updated in that session
+newestversion = VersionFinder.get_newest_version()
+newest_version_folder = os.path.join(path, newestversion)
+#now we can copy from program directory -> cahce
+reports_folder = os.path.join(os.path.join(os.path.join(newest_version_folder,"lib"),"bin"),"reports")
+reports_cache = os.path.join(path, "reports_cache")
+copy_tree(reports_folder, reports_cache,update=True)
+#then just do it in reverse
+copy_tree(reports_cache,reports_folder,update=True)
 
-
-#if AutoUpdater had to run, re-do the above
