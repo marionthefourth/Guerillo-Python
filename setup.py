@@ -1,3 +1,4 @@
+import setuptools
 import os.path
 import guerillo.utils.file_storage as fs
 from cx_Freeze import setup, Executable
@@ -28,7 +29,7 @@ ESKY_INCLUDED_FILES = [
 
 setup(
     name="Guerillo",
-    version="0.10.0",
+    version="0.10.1",
     author="Panoramic, Co.",
     options={
         "build_exe": {
@@ -43,8 +44,7 @@ setup(
     data_files=ESKY_INCLUDED_FILES,
     scripts=[
         Executable_Esky(
-            #Scripts.MAIN,
-            r"C:\Users\Kenneth\Documents\GitHub\GuerilloPython\guerillo\__main__.py",
+            Scripts.MAIN,
             gui_only=True,
             icon=fs.FileStorage.get_image(Resources.ICON),
         ),
