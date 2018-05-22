@@ -175,3 +175,14 @@ lib/python3.6/site-packages/pip-9.0.1-py3.6.egg/pip/_vendor/pkg_resources/__init
 lib/python3.6/site-packages/pip-9.0.1-py3.6.egg/pip/_vendor/requests/packages/chardet/hebrewprober.py
 .idea/workspace.xml
 *.zip
+<<<<<<< HEAD
+=======
+dist/Guerillo-0.9.0.win32.zip
+Guerillo.egg-info/dependency_links.txt
+Guerillo.egg-info/PKG-INFO
+Guerillo.egg-info/SOURCES.txt
+Guerillo.egg-info/top_level.txt
+top_level_support_functions/dist/StartGuerillo-1.0.0.win32.zip
+top_level_support_functions/dist/StartGuerillo-1.0.0.win32.zip
+>>>>>>> 6a5636d3d54968d26ca1bd62ffb383d064c978a4
+*.zip

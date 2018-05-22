@@ -304,7 +304,7 @@ class GUI:
 
     def create_core_window(self):
         self.root = tk.Tk()
-        self.root.title("Geurillo")
+        self.root.title("Guerillo")
         self.root.iconbitmap(FileStorage.get_image(Resources.ICON))
         self.root.geometry('300x250')  # syntax is 'WidthxHeight'
         self.root.resizable(width=False, height=False)
@@ -625,8 +625,7 @@ class GUI:
         self.current_county_label.configure(text=self.variable.get())
 
     def add_guerillo_header(self, grid_target, row_placement):
-        self.guerillo_header = tk.Label(grid_target, bg="white", text="Guerillo",
-                                        font=("Constantia", 40))  # 40
+        self.guerillo_header = tk.Label(grid_target, bg="white", text="Guerillo", font=("Constantia", 40))
         self.guerillo_header.grid(row=row_placement, column=0, columnspan=2, pady=3)
 
     def add_search_query_elements(self, grid_target, row_count):
