@@ -4,11 +4,13 @@ from guerillo.classes.backend_objects.user import User
 from guerillo.classes.scrapers.florida.pinellas_fl import PinellasFL
 from guerillo.config import Folders
 from guerillo.utils.file_storage import FileStorage
+from guerillo.classes.backend_objects import county
 
 
 def user_tests():
+
     # print(Backend.get_users(email_or_username="me@marionrucker.com"))
-    print(Backend.sign_in(User(email="marionthefourth", password="254theFOURTH452")))
+    print(Backend.sign_in(User(email="cbettez@xxifinancial.com", password="Colton2018")))
 
 
 def query_validation_tests():
@@ -68,6 +70,11 @@ def access_tests():
 
 
 def pinellas_tests():
+    """ to register to user """
+    user = Backend.sign_in(User(email=PUTEMAILHERE, password=PUTPASSWORDHERE))
+    pinellas_county = Backend.get_counties(county_name="Pinellas County", state_name="FL")
+    pinellas_county[0].register_to_user(user)
+    """"""
     search_query = Query(start_date="04/19/2018", end_date="04/20/2018", lower_bound="200000",
                          upper_bound="600000")
     pinellas = PinellasFL(search_query, exports_path=FileStorage.get_full_path(Folders.EXPORTS))
