@@ -246,7 +246,7 @@ class Scripts:
     UTILS_ALL = [SANITIZER, DRIVER_UTILS, FILE_STORAGE, CENSUS_COUNTY_API, ABBREV_TO_NAME, NAME_TO_ABBREV,
                  STATE_CODIFIER, AUTO_UPDATER]
     # General Files
-    MAIN = Folders.GUERILLO + "Guerillo.py"
+    MAIN = Folders.GUERILLO + "__main__.py"
     TESTS = Folders.GUERILLO + "__tests__.py"
     CONFIG = Folders.GUERILLO + "config.py"
     GUI = Folders.GUERILLO + "gui.py"
@@ -281,7 +281,7 @@ class Resources:
     ]
 
 
-class BIN:
+class Bin:
     class Folders:
         BIN = "bin\\"
         WEB_DRIVERS = BIN + "web_drivers\\"
