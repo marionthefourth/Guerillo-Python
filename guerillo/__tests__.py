@@ -1,7 +1,7 @@
 from guerillo.backend.backend import Backend
-from guerillo.classes.backend_objects.search_query import SearchQuery
+from guerillo.classes.backend_objects.searches.query import Query
 from guerillo.classes.backend_objects.user import User
-from guerillo.classes.scrapers.pinellas import Pinellas
+from guerillo.classes.scrapers.florida.pinellas_fl import PinellasFL
 from guerillo.config import Folders
 from guerillo.utils.file_storage import FileStorage
 
@@ -17,7 +17,7 @@ def query_validation_tests():
     start_date = "5\\3-2018"
     end_date = "05/24/2018"
 
-    search_query = SearchQuery(start_date, end_date, lower_bound, upper_bound)
+    search_query = Query(start_date, end_date, lower_bound, upper_bound)
 
     print(search_query)
     print(" - - - ")
@@ -54,7 +54,7 @@ def access_tests():
     print(test_user.has_access_to(county_uid=marion_county.uid))
     print("- - - - ")
 
-    print(test_user.__str__() + " has access to " + "Florida:")
+    print(test_user.__str__() + " has access to " + "florida:")
     print(test_user.has_access_to(state_name="FL"))
     print("- - - - ")
 
@@ -68,7 +68,7 @@ def access_tests():
 
 
 def pinellas_tests():
-    search_query = SearchQuery(start_date="04/19/2018", end_date="04/20/2018", lower_bound="200000",
-                               upper_bound="600000")
-    pinellas = Pinellas(search_query, exports_path=FileStorage.get_full_path(Folders.EXPORTS))
+    search_query = Query(start_date="04/19/2018", end_date="04/20/2018", lower_bound="200000",
+                         upper_bound="600000")
+    pinellas = PinellasFL(search_query, exports_path=FileStorage.get_full_path(Folders.EXPORTS))
     pinellas.run()

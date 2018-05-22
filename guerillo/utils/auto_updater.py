@@ -3,7 +3,7 @@ from tkinter import messagebox
 import esky as esky
 import tkinter as tk
 from tkinter import ttk
-from guerillo.config import RESOURCES
+from guerillo.config import Resources
 
 
 class AutoUpdater:

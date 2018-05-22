@@ -1,12 +1,8 @@
 import sys,  os
 import tkinter as tk
 from tkinter import messagebox
-from guerillo.gui import GUI
+from guerillo.ui.gui import GUI
 from guerillo.utils.auto_updater import AutoUpdater
-
-#Functional....
-#It should finally be functional....
-#*tears of joy*
 
 did_update = AutoUpdater.run()
 if did_update:
@@ -18,3 +14,4 @@ if did_update:
     messagebox.showinfo("Update complete","Finished getting a fresh version of Guerillo.\nRe-open Guerillo to get started!")
 else:
     gui = GUI()
+

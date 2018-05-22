@@ -12,21 +12,23 @@ import subprocess
 import tkinter as tk
 import tkinter.constants as tc
 import webbrowser
-from tkinter import messagebox
+from datetime import datetime
 
 from PIL import Image, ImageTk
 
 from guerillo.backend.backend import Backend
-from guerillo.classes.backend_objects.county import County
-from guerillo.classes.backend_objects.search_query import SearchQuery
+from guerillo.classes import Scraper
+from guerillo.classes.backend_objects.backend_object import BackendType
+from guerillo.classes.backend_objects.searches.query import Query
+from guerillo.classes.backend_objects.searches.result import Result
+from guerillo.classes.backend_objects.searches.search import SearchState, SearchMode
 from guerillo.classes.backend_objects.user import User
-from guerillo.classes.scrapers.pinellas import Pinellas
-from guerillo.classes.scrapers.scraper import Scraper
-from guerillo.config import Folders
+from guerillo.config import Folders, Resources
 from guerillo.threads.search_thread import SearchThread
 from guerillo.threads.signup_thread import SignupThread
 from guerillo.utils.auto_updater import AutoUpdater
 from guerillo.utils.file_storage import FileStorage
+from guerillo.utils.sanitizer import Sanitizer
 
 
 class GUI:
@@ -35,8 +37,9 @@ class GUI:
     signed_in = False
     search_button_image = None
     search_button_greyscale_image = None
+    result_stream = None
 
-    def expand_window(self,width_target, height_target):
+    def expand_window(self, width_target, height_target):
         base_speed = 4.0
         window_width = int(self.root.geometry().split("+")[0].split("x")[0])
         window_height = int(self.root.geometry().split("+")[0].split("x")[1])
@@ -82,7 +85,7 @@ class GUI:
                 window_width = int(self.root.geometry().split("+")[0].split("x")[0])
                 window_height = int(self.root.geometry().split("+")[0].split("x")[1])
 
-    def contract_window(self,width_target, height_target):
+    def contract_window(self, width_target, height_target):
         base_speed = 4.0
         window_width = int(self.root.geometry().split("+")[0].split("x")[0])
         window_height = int(self.root.geometry().split("+")[0].split("x")[1])
@@ -137,7 +140,8 @@ class GUI:
                 break
         if colorize:
             if not self.search_button_image:
-                self.search_button_image = ImageTk.PhotoImage(Image.open(self.images_path + "search_button.png"))
+                self.search_button_image = ImageTk.PhotoImage(
+                    Image.open(FileStorage.get_image(Resources.SEARCH_BUTTON)))
             self.search_button.configure(image=self.search_button_image)
             self.search_button.config(command=lambda: self.search_button_method(self.entry_fields_list,
                                                                                 self.status
@@ -146,7 +150,7 @@ class GUI:
         else:
             if not self.search_button_greyscale_image:
                 self.search_button_greyscale_image = ImageTk.PhotoImage(
-                    Image.open(self.images_path + "search_button_greyscale.png"))
+                    Image.open(FileStorage.get_image(Resources.SEARCH_BUTTON_GREYSCALE)))
             self.search_button.configure(image=self.search_button_greyscale_image)
             self.search_button.config(command=lambda: self.do_nothing)
 
@@ -166,9 +170,9 @@ class GUI:
             if counties is None:
                 self.login_status_label.configure(text="No counties available.\nEmail support@panoramic.email.",
                                                   fg="red")
-                self.expand_window(300,260)
+                self.expand_window(300, 260)
                 return
-            self.login_status_label.configure(text="Login successful! Loading search functions.", fg="green")
+            self.login_status_label.configure(text="Login successful! Loading searches functions.", fg="green")
             self.expand_window(400, 400)
             self.add_county_dropdown(self.entry_grid_frame, 1)
             self.login_screen.grid_remove()
@@ -211,28 +215,69 @@ class GUI:
         for field_reference in fields_list:
             input_list.append(field_reference.get())
 
-        query = SearchQuery(inputs=input_list)
+        self.query = Query(inputs=input_list, user_uid=self.user.uid)
 
-        if query.is_valid():
-            self.sanitize_input_fields(query)
-            scraper = Scraper.get_county_scraper(
-                self.pull_spinner_data(),
-                query,FileStorage.get_full_path(Folders.EXPORTS),
-                status_label
-            )
-            scraper.run()
-            # pinellas_instance = Pinellas(
-            #     search_query=query,
-            #     exports_path=FileStorage.get_full_path(Folders.EXPORTS),
-            #     status_label=status_label
-            # )
-            # pinellas_instance.run()
-            status_label.configure(text="Ready to search.")
+        if self.query.is_valid():
+            self.sanitize_input_fields(self.query)
+            self.status_label = status_label
+            # Search by user's accessible counties first and if it isn't in the list they are doing something wrong
+
+            for county in self.user.keychain.get_connected_items():
+                if county.county_name == self.variable.get():
+                    self.query.county_uid_list.append(county.uid)
+            if len(self.query.county_uid_list) > 0:
+                self.query.start()
+
+                # Now begin watching after the SearchResult by the UID generated within the SearchQuery
+                self.result_stream = Backend.get().database() \
+                    .child(Backend.get_type_folder(BackendType.RESULT)) \
+                    .child(self.query.twin_uid).stream(self.result_stream_handler)
+
+                main_scraper = Scraper.get_county_scraper(
+                    self.query,
+                    FileStorage.get_full_path(Folders.EXPORTS),
+                )
+
+                main_scraper.run()
+            else:
+                print("Search not valid.")
         else:
-            self.status.configure(text=query.invalid_message())
+            self.status.configure(text=self.query.invalid_message())
+
+    def result_stream_handler(self, message):
+        if message["data"] and not self.query.is_done():
+            self.update_status_via_state(Result(message_data=message["data"]))
+
+    def update_status_via_state(self, result):
+        if result.s_state == SearchState.NUMBERING_RESULTS:
+            self.status_label.configure(text="Processing " + str(result.max_num_results) + " items")
+        elif result.s_state == SearchState.SEARCH_BY_BOOKPAGE:
+            self.status_label.configure(
+                text="Handling item " + str(result.num_results) + " of " +
+                     str(result.max_num_results))
+        elif result.s_state == SearchState.SEARCH_BY_NAME:
+            self.status_label.configure(text="Taking a deeper look at item " + str(result.num_results) + " of " +
+                                             str(result.max_num_results))
+        elif result.s_state == SearchState.ENTRY_CLEANING:
+            pass
+        elif result.is_done():
+            self.query.change_mode(SearchMode.DONE)
+            self.status_label.configure(text="Successfully found " +
+                                             str(result.num_results) + " results. Wrapping up.")
+            # Now need to create the csv file based on the result
+            report_file_name = FileStorage.get_full_path(Folders.REPORTS) + datetime.now().strftime(
+                "%Y-%m-%d %H-%M.csv")
+            final_result = Backend.read(BackendType.RESULT, result.uid)
+            FileStorage.save_data_to_csv(report_file_name, final_result.to_list())
+            os.startfile(report_file_name)
+            self.status_label.configure(text="Ready to search.")
+        elif result.s_mode == SearchMode.START:
+            self.status_label.configure(text="Search starting")
+            self.status_label.configure(text="Searching...")
+            # self.status_label.configure(text="Now processing " + str(len(self.search_result.results_copy)) + " items")
 
     def pull_spinner_data(self):
-        return County(state_name="FL",county_name=self.variable.get())
+        return Sanitizer.county_name(self.variable.get()) + "FL"
 
     def sanitize_input_fields(self, search_query):
         self.lower_bound_input.delete(0, tk.END)
@@ -243,11 +288,11 @@ class GUI:
         self.start_date_input.insert(0, search_query.start_date)
         self.end_date_input.delete(0, tk.END)
         self.end_date_input.insert(0, search_query.end_date)
-   
+
     def clear_inputs(self):
         for field_reference in self.entry_fields_list:
             field_reference.delete(0, 'end')
-        self.search_button_greyscale_source_image = Image.open(self.images_path + "search_button_greyscale.png")
+        self.search_button_greyscale_source_image = Image.open(FileStorage.get_image(Resources.SEARCH_BUTTON_GREYSCALE))
         self.search_button_greyscale_image = ImageTk.PhotoImage(self.search_button_greyscale_source_image)
         self.search_button.configure(image=self.search_button_greyscale_image)
         self.search_button.config(command=lambda: self.do_nothing)
@@ -260,7 +305,7 @@ class GUI:
     def create_core_window(self):
         self.root = tk.Tk()
         self.root.title("Guerillo")
-        self.root.iconbitmap(self.images_path + 'phone.ico')
+        self.root.iconbitmap(FileStorage.get_image(Resources.ICON))
         self.root.geometry('300x250')  # syntax is 'WidthxHeight'
         self.root.resizable(width=False, height=False)
         self.root.config(background="white")
@@ -327,7 +372,7 @@ class GUI:
         self.signup_password_check_entry.bind("<Return>", self.enter_signup)
 
         # signup button
-        self.signup_button_source_image = Image.open(self.images_path + "signup_button.png")
+        self.signup_button_source_image = Image.open(FileStorage.get_image(Resources.SIGN_UP_BUTTON))
         self.signup_button_image = ImageTk.PhotoImage(self.signup_button_source_image)
         self.signup_button = tk.Button(self.signup_elements_frame,
                                        bg="white",
@@ -379,7 +424,7 @@ class GUI:
         self.password_field.bind('<Return>', self.enter_login)
         self.password_field.grid(row=3, column=0)
         # login button
-        self.login_button_source_image = Image.open(self.images_path + "login_button.png")
+        self.login_button_source_image = Image.open(FileStorage.get_image(Resources.LOGIN_BUTTON))
         self.login_button_image = ImageTk.PhotoImage(self.login_button_source_image)
         self.login_button = tk.Button(self.login_elements_frame,
                                       borderwidth=0,
@@ -435,7 +480,7 @@ class GUI:
                 # TODO: validate email with regex
                 # now that we're validated, move to backend signup
                 self.signup_button.configure(state=tc.DISABLED)
-                new_user = Backend.create_account(
+                new_user = Backend.create_new_account(
                     User(username=self.signup_username_entry.get(),
                          email=self.signup_email_entry.get(),
                          full_name=self.signup_full_name_entry.get(),
@@ -471,7 +516,7 @@ class GUI:
         AutoUpdater.run()
 
     def create_logo(self):
-        self.logo = ImageTk.PhotoImage(Image.open(self.images_path + "pano.png"))
+        self.logo = ImageTk.PhotoImage(Image.open(FileStorage.get_image(Resources.PANORAMIC_LOGO)))
         # get logo embedded at bottom right corner
         logo_label = tk.Label(self.root, image=self.logo, highlightthickness=0, borderwidth=0, cursor="hand2",
                               anchor=tc.E)
@@ -501,7 +546,7 @@ class GUI:
         self.account_menu.add_command(label="Sign Out", command=lambda: self.sign_out())
 
     def create_entry_grid(self):
-        # build entry grid frame (grid layout for text entry components and search button)
+        # build entry grid frame (grid layout for text entry components and searches button)
         self.entry_grid_frame = tk.Frame(self.search_screen, bg="white")
         self.entry_grid_frame.place(in_=self.search_screen, anchor="c", relx=.50, rely=.45)
 
@@ -540,7 +585,7 @@ class GUI:
 
     def add_search_button(self, grid_target, row_placement):
         self.search_button_greyscale_image = ImageTk.PhotoImage(
-            Image.open(self.images_path + "search_button_greyscale.png"))
+            Image.open(FileStorage.get_image(Resources.SEARCH_BUTTON_GREYSCALE)))
         self.search_button = tk.Button(grid_target,
                                        text="Search",
                                        image=self.search_button_greyscale_image,
@@ -550,7 +595,7 @@ class GUI:
         self.search_button.grid(row=row_placement, column=0, columnspan=2, pady=10)
 
     def add_county_dropdown(self, grid_target, row_placement):
-        self.arrow_image = ImageTk.PhotoImage(Image.open(self.images_path + "down_arrow.png"))
+        self.arrow_image = ImageTk.PhotoImage(Image.open(FileStorage.get_image(Resources.DOWN_ARROW)))
         self.county_dropdown_label = tk.Label(grid_target, bg="white", text="County to Search", font=("Constantia", 12))
         self.county_dropdown_label.grid(row=row_placement, column=0, sticky=tc.E)
         counties = self.user.keychain.get_connected_items()

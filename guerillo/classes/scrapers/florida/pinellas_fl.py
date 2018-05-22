@@ -4,14 +4,13 @@ Created on Sun Apr 22 21:14:10 2018
 
 @author: Panoramic, Co.
 """
-import os
 from datetime import datetime
 
 import bs4
 from selenium.webdriver.common.keys import Keys
 
 from guerillo.classes.backend_objects.county import County
-from guerillo.classes.backend_objects.homeowner import Homeowner
+from guerillo.classes.backend_objects.result_items.homeowner import Homeowner
 from guerillo.classes.scrapers.scraper import Scraper
 from guerillo.config import URLs, General, HTML, Folders, KeyFiles
 from guerillo.utils.driver_utils.actions.action import Operation, ActionType
@@ -29,7 +28,7 @@ from guerillo.utils.file_storage import FileStorage
 from guerillo.utils.sanitizer import Sanitizer
 
 
-class Pinellas(Scraper):
+class PinellasFL(Scraper):
     county = County(state_name="FL", county_name="Pinellas County")
 
     def search_by_bookpage(self, bookpage):
@@ -120,26 +119,15 @@ class Pinellas(Scraper):
         data_lists = FileStorage.read(file_name, county_filter=self.county.county_name)
         deeds = list()
         mortgages = list()
-        for item in data_lists:
-            if item[0] != "" and item[1] != "" and item[6] != "":
-                if item[3] == General.DEED:
-                    deeds.append(item)
-                elif item[3] == General.MORTGAGE:
-                    mortgages.append(item)
-        return deeds, mortgages
-
-    def pull_address_by_bookpage(self):
-        for (i, homeowner) in enumerate(self.search_result.homeowners):
-            self.status_label.configure(
-                text="Handling item " + str(i + 1) + " of " + str(len(self.search_result.homeowners)))
-
-            self.search_by_bookpage(homeowner.bookpage)
-            # Get the link (hardcoded because always one result)
-            addresses = self.driver_utils.driver.find_element_by_id(General.PCPAO.ITB).find_elements_by_tag_name(HTML.A)
-            if len(addresses) != 0:
-                address = self.get_site_address(
-                    addresses[1].get_attribute(HTML.HREF).replace("general", General.PCPAO.TAX_EST))
-                homeowner.address = address
+        if data_lists:
+            for item in data_lists:
+                if item[0] != "" and item[1] != "" and item[6] != "":
+                    if item[3] == General.DEED:
+                        deeds.append(item)
+                    elif item[3] == General.MORTGAGE:
+                        mortgages.append(item)
+            return deeds, mortgages
+        raise FileNotFoundError
 
     def create_bookpage_list(self, deeds_list, mortgages_list):
         #  Check Mortgages for Leads
@@ -150,20 +138,64 @@ class Pinellas(Scraper):
                 for deed in deeds_list:
                     if mortgage[0] == deed[1]:  # Check Mortgage Entry Name to find Deed Item
                         homeowners.append(Homeowner(mortgage_item=mortgage, deed_item=deed))
+                        if self.search_result.is_resumed() and len(homeowners) <= self.search_result.num_results:
+                            continue
+                        self.search_result.increase_max_num_results()
 
-        self.search_result.homeowners = homeowners
+        self.search_result.results_copy = homeowners
 
-    def create_report_list(self, file_name):
-        deeds_and_mortgages = self.create_deeds_and_mortgages_list(file_name)
+    def create_report_list(self):
+        if not self.search_result.is_done_numbering_results():
+            self.scrape_number_of_results()
+        if not self.search_result.is_done_searching_by_bookpage():
+            self.scrape_by_bookpage()
+        if not self.search_result.is_done_searching_by_name():
+            self.scrape_by_name()
+        if not self.search_result.is_done_cleaning_entries():
+            self.search_result.clean()
+        # print(self.search_result.to_list())
+
+    def scrape_number_of_results(self):
+        if not self.search_result.is_resumed() and not self.search_result.is_done_numbering_results():
+            self.search_result.to_next_state()
+
+        self.accept_terms_and_conditions()
+        self.fill_search_query_fields()  # Data Ranges Entry
+        downloaded_file_name = self.download_csv_file()  # Download CSV file provided and rename it
+        deeds_and_mortgages = self.create_deeds_and_mortgages_list(downloaded_file_name)
         self.create_bookpage_list(deeds_and_mortgages[0], deeds_and_mortgages[1])
-        self.status_label.configure(text="Processing " + str(len(self.search_result.homeowners)) + " items")
-        self.pull_address_by_bookpage()
-        # Scrape for non-bookpage data
-        self.status_label.configure(text="Now processing " + str(len(self.search_result.homeowners)) + " items")
-        self.scrape_without_bookpage()  # 2nd list our check/trigger list, but
-        # report_list is the one that will have the address injected
-        self.search_result.clean()
-        print(self.search_result.to_list())
+
+    def scrape_by_bookpage(self):
+        if not self.search_result.is_resumed() and not self.search_result.is_done_searching_by_bookpage():
+            self.search_result.to_next_state()
+        for (i, homeowner) in enumerate(self.search_result.results_copy):
+            if self.search_result.is_resumed() and i + 1 <= self.search_result.num_results:
+                continue
+            self.search_by_bookpage(homeowner.bookpage)
+            # Get the link (hardcoded because always one result)
+            addresses = self.driver_utils.driver.find_element_by_id(General.PCPAO.ITB).find_elements_by_tag_name(HTML.A)
+            if len(addresses) != 0:
+                address = self.get_site_address(
+                    addresses[1].get_attribute(HTML.HREF).replace("general", General.PCPAO.TAX_EST))
+                homeowner.address = address
+
+                self.search_result.add(homeowner)
+
+    def scrape_by_name(self):
+        if not self.search_result.is_resumed() and not self.search_result.is_done_searching_by_name():
+            self.search_result.to_next_state()
+        for (i, homeowner) in enumerate(self.search_result.results_copy):
+            if self.search_result.is_resumed() and i + 1 <= self.search_result.num_results:
+                continue
+            if not homeowner.address:
+                if self.get_search_result_count_by_name(homeowner.counterparty_name) <= 50:
+                    if self.should_continue_search(homeowner.counterparty_name):
+                        match_with_line = self.find_subdivision_match(homeowner)
+                        if match_with_line[0]:
+                            url = URLs.PCPAO.HOME + match_with_line[1][1].replace("general", General.PCPAO.TAX_EST)
+                            homeowner.address = self.get_site_address(url)
+
+                            self.search_result.add(homeowner)
 
     def find_subdivision_match(self, homeowner):
         # Check for Results Again
@@ -184,9 +216,9 @@ class Pinellas(Scraper):
             match_count = 0  # Count number of word matches (order unimportant)
             # 2 or more matches should signify a hit
             subdivision_searchable = line[0].split(" ")  # line[0] = subdivision name
-            for word in homeowner.legal_description.split(" "):  # Input List w/ space delimited legal description.
-                for other_word in subdivision_searchable:
-                    if word == other_word:
+            for term in homeowner.legal_description.split(" "):  # Input List w/ space delimited legal description.
+                for compared_term in subdivision_searchable:
+                    if term == compared_term:
                         match_count += 1
                 if match_count >= 2:
                     break
@@ -194,18 +226,6 @@ class Pinellas(Scraper):
                 return True, line
 
         return False, None
-
-    def scrape_without_bookpage(self):
-        for (i, homeowner) in enumerate(self.search_result.homeowners):
-            if not homeowner.address:
-                self.status_label.configure(text="Taking a deeper look for item " + str(i + 1) + " of " + str(
-                    len(self.search_result.homeowners)))
-                if self.get_search_result_count_by_name(homeowner.counterparty_name) <= 50:
-                    if self.should_continue_search(homeowner.counterparty_name):
-                        match_with_line = self.find_subdivision_match(homeowner)
-                        if match_with_line[0]:
-                            url = URLs.PCPAO.HOME + match_with_line[1][1].replace("general", General.PCPAO.TAX_EST)
-                            homeowner.address = self.get_site_address(url)
 
     def rename_downloaded_csv_file(self, file_name):
         export_path = FileStorage.get_full_path(Folders.EXPORTS)
@@ -224,27 +244,10 @@ class Pinellas(Scraper):
         return renamed_downloaded_file_name
 
     def run(self):
-        # Should receive from UI
-        self.status_label.configure(text="Search starting")
-        # UI After Tapping Search Data Button
-        # store target URL as variable - this will be dynamic from user input (hills or pinellas)
-
-        self.accept_terms_and_conditions()  # Pinellas Starts Here
-        self.status_label.configure(text="Searching...")
-        self.fill_search_query_fields()  # Data Ranges Entry
-        downloaded_file_name = self.download_csv_file()  # Download CSV file provided and rename it
-
-        # Assign New Data (Deeds & Mortgages)
-        self.create_report_list(downloaded_file_name)
-        # Update Report Data
-
-        self.status_label.configure(
-            text="Successfully found " + str(len(self.search_result.homeowners)) + " results. Wrapping up.")
-        report_file_name = FileStorage.get_full_path(Folders.REPORTS) + datetime.now().strftime("%Y-%m-%d %H-%M.csv")
-        FileStorage.save_data_to_csv(report_file_name, self.search_result.to_list())
-
+        super().run()
+        self.create_report_list()  # Assign New Data (Deeds & Mortgages)
         self.driver_utils.quit()
-        os.startfile(report_file_name)
+        self.busy = False
 
     # ---Handy Legend---
     # [0] = Direct Name

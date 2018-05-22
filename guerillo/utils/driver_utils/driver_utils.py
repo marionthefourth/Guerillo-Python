@@ -17,7 +17,8 @@ class DriverUtils:
         preferences = {General.WebDriver.DEFAULT_DOWNLOAD_DIRECTORY: exports_path}
         chrome_options.add_experimental_option(General.PREFS, preferences)
         chrome_options.add_argument("window-position=-10000,0")
-        self.driver = webdriver.Chrome(FileStorage.get_webdriver(), chrome_options=chrome_options,service_args=["hide_console"])
+        self.driver = webdriver.Chrome(FileStorage.get_webdriver(), chrome_options=chrome_options,
+                                       service_args=["hide_console"])
 
     def quit(self):
         self.driver.quit()
