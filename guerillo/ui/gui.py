@@ -172,7 +172,7 @@ class GUI:
                                                   fg="red")
                 self.expand_window(300, 260)
                 return
-            self.login_status_label.configure(text="Login successful! Loading searches functions.", fg="green")
+            self.login_status_label.configure(text="Login successful! Loading search functions.", fg="green")
             self.expand_window(400, 400)
             self.add_county_dropdown(self.entry_grid_frame, 1)
             self.login_screen.grid_remove()
@@ -641,10 +641,11 @@ class GUI:
     def __init__(self):
         self.user = None
 
-        self.root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        self.root_path = os.path.abspath(os.path.join(os.path.join(os.path.dirname(__file__), ".."),".."))
         self.reports_path = self.root_path + "\\bin\\reports\\"
         self.images_path = self.root_path + "\\res\\img\\"
-
+        print(self.images_path)
+        print(self.reports_path)
         self.create_core_window()
         self.create_main_frame()
         self.create_search_screen()
