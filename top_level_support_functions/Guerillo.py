@@ -64,7 +64,9 @@ class VersionFinder:
     def find_newest_version_object(version_objects_list):
         newest_version = version_objects_list[0]
         for version in version_objects_list:
-            if version > newest_version:
+            if version < newest_version:
+                pass
+            else:
                 newest_version = version
         return newest_version
 
