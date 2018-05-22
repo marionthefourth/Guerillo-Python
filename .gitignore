@@ -186,3 +186,9 @@ top_level_support_functions/dist/StartGuerillo-1.0.0.win32.zip
 top_level_support_functions/dist/StartGuerillo-1.0.0.win32.zip
 >>>>>>> 6a5636d3d54968d26ca1bd62ffb383d064c978a4
 *.zip
+Guerillo.egg-info/PKG-INFO
+Guerillo.egg-info/SOURCES.txt
+venv/selenium/webdriver/firefox/amd64/x_ignore_nofocus.so
+venv/selenium/webdriver/remote/getAttribute.js
+venv/selenium/webdriver/firefox/x86/x_ignore_nofocus.so
+venv/selenium/webdriver/remote/isDisplayed.js
