@@ -9,10 +9,11 @@ class Result(Search):
     results_copy = None
     max_num_results = 0
     result_item_list = None
+    results_reference = None
     b_type = BackendType.RESULT
     result_item_uid_list = None
 
-    def __init__(self, uid=None, query=None, results=None,
+    def __init__(self, uid=None, query=None, results=None, results_reference=None,
                  pyres=None, pyre=None, twin_uid=None, user_uid=None, message_data=None):
         super().__init__(uid, user_uid, twin_uid)
 
@@ -21,6 +22,7 @@ class Result(Search):
             if self.result_item_list:
                 self.num_results = len(self.result_item_list)
             self.query = query
+            self.results_reference = results_reference
             if query:
                 self.twin_uid = query.uid
                 self.user_uid = query.user_uid
@@ -86,6 +88,7 @@ class Result(Search):
         if dictionary:
             self.num_results = dictionary.get("num_results", 0)
             self.max_num_results = dictionary.get("max_num_results", 0)
+            self.results_reference = dictionary.get("results_reference", None)
             self.result_item_uid_list = AuxiliaryObject.get_uid_list_from_dictionary(self, dictionary, v_index=1)
         return dictionary
 
@@ -94,6 +97,7 @@ class Result(Search):
             **super().to_dictionary(),
             "num_results": self.num_results,
             "max_num_results": self.max_num_results,
+            "results_reference": self.results_reference
         }
         if self.result_item_uid_list:
             return {

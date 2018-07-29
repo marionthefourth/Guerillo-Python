@@ -1,4 +1,5 @@
 """ Search for any instances of """
+
 import sched
 import time
 
@@ -7,7 +8,6 @@ from guerillo.classes.backend_objects.backend_object import BackendType
 from guerillo.classes.scrapers.scraper import Scraper
 from guerillo.config import Folders
 from guerillo.utils.file_storage import FileStorage
-
 
 class GuerilloServer:
     query_queue = list()
@@ -36,10 +36,27 @@ class GuerilloServer:
                 print("Searching for new queries.")
             # Check all current Queries for Requests to Complete
             for query_dict in message["data"]:
+                # Check for Queries that haven't been started yet
                 query_without_results = Backend.get_search_queries(query_dict, with_results=False, all=False)
+
                 if query_without_results:
                     query_queue = query_without_results
                     break
+                else:
+                    # Check for Queries that have been resumed
+                    from guerillo.classes.backend_objects.searches.search import SearchMode
+                    resume_query_with_results = Backend.get_search_queries(query_dict, with_results=True, all=False,
+                                                                           s_mode=SearchMode.RESUME)
+                    if resume_query_with_results:
+                        query_queue = resume_query_with_results
+                        break
+                    else:
+                        update_query_with_results = Backend.get_search_queries(query_dict, with_results=True, all=False,
+                                                                               s_mode=SearchMode.UPDATE)
+                        if update_query_with_results:
+                            query_queue = update_query_with_results
+                            break
+
         if query_queue and query_queue.start_time:
             print("New Query To Handle:")
             print(query_queue)

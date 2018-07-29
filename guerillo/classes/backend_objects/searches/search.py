@@ -51,9 +51,14 @@ class SearchMode(IntEnum):
     DONE = 600
     STOP = 500
     START = 100
+    STARTED = 150
     PAUSE = 200
+    PAUSED = 250
     RESUME = 300
+    RESUMED = 350
     UPDATE = 700
+    UPDATING = 733
+    UPDATED = 767
     DEFAULT = 800
 
     @staticmethod
@@ -62,9 +67,14 @@ class SearchMode(IntEnum):
             SearchMode.DONE,
             SearchMode.STOP,
             SearchMode.START,
+            SearchMode.STARTED,
             SearchMode.PAUSE,
+            SearchMode.PAUSED,
             SearchMode.RESUME,
+            SearchMode.RESUMED,
             SearchMode.UPDATE,
+            SearchMode.UPDATING,
+            SearchMode.UPDATED,
             SearchMode.DEFAULT
         ]
 
@@ -166,7 +176,7 @@ class Search(BackendObject):
 
     def stop(self):
         self.s_mode = SearchMode.STOP
-        # TODO - Add Stopped Time
+        # self.stopped_time = datetime.now()
         Backend.update(self)
 
     def is_paused(self):
@@ -174,23 +184,27 @@ class Search(BackendObject):
 
     def pause(self):
         self.s_mode = SearchMode.PAUSE
-        # TODO - Add Paused Time
+
+        # self.paused_time = datetime.now()
         Backend.update(self)
 
     def is_resumed(self):
-        return self.s_mode == SearchMode.RESUME
+        return self.s_mode == SearchMode.RESUMED
 
     def resume(self):
         self.s_mode = SearchMode.RESUME
-        # TODO - Add Resumed Time
         Backend.update(self)
 
     def is_updating(self):
-        return self.s_mode == SearchMode.UPDATE
+        return self.s_mode == SearchMode.UPDATING
 
     def update(self):
         self.s_mode = SearchMode.UPDATE
         Backend.update(self)
+
+    def transcend_state(self):
+        if self.s_mode == SearchMode.START:
+            return
 
     def to_next_state(self):
         if not self.is_paused() or not self.is_stopped():

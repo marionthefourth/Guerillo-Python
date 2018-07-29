@@ -194,7 +194,7 @@ class Backend:
             return search_results
 
     @staticmethod
-    def get_search_queries(uid=None, with_results=False, all=True):
+    def get_search_queries(uid=None, with_results=False, all=True, s_mode=None):
         search_queries = list()
         from guerillo.classes.backend_objects.backend_object import BackendType
         if all and not (uid and all):
@@ -202,20 +202,21 @@ class Backend:
             for search_query_obj in search_query_objects.each():
                 from guerillo.classes.backend_objects.searches.query import Query
                 search_query = Query(pyre=search_query_obj, uid='')
-                if all or uid and not with_results:
-                    if uid:
-                        if search_query.uid == uid:
-                            return search_query
-                    else:
-                        search_queries.append(search_query)
-                else:
-                    search_result = Backend.read(BackendType.RESULT, search_query.twin_uid, False)
-                    if search_result:
-                        if with_results:
+                if search_query.s_mode == s_mode or not s_mode:
+                    if all or uid and not with_results:
+                        if uid:
+                            if search_query.uid == uid:
+                                return search_query
+                        else:
                             search_queries.append(search_query)
                     else:
-                        if not with_results:
-                            search_queries.append(search_query)
+                        search_result = Backend.read(BackendType.RESULT, search_query.twin_uid, False)
+                        if search_result:
+                            if with_results:
+                                search_queries.append(search_query)
+                        else:
+                            if not with_results:
+                                search_queries.append(search_query)
 
             if uid:
                 return None

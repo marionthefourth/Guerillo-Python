@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from guerillo.backend.backend import Backend
 from guerillo.classes.backend_objects.auxiliary_object import AuxiliaryObject
 from guerillo.classes.backend_objects.backend_object import BackendType
 from guerillo.classes.backend_objects.searches.search import Search, SearchType
@@ -80,11 +81,20 @@ class Query(Search):
         except ValueError:
             return False, "End Date must be in the format MM/DD/YYYY"
 
-        for i, date in enumerate(self.end_date.split("/")):
-            if self.start_date.split("/")[i] > date:
-                return False, "Start Date must be on or before the End Date"
+        YEAR = 2
+        MONTH = 0
+        DAY = 1
 
-        return True, "All date bounds are valid"
+        if self.start_date.split("/")[YEAR] < self.end_date.split("/")[YEAR]:
+            return True, "All date bounds are valid"
+        elif self.start_date.split("/")[YEAR] == self.end_date.split("/")[YEAR]:
+            if self.start_date.split("/")[MONTH] < self.end_date.split("/")[MONTH]:
+                return True, "All date bounds are valid"
+            elif self.start_date.split("/")[MONTH] == self.end_date.split("/")[MONTH]:
+                if self.start_date.split("/")[DAY] <= self.end_date.split("/")[DAY]:
+                    return True, "All date bounds are valid"
+
+        return False, "Start Date must be on or before the End Date"
 
     def sanitize(self):
         self.lower_bound = Sanitizer.numeric_bound(self.lower_bound, full=False)
@@ -102,6 +112,26 @@ class Query(Search):
             return self.validate_date_bounds()
 
         return True, "All values are valid"
+
+    def pause(self):
+        super().pause()
+        search_result = Backend.read(BackendType.RESULT, self.twin_uid)
+        search_result.pause()
+
+    def resume(self):
+        super().resume()
+        search_result = Backend.read(BackendType.RESULT, self.twin_uid)
+        search_result.resume()
+
+    def stop(self):
+        super().stop()
+        search_result = Backend.read(BackendType.RESULT, self.twin_uid)
+        search_result.stop()
+
+    def update(self):
+        super().update()
+        search_result = Backend.read(BackendType.RESULT, self.twin_uid)
+        search_result.update()
 
     def is_valid(self):
         return self.validate()[0]

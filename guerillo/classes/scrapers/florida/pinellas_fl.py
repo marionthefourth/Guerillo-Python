@@ -147,21 +147,30 @@ class PinellasFL(Scraper):
     def create_report_list(self):
         if not self.search_result.is_done_numbering_results():
             self.scrape_number_of_results()
+        elif self.search_result.is_resumed():
+            self.recreate_bookpage_list()
+
         if not self.search_result.is_done_searching_by_bookpage():
             self.scrape_by_bookpage()
         if not self.search_result.is_done_searching_by_name():
             self.scrape_by_name()
         if not self.search_result.is_done_cleaning_entries():
             self.search_result.clean()
-        # print(self.search_result.to_list())
 
     def scrape_number_of_results(self):
         if not self.search_result.is_resumed() and not self.search_result.is_done_numbering_results():
             self.search_result.to_next_state()
 
-        self.accept_terms_and_conditions()
-        self.fill_search_query_fields()  # Data Ranges Entry
-        downloaded_file_name = self.download_csv_file()  # Download CSV file provided and rename it
+        if not self.search_result.results_reference:
+            self.accept_terms_and_conditions()
+            self.fill_search_query_fields()  # Data Ranges Entry
+            downloaded_file_name = self.download_csv_file()  # Download CSV file provided and rename it
+            self.search_result.results_reference = downloaded_file_name
+            from guerillo.backend.backend import Backend
+            Backend.update(self.search_result)
+        else:
+            downloaded_file_name = self.search_result.results_reference
+
         deeds_and_mortgages = self.create_deeds_and_mortgages_list(downloaded_file_name)
         self.create_bookpage_list(deeds_and_mortgages[0], deeds_and_mortgages[1])
 
@@ -242,6 +251,13 @@ class PinellasFL(Scraper):
 
         FileStorage.rename(file_name, renamed_downloaded_file_name)
         return renamed_downloaded_file_name
+
+    def recreate_bookpage_list(self):
+        if self.search_result.results_reference:
+            deeds_and_mortgages = self.create_deeds_and_mortgages_list(self.search_result.results_reference)
+            self.create_bookpage_list(deeds_and_mortgages[0], deeds_and_mortgages[1])
+        else:
+            self.scrape_number_of_results()
 
     def run(self):
         super().run()

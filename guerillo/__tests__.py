@@ -37,7 +37,6 @@ def access_tests():
     pinellas_county = Backend.get_counties(county_name="Pinellas County")
     marion_county = Backend.get_counties(county_name="Marion County")
     # Backend.get_counties(county_name="Pinellas County").register_to_user(test_user)
-
     print("Users that have access to " + orange_county.__str__() + ": ")
     print(orange_county.lock.get_connected_items())
     print("- - - - ")

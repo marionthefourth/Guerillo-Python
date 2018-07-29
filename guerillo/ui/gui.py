@@ -8,6 +8,7 @@ Table of Contents:
 
 """
 import os
+import signal
 import subprocess
 import tkinter as tk
 import tkinter.constants as tc
@@ -23,6 +24,7 @@ from guerillo.classes.backend_objects.searches.query import Query
 from guerillo.classes.backend_objects.searches.result import Result
 from guerillo.classes.backend_objects.searches.search import SearchState, SearchMode
 from guerillo.classes.backend_objects.user import User
+from guerillo.classes.exceptions.exceptions import TimeoutException
 from guerillo.config import Folders, Resources
 from guerillo.threads.search_thread import SearchThread
 from guerillo.threads.signup_thread import SignupThread
@@ -228,11 +230,13 @@ class GUI:
             if len(self.query.county_uid_list) > 0:
                 self.query.start()
 
+
+                #  signal.signal(signal.SIGALRM, TimeoutException.handle)
+
                 # Now begin watching after the SearchResult by the UID generated within the SearchQuery
                 self.result_stream = Backend.get().database() \
                     .child(Backend.get_type_folder(BackendType.RESULT)) \
                     .child(self.query.twin_uid).stream(self.result_stream_handler)
-
                 main_scraper = Scraper.get_county_scraper(
                     self.query,
                     FileStorage.get_full_path(Folders.EXPORTS),
@@ -245,8 +249,18 @@ class GUI:
             self.status.configure(text=self.query.invalid_message())
 
     def result_stream_handler(self, message):
-        if message["data"] and not self.query.is_done():
-            self.update_status_via_state(Result(message_data=message["data"]))
+        # signal.alarm(30)
+        try:
+            if message["data"] and not self.query.is_done():
+                self.update_status_via_state(Result(message_data=message["data"]))
+        except TimeoutException:
+            if not self.query.is_done():
+                self.query.pause()
+        """
+        else:
+            # signal.alarm(0)
+            continue
+        """
 
     def update_status_via_state(self, result):
         if result.s_state == SearchState.NUMBERING_RESULTS:
@@ -275,6 +289,8 @@ class GUI:
             self.status_label.configure(text="Search starting")
             self.status_label.configure(text="Searching...")
             # self.status_label.configure(text="Now processing " + str(len(self.search_result.results_copy)) + " items")
+        elif result.s_mode == SearchMode.PAUSE:
+            self.status_label.configure(text="Search paused due to issues. Please run it again.")
 
     def pull_spinner_data(self):
         return Sanitizer.county_name(self.variable.get()) + "FL"
